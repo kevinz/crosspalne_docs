@@ -1,6 +1,6 @@
 baseURL: "/"
 enableRobotsTXT: True
-languageCode: "zh-cn"
+languageCode: "en-us"
 title: "Crossplane"
 theme: "geekboot"
 enableGitInfo: true
@@ -83,4 +83,4 @@ params:
   anchors:
     min: 2
     max: 5
-  description: "Crossplane使你配置管理一切，以Kubernetes声明式API驱动方式"
+  description: "Crossplane lets you build a control plane with Kubernetes-style declarative and API-driven configuration and management for anything."
