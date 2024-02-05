@@ -10,7 +10,7 @@ sed -i 's/# writeStats: true/writeStats: true/g' config.yaml
 cat config.yaml
 
 if [ "$CONTEXT" = "production" ]; then
-hugo --minify --baseURL https://docs.crossplane.io/
+hugo --minify --baseURL https://crossplane.devops.gold/
 elif [ "$CONTEXT" = "branch-deploy" ]; then
 echo "Building branch deploy with URL $DEPLOY_PRIME_URL"
 hugo --minify --baseURL $DEPLOY_PRIME_URL
