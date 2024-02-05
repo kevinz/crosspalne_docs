@@ -55,6 +55,8 @@ venv/*
 resources/*
 resources/_gen/assets/*
 public/*
+content_bak/*
+content_transed/*
 hugo
 hugo-*
 .hugo_build.lock
