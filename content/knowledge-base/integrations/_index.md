@@ -1,7 +1,9 @@
 ---
-title: Integrations
+
+title: 集成
 weight: 20
-description: Integrate Crossplane with third-party software
+description: 将 crossplane 与第三方软件集成
+
 ---
 
-This section contains guides for using Crossplane alongside other technologies. 
+本节包含与其他技术一起使用 crossplane 的指南。

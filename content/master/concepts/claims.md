@@ -1,58 +1,39 @@
 ---
-title: Claims
+
+title: 索赔
 weight: 60
-description: "Claims are a way to consume Crossplane resources with namespace scoping"
+description: "Claims是一种通过名称空间范围来消费 Crossplane 资源的方式"
+
 ---
 
-Claims represents a set of managed resources as a single
-Kubernetes object, inside a namespace. 
+claims 将一组受管资源表示为一个命名空间内的单一 Kubernetes 对象。
 
-Users create claims when they access the
-custom API, defined in the CompositeResourceDefinition. 
+用户在访问 CompositeResourceDefinition 中定义的自定义 API 时会创建 claims。
 
 {{< hint "tip" >}}
 
-Claims are like [composite resources]({{<ref "./composite-resources">}}). The
-difference between Claims and composite resources is Crossplane can create 
-Claims in a namespace, while composite resources are cluster scoped.
-{{< /hint >}}
+claims 类似于 [composite resources]({{<ref "./composite-resources">}}Claims 和复合资源的区别在于，crossplane 可以在一个 namespace 中创建 Claims，而复合资源是集群作用域的。{{< /hint >}}
 
-{{<expand "Confused about Compositions, XRDs, XRs and Claims?" >}}
-Crossplane has four core components that users commonly mix up:
+{{<expand "Confused about Compositions, XRDs, XRs and Claims?" >}}crossplane 有四个核心组件，用户通常会把它们混为一谈: 
 
-* [Compositions]({{<ref "./compositions">}}) - A template to define how to create resources.
-* [Composite Resource Definition]({{<ref "./composite-resource-definitions">}})
-  (`XRD`) - A custom API specification. 
-* [Composite Resources]({{<ref "./composite-resources">}}) (`XR`) - Created by
-  using the custom API defined in a Composite Resource Definition. XRs use the
-  Composition template to create new managed resources. 
-* Claims (`XRC`) - This page. Like a Composite Resource, but
-  with namespace scoping. 
+* [Composition]({{<ref "./compositions">}}) - 用于定义如何创建资源的模板。
+* [Composition Resource Definition]({{<ref "./composite-resource-definitions">}}) (`XRD`) - 一种自定义 API 规范。
+* [复合资源]({{<ref "./composite-resources">}}) (`XR`) - 通过使用 Composition Resource Definition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
+* claims (`XRC`) - 本页面。与 Composition Resource 类似，但具有名称空间范围。
+
 {{</expand >}}
 
-## Creating a Claim
+## 创建索赔
 
-Creating a Claim requires a 
-[Composition]({{<ref "./compositions">}}) and a 
-[CompositeResourceDefinition]({{<ref "./composite-resource-definitions">}}) 
-(`XRD`) already installed.  
+创建索赔需要一个 [Composition]({{<ref "./compositions">}}) 和 [CompositeResourceDefinition]({{<ref "./composite-resource-definitions">}}) (`XRD`)已经安装。
 
-{{<hint "note" >}}
-The XRD must 
-[enable Claims]({{<ref "./composite-resource-definitions#enable-claims">}}).
-{{< /hint >}}
+{{<hint "note" >}}XRD 必须 [启用索赔]({{<ref "./composite-resource-definitions#enable-claims">}}).{{< /hint >}}
 
-The Composition defines the set of resources to create.  
-The XRD defines the custom API users call to request the set of resources.
+Composition 定义了要创建的资源集。 XRD 定义了用户为请求资源集而调用的自定义 API。
 
-![Diagram of the relationship of Crossplane components](/media/composition-how-it-works.svg)
+Crossplane组件关系图](/media/composition-how-it-works.svg)
 
-For example, 
-this {{<hover label="xrd1" line="2">}}CompositeResourceDefinition{{</hover>}}
-creates a composite resource API endpoint 
-{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover>}} and
-enables a Claim API endpoint 
-{{<hover label="xrd1" line="11">}}database.example.org{{</hover>}}
+例如，该 {{<hover label="xrd1" line="2">}}复合资源定义{{</hover>}}创建了一个 Composition 资源 API 端点{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover>}}并启用索赔 API 端点{{<hover label="xrd1" line="11">}}数据库.example.org{{</hover>}}
 
 ```yaml {label="xrd1",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -70,14 +51,9 @@ spec:
   # Removed for brevity
 ```
 
-The Claim uses the XRD's 
-{{<hover label="xrd1" line="11">}}kind{{</hover>}} API endpoint to request 
-resources.
+索赔被引用 XRD 的{{<hover label="xrd1" line="11">}}种类{{</hover>}}API 端点来请求资源。
 
-The Claim's {{<hover label="xrd1" line="1">}}apiVersion{{</hover>}} matches
-the XRD {{<hover label="xrd1" line="6">}}group{{</hover>}} and the 
-{{<hover label="claim1" line="2">}}kind{{</hover>}} matches the XRD
-{{<hover label="xrd1" line="11">}}claimNames.kind{{</hover>}}
+索赔的 {{<hover label="xrd1" line="1">}}版本{{</hover>}}与 XRD {{<hover label="xrd1" line="6">}}组{{</hover>}}和{{<hover label="claim1" line="2">}}类型{{</hover>}}与 XRD{{<hover label="xrd1" line="11">}}索赔名称种类{{</hover>}}
 
 ```yaml {label="claim1",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -88,14 +64,11 @@ spec:
   # Removed for brevity
 ```
 
-When a user creates a Claim in a namespace Crossplane also creates a composite
-resource.
+当用户在 namespace 中创建一个 Composition 时，crossplane 也会创建一个复合资源。
 
-Use {{<hover label="claimcomp" line="1">}}kubectl describe{{</hover>}} on the 
-Claim to view the related composite resource.
+被引用 {{<hover label="claimcomp" line="1">}}kubectl describe{{</hover>}}来查看相关 Composition 资源。
 
-The {{<hover label="claimcomp" line="6">}}Resource Ref{{</hover>}} is the
-composite resource Crossplane created for this Claim. 
+资源参考 {{<hover label="claimcomp" line="6">}}资源参考{{</hover>}}是为该索赔创建的 Composition 资源 crossplane。
 
 ```shell {label="claimcomp",copy-lines="1"}
 kubectl describe database.example.org/my-claimed-database
@@ -110,10 +83,7 @@ Spec:
 # Removed for brevity.
 ```
 
-Use {{<hover label="getcomp" line="1">}}kubectl describe{{</hover>}} on the
-composite resource to view the 
-{{<hover label="getcomp" line="6">}}Claim Ref{{</hover>}} linking the
-composite resource to the original Claim.
+被引用 {{<hover label="getcomp" line="1">}}kubectl describe{{</hover>}}在 Composition 资源上查看{{<hover label="getcomp" line="6">}}claims Ref{{</hover>}}将复合资源与原始 claims 链接起来。
 
 ```shell {label="getcomp",copy-lines="1"}
 kubectl describe xmydatabase.example.org/my-claimed-database-rr4ll
@@ -128,25 +98,17 @@ Spec:
     Namespace:    default
 ```
 
-{{<hint "note" >}}
-Crossplane supports directly creating composite resources. Claims allow
-namespace scoping and isolation for users consuming the custom APIs. 
+{{<hint "note" >}}Crossplane 支持直接创建复合资源。 Composition 允许为使用自定义 API 的用户提供名称空间范围和隔离。
 
-If you don't use namespaces in your Kubernetes deployment Claims aren't necessary.
-{{< /hint >}}
+如果您在 Kubernetes 部署中不使用 namespace，则不需要索赔。{{< /hint >}}
 
-### Claiming existing composite resources
+### 索赔现有 Composition 资源
 
-By default, creating a Claim creates a new composite resource. Claims can also
-link to existing composite resources. 
+默认情况下，创建一个 Composition 会创建一个新的复合资源。 Claims 也可以链接到现有的复合资源。
 
-A use case for claiming existing composite resources may be slow to provision
-resources. Composite resources can be pre-provisioned and a Claim can
-use those resources without waiting for their creation. 
+索赔现有复合资源的一个用例可能是资源调配缓慢。 复合资源可以预先调配，索赔可以使用这些资源，而无需等待创建。
 
-Set the Claim's {{<hover label="resourceref" line="6">}}resourceRef{{</hover>}}
-and match the pre-existing composite resource
-{{<hover label="resourceref" line="9">}}name{{</hover>}}.
+设置索赔的 {{<hover label="resourceref" line="6">}}资源{{</hover>}}并匹配预先存在的 Composition 资源{{<hover label="resourceref" line="9">}}名称{{</hover>}}.
 
 ```yaml {label="resourceref",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -160,40 +122,20 @@ spec:
     name: my-pre-created-xr
 ```
 
-If a Claim specifies a 
-{{<hover label="resourceref" line="6">}}resourceRef{{</hover>}} that doesn't
-exist, Crossplane doesn't create a composite resource. 
+如果一个 claims 指定了一个{{<hover label="resourceref" line="6">}}资源{{</hover>}}则 crossplane 不会创建复合资源。
 
-{{<hint "note" >}}
-All Claims have a 
-{{<hover label="resourceref" line="6">}}resourceRef{{</hover>}}. Manually
-defining the 
-{{<hover label="resourceref" line="6">}}resourceRef{{</hover>}}
-isn't required. Crossplane fills in the
-{{<hover label="resourceref" line="6">}}resourceRef{{</hover>}}
-with the information from the composite resource created for the Claim.
-{{< /hint >}}
+{{<hint "note" >}}所有 claims 都有一个{{<hover label="resourceref" line="6">}}资源编号。{{</hover>}}手动定义{{<hover label="resourceref" line="6">}}资源编号{{</hover>}}无需手动定义。{{<hover label="resourceref" line="6">}}资源{{</hover>}}的信息。{{< /hint >}}
 
-## Claim connection secrets
+## claim connection secrets
 
-If a Claim expects connection secrets the Claim must define a 
-{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}
-object. 
+如果索赔需要连接秘密，索赔必须定义一个{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象。
 
-The 
-{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}
-object defines the name of the Kubernetes secret object where Crossplane saves
-the connection details. 
+写入{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象定义了用于保存连接详细信息的 Kubernetes secret 对象的名称。
 
-{{<hint "note" >}}
-The Crossplane creates the secret object in the same namespace as the Claim.
-{{< /hint >}}
+{{<hint "note" >}}crossplane 会在与 claim 相同的 namespace 中创建 secret 对象。{{< /hint >}}
 
-For example, to a new secret object named
-{{<hover label="claimSec" line="7">}}my-claim-secret{{</hover>}} use 
-{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}} with
-the 
-{{<hover label="claimSec" line="7">}}name: my-claim-secret{{</hover>}}.
+例如，将一个名为{{<hover label="claimSec" line="7">}}my-claim-secret 的新秘密对象。{{</hover>}}被引用{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}的{{<hover label="claimSec" line="7">}}name: my-claim-secret{{</hover>}}.
+
 ```yaml {label="claimSec"}
 apiVersion: example.org/v1alpha1
 kind: database
@@ -204,4 +146,4 @@ spec:
     name: my-claim-secret
 ```
 
-For more information on connection secrets read the [Connection Secrets knowledge base article]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).

@@ -1,58 +1,45 @@
 ---
-title: Understanding Connection Details
+
+title: 了解连接细节
 weight: 11
-description: "How to create and manage connection details across Crossplane managed resources, composite resources, Compositions and Claims"
+description: "如何跨 crossplane 受管资源、复合资源、Composition 和 claims 创建和管理连接详情"
+
 ---
 
-Using connection details in Crossplane requires the following components:
-* Defining the `writeConnectionSecretToRef.name` in a [Claim]({{<ref "/master/concepts/claims#claim-connection-secrets">}}).
-* Defining the `writeConnectionSecretsToNamespace` value in the [Composition]({{<ref "/master/concepts/compositions#composite-resource-combined-secret">}}).
-* Define the `writeConnectionSecretToRef` name and namespace for each resource in the
-  [Composition]({{<ref "/master/concepts/compositions#composed-resource-secrets">}}).
-* Define the list of secret keys produced by each composed resource with `connectionDetails` in the
-  [Composition]({{<ref "/master/concepts/compositions#define-secret-keys">}}).
-* Optionally, define the `connectionSecretKeys` in a 
-  [CompositeResourceDefinition]({{<ref "/master/concepts/composite-resource-definitions#manage-connection-secrets">}}).
+在 crossplane 中引用连接详情需要以下组件: 
 
-{{<hint "note">}}
-This guide discusses creating Kubernetes secrets.  
-Crossplane also supports using external secret stores like [HashiCorp Vault](https://www.vaultproject.io/). 
+* 在[索赔]( ) 中定义`writeConnectionSecretToRef.name`。{{<ref "/master/concepts/claims#claim-connection-secrets">}}).
+* 在 [Composition]() 中定义 `writeConnectionSecretsToNamespace` 值。{{<ref "/master/concepts/compositions#composite-resource-combined-secret">}}).
+* 在 [Composition]( ) 中为每个资源定义 `writeConnectionSecretToRef` 名称和名称空间。{{<ref "/master/concepts/compositions#composed-resource-secrets">}}).
+* 在 [Composition]( ) 中用 `connectionDetails` 定义每个组成资源产生的秘密密钥列表。{{<ref "/master/concepts/compositions#define-secret-keys">}}).
+* 可选择在 [CompositeResourceDefinition]( ) 中定义 `connectionSecretKeys` 。{{<ref "/master/concepts/composite-resource-definitions#manage-connection-secrets">}}).
 
-Read the [external secrets store guide]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) for more information on using Crossplane
-with an external secret store. 
-{{</hint >}}
+{{<hint "note">}}本指南讨论创建 Kubernetes 秘密。 crossplane 还支持使用外部秘密存储，如 [HashiCorp Vault](https://www.vaultproject.io/)。
 
-## Background
-When a [Provider]({{<ref "/master/concepts/providers">}}) creates a managed
-resource, the resource may generate resource-specific details. These details can include 
-usernames, passwords or connection details like an IP address.  
+请阅读[外部秘密存储指南]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) 以获取更多有关与外部秘密存储一起使用 crossplane 的信息。{{</hint >}}
 
-Crossplane refers to this information as the _connection details_ or 
-_connection secrets_.   
+## 背景
 
-The Provider
-defines what information to present as a _connection
-detail_ from a managed resource. 
+当 [Provider]({{<ref "/master/concepts/providers">}}) 创建托管资源时，该资源可能会生成特定于资源的详细信息。 这些详细信息可能包括用户名、密码或 IP 地址等连接详细信息。
+
+crossplane 将这些信息称为 _connection details_ 或 _connection secrets_。
+
+Provider 定义了要将哪些信息作为受管资源的_连接详情_来展示。
 
 <!-- vale gitlab.SentenceLength = NO -->
+
 <!-- wordy because of type names -->
-When a managed resource is part of a 
-[Composition]({{<ref "/master/concepts/compositions">}}), the Composition, 
-[Composite Resource Definition]({{<ref "/master/concepts/composite-resource-definitions">}}) 
-and optionally, the 
-[Claim]({{<ref "/master/concepts/claims">}}) define what details are visible
-and where they're stored. 
+
+当一个受管资源是一个 [Composition]({{<ref "/master/concepts/compositions">}})、[合成资源定义]({{<ref "/master/concepts/composite-resource-definitions">}})和可选的[索赔]({{<ref "/master/concepts/claims">}}) 定义了哪些细节是可见的以及存储在哪里。
+
 <!-- vale gitlab.SentenceLength = YES -->
 
-{{<hint "note">}}
-All the following examples use the same set of Compositions,
-CompositeResourceDefinitions and Claims.
+{{<hint "note">}}以下所有示例都被引用了同一组 Composition、CompositeResourceDefinitions 和 Claims。
 
-All examples rely on 
-[Upbound provider-aws-iam](https://marketplace.upbound.io/providers/upbound/provider-aws-iam/)
-to create resources.
+所有示例都依赖 [upbound provider-aws-iam](https://marketplace.upbound.io/providers/upbound/provider-aws-iam/) 来创建资源。
 
 {{<expand "Reference Composition" >}}
+
 ```yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
@@ -131,6 +118,7 @@ spec:
               string:
                 fmt: "%s-secret2"
 ```
+
 {{</expand >}}
 
 {{<expand "Reference CompositeResourceDefinition" >}}
@@ -168,9 +156,11 @@ spec:
           spec:
             type: object
 ```
+
 {{</ expand >}}
 
 {{<expand "Reference Claim" >}}
+
 ```yaml
 apiVersion: example.org/v1alpha1
 kind: SecretTest
@@ -181,38 +171,29 @@ spec:
   writeConnectionSecretToRef:
     name: my-access-key-secret
 ```
+
 {{</expand >}}
 {{</hint >}}
 
-## Connection secrets in a managed resource
+## 受管理资源中的连接秘密
 
 <!-- vale gitlab.Substitutions = NO -->
+
 <!-- vale gitlab.SentenceLength = NO -->
+
 <!-- under 25 words -->
-When a managed resource creates connection secrets, Crossplane can write the 
-secrets to a 
-[Kubernetes secret]({{<ref "/master/concepts/managed-resources#publish-secrets-to-kubernetes">}})
-or an 
-[external secret store]({{<ref "/master/concepts/managed-resources#publish-secrets-to-an-external-secrets-store">}}).
+
+当受管资源创建连接秘密时，Crossplane 可以将秘密写入 [Kubernetes secret]({{<ref "/master/concepts/managed-resources#publish-secrets-to-kubernetes">}})或[外部秘密存储]({{<ref "/master/concepts/managed-resources#publish-secrets-to-an-external-secrets-store">}}).
+
 <!-- vale gitlab.SentenceLength = YES -->
+
 <!-- vale gitlab.Substitutions = YES -->
 
-Creating an individual managed resource shows the connection secrets the
-resource creates. 
+创建单个托管资源会显示资源创建的连接 secrets。
 
-{{<hint "note" >}}
-Read the [managed resources]({{<ref "/master/concepts/managed-resources">}})
-documentation for more information on configuring resources and storing
-connection secrets for individual resources. 
-{{< /hint >}}
+{{<hint "note" >}}请阅读 [managed resources]({{<ref "/master/concepts/managed-resources">}}) 文档，了解更多关于配置资源和存储单个资源连接秘密的信息。{{< /hint >}}
 
-
-For example, create an
-{{<hover label="mr" line="2">}}AccessKey{{</hover>}} resource and save the
-connection secrets in a Kubernetes secret named 
-{{<hover label="mr" line="12">}}my-accesskey-secret{{</hover>}}
-in the 
-{{<hover label="mr" line="11">}}default{{</hover>}} namespace. 
+例如，创建一个{{<hover label="mr" line="2">}}访问密钥{{</hover>}}资源，并将连接秘密保存在名为{{<hover label="mr" line="12">}}my-accesskey-secret 的 Kubernetes secret 中。{{</hover>}}的{{<hover label="mr" line="11">}}默认{{</hover>}}namespace 中名为 my-accesskey-secret 的连接秘密中。
 
 ```yaml {label="mr"}
 apiVersion: iam.aws.upbound.io/v1beta1
@@ -229,13 +210,7 @@ spec:
         name: my-accesskey-secret
 ```
 
-View the Kubernetes secret to see the connection details from the managed
-resource.  
-This includes an 
-{{<hover label="mrSecret" line="11">}}attribute.secret{{</hover>}},
-{{<hover label="mrSecret" line="12">}}attribute.ses_smtp_password_v4{{</hover>}},
-{{<hover label="mrSecret" line="13">}}password{{</hover>}} and 
-{{<hover label="mrSecret" line="14">}}username{{</hover>}}
+查看 Kubernetes secret，查看托管资源的连接详情。 这包括一个{{<hover label="mrSecret" line="11">}}attribute.secret{{</hover>}},{{<hover label="mrSecret" line="12">}}attribute.ses_smtp_password_v4{{</hover>}},{{<hover label="mrSecret" line="13">}}密码{{</hover>}}和{{<hover label="mrSecret" line="14">}}用户名{{</hover>}}
 
 ```yaml {label="mrSecret",copy-lines="1"}
 kubectl describe secret my-accesskey-secret
@@ -254,30 +229,15 @@ password:                        40 bytes
 username:                        20 bytes
 ```
 
-Compositions and CompositeResourceDefinitions require the exact names of the
-secrets generated by a resource. 
+Composition 和 CompositeResourceDefinitions 要求提供由资源生成的秘密的确切名称。
 
-## Connection secrets in Compositions
+### Composition 中的连接秘密
 
-Resources in a Composition that create connection details still create a
-secret object containing their connection details.  
-Crossplane also generates
-another secret object for each composite resource, 
-containing the secrets from all the defined resources.
+Composition 中创建连接详情的资源仍会创建一个包含其连接详情的秘密对象。 Crossplane 还会为每个复合资源生成另一个秘密对象，其中包含所有已定义资源的秘密。
 
-For example, a Composition defines two 
-{{<hover label="comp1" line="9">}}AccessKey{{</hover>}}
-objects.  
-Each {{<hover label="comp1" line="9">}}AccessKey{{</hover>}} writes a
-connection secrets to the {{<hover label="comp1" line="15">}}name{{</hover>}}
-inside the {{<hover label="comp1" line="14">}}namespace{{</hover>}} defined by
-the resource 
-{{<hover label="comp1" line="13">}}writeConnectionSecretToRef{{</hover>}}.
+例如，一个 Composition 定义了两个{{<hover label="comp1" line="9">}}访问键{{</hover>}}对象。 {{<hover label="comp1" line="9">}}访问键{{</hover>}}都会将连接 secret 写入 {{<hover label="comp1" line="15">}}名称{{</hover>}}内的 {{<hover label="comp1" line="14">}}namespace{{</hover>}}资源定义的名称空间内的{{<hover label="comp1" line="13">}}writeConnectionSecretToRef{{</hover>}}.
 
-Crossplane also creates a secret object for the entire Composition 
-saved in the namespace defined by 
-{{<hover label="comp1" line="4">}}writeConnectionSecretsToNamespace{{</hover>}}
-with a Crossplane generated name. 
+crossplane 还会为整个 Composition 创建一个 secret 对象，保存在由以下命令定义的 namespace 中{{<hover label="comp1" line="4">}}writeConnectionSecretsToNamespace 所定义的命名空间中。{{</hover>}}定义的命名空间中保存的整个组合体的秘密对象，并使用一个由 crossplane 生成的名称。
 
 ```yaml {label="comp1",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -308,30 +268,21 @@ spec:
     # Removed for brevity
 ```
 
-After applying a Claim, view the Kubernetes secrets to see three secret objects
-created. 
+应用索赔后，查看 Kubernetes secrets，可以看到创建的三个 secret 对象。
 
-The secret 
-{{<hover label="compGetSec" line="3">}}key1-secret{{</hover>}} is from the resource 
-{{<hover label="comp1" line="6">}}key1{{</hover>}}, 
-{{<hover label="compGetSec" line="4">}}key2-secret{{</hover>}} is from the resource 
-{{<hover label="comp1" line="16">}}key2{{</hover>}}.
+秘密{{<hover label="compGetSec" line="3">}}key1-secret{{</hover>}}来自资源{{<hover label="comp1" line="6">}}资源{{</hover>}},{{<hover label="compGetSec" line="4">}}key2-secret{{</hover>}}来自资源{{<hover label="comp1" line="16">}}key2{{</hover>}}.
 
-Crossplane creates another secret in the namespace 
-{{<hover label="compGetSec" line="5">}}other-namespace{{</hover>}} with the
-secrets from resource in the Composition. 
-
+crossplane 在 namespace 中创建了另一个秘密{{<hover label="compGetSec" line="5">}}其他名称空间{{</hover>}}中的秘密。
 
 ```shell {label="compGetSec",copy-lines="1"}
 kubectl get secrets -A
-NAMESPACE           NAME                                   TYPE                                DATA   AGE
-docs                key1-secret                            connection.crossplane.io/v1alpha1   4      4s
-docs                key2-secret                            connection.crossplane.io/v1alpha1   4      4s
-other-namespace     70975471-c44f-4f6d-bde6-6bbdc9de1eb8   connection.crossplane.io/v1alpha1   0      6s
+NAMESPACE NAME TYPE DATA AGE
+docs key1-secret connection.crossplane.io/v1alpha1 4 4s
+docs key2-secret connection.crossplane.io/v1alpha1 4 4s
+other-namespace 70975471-c44f-4f6d-bde6-6bbdc9de1eb8 connection.crossplane.io/v1alpha1 0 6s
 ```
 
-Although Crossplane creates a secret object, by default, Crossplane doesn't add
-any data to the object. 
+虽然 Crossplane 创建了一个秘密对象，但默认情况下，Crossplane 不会向该对象添加任何数据。
 
 ```yaml {copy-lines="none"}
 kubectl describe secret 70975471-c44f-4f6d-bde6-6bbdc9de1eb8 -n other-namespace
@@ -344,20 +295,9 @@ Data
 ====
 ```
 
-The Composition must list the connection secrets to store for each resource.  
-Use the 
-{{<hover label="comp2" line="16">}}connectionDetails{{</hover>}} object under
-each resource and define the secret keys the resource creates.  
+Composition 必须列出要为每个资源存储的连接秘密。 使用被引用的{{<hover label="comp2" line="16">}}连接详情{{</hover>}}对象，定义资源创建的秘钥。
 
-
-{{<hint "warning">}}
-You can't change the 
-{{<hover label="comp2" line="16">}}connectionDetails{{</hover>}} 
-of a Composition.  
-You must delete and
-recreate the Composition to change the 
-{{<hover label="comp2" line="16">}}connectionDetails{{</hover>}}.  
-{{</hint >}}
+{{<hint "warning">}}您不能更改{{<hover label="comp2" line="16">}}连接详情{{</hover>}}您必须删除并重新创建 Composition 才能更改{{<hover label="comp2" line="16">}}连接细节{{</hover>}}.{{</hint >}}
 
 ```yaml {label="comp2",copy-lines="16-20"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -383,9 +323,7 @@ spec:
     # Removed for brevity
 ```
 
-After applying a Claim the composite resource secret object contains the list of
-keys listed in the
-{{<hover label="comp2" line="16">}}connectionDetails{{</hover>}}.
+应用 claims 后，复合资源 secret 对象中包含的密钥列表在{{<hover label="comp2" line="16">}}连接详情{{</hover>}}.
 
 ```shell {copy-lines="1"}
 kubectl describe secret -n other-namespace
@@ -402,16 +340,11 @@ attribute.ses_smtp_password_v4:  44 bytes
 password:                        40 bytes
 ```
 
-{{<hint "important">}}
-If a key isn't listed in the 
-{{<hover label="comp2" line="16">}}connectionDetails{{</hover>}}
-it isn't stored in the secret object.
-{{< /hint >}}
+{{<hint "important">}}如果某个键未列在{{<hover label="comp2" line="16">}}连接详情{{</hover>}}就不会存储在 secret 对象中。{{< /hint >}}
 
-### Managing conflicting secret keys 
-If resources produce conflicting keys, create a unique name with a connection
-details
-{{<hover label="comp3" line="25">}}name{{</hover>}}.
+### 管理相互冲突的秘钥
+
+如果资源产生了冲突的键，则应创建一个唯一的名称，并提供连接详情{{<hover label="comp3" line="25">}}名称{{</hover>}}.
 
 ```yaml {label="comp3",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -442,10 +375,7 @@ spec:
           fromConnectionSecretKey: username
 ```
 
-The secret object contains both keys, 
-{{<hover label="comp3Sec" line="9">}}username{{</hover>}}
-and
-{{<hover label="comp3Sec" line="10">}}key2-user{{</hover>}}
+secret 对象包含两个密钥、{{<hover label="comp3Sec" line="9">}}用户名{{</hover>}}和{{<hover label="comp3Sec" line="10">}}用户{{</hover>}}
 
 ```shell {label="comp3Sec",copy-lines="1"}
 kubectl describe secret -n other-namespace
@@ -461,33 +391,19 @@ key2-user:                       20 bytes
 # Removed for brevity.
 ```
 
-## Connection secrets in Composite Resource Definitions
+### Composite Resource Definitions 中的连接秘密
 
-The CompositeResourceDefinition (`XRD`), can restrict which secrets keys are 
-put in the combined secret and provided to a Claim. 
+CompositeResourceDefinition (`XRD`)可以限制哪些密钥会被放入组合密钥并提供给 Claim。
 
-By default an XRD writes all secret keys listed in the composed resource 
-`connectionDetails` to the combined secret object.
+默认情况下，XRD 会将组成资源 `connectionDetails` 中列出的所有秘密密钥写入组合秘密对象。
 
-Limit the keys passed to the combined secret object and Claims with a
-{{<hover label="xrd" line="4">}}connectionSecretKeys{{</hover>}} object.
+限制传递给组合秘密对象的密钥，并声称带有{{<hover label="xrd" line="4">}}连接秘钥{{</hover>}}对象的密钥。
 
-Inside the {{<hover label="xrd" line="4">}}connectionSecretKeys{{</hover>}} list
-the secret key names to create. Crossplane only adds the keys listed to the
-combined secret.
+在 {{<hover label="xrd" line="4">}}连接秘钥{{</hover>}}中列出了要创建的秘密密钥名称。 crossplane 只会将列出的密钥添加到组合秘密中。
 
-{{<hint "warning">}}
-You can't change the 
-{{<hover label="xrd" line="4">}}connectionSecretKeys{{</hover>}} of an XRD. 
-You must delete and
-recreate the XRD to change the 
-{{<hover label="xrd" line="4">}}connectionSecretKeys{{</hover>}}.
-{{</hint >}}
+{{<hint "warning">}}您不能更改{{<hover label="xrd" line="4">}}连接密钥{{</hover>}}您必须删除并重新创建 XRD 才能更改{{<hover label="xrd" line="4">}}连接秘钥{{</hover>}}.{{</hint >}}
 
-For example, an XRD may restrict the secrets to only the 
-{{<hover label="xrd" line="5">}}username{{</hover>}},
-{{<hover label="xrd" line="6">}}password{{</hover>}} and custom named
-{{<hover label="xrd" line="7">}}key2-user{{</hover>}} keys. 
+例如，XRD 可以将秘密限制为只有{{<hover label="xrd" line="5">}}用户名{{</hover>}},{{<hover label="xrd" line="6">}}密码{{</hover>}}和名为{{<hover label="xrd" line="7">}}key2-user{{</hover>}}键。
 
 ```yaml {label="xrd",copy-lines="4-12"}
 kind: CompositeResourceDefinition
@@ -499,8 +415,7 @@ spec:
     - key2-user
 ```
 
-The secret from an individual resource contains all the resources detailed in
-the Composition's `connectionDetails`. 
+单个资源的秘密包含 Composition 的 `connectionDetails` 中详细说明的所有资源。
 
 ```shell {label="xrdSec",copy-lines="1"}
 kubectl describe secret key1 -n docs
@@ -515,10 +430,7 @@ attribute.secret:                40 bytes
 attribute.ses_smtp_password_v4:  44 bytes
 ```
 
-The Claim's secret only contains the
-keys allowed by the XRD 
-{{<hover label="xrd" line="4">}}connectionSecretKeys{{</hover>}} 
-fields. 
+claims 的 secret 只包含 XRD 允许的密钥{{<hover label="xrd" line="4">}}连接秘钥{{</hover>}}字段允许的密钥。
 
 ```shell {label="xrdSec2",copy-lines="2"}
 kubectl describe secret my-access-key-secret
@@ -532,16 +444,12 @@ username:   20 bytes
 ```
 
 ## Secret objects
-Compositions create a secret object for each resource and an extra secret
-containing all the secrets from all resources. 
 
-Crossplane saves the resource secret objects in the location defined by the
-resource's 
-{{<hover label="comp4" line="11">}}writeConnectionSecretToRef{{</hover>}}.
+Composition 为每个资源创建一个秘密对象，并创建一个额外的秘密，其中包含所有资源的所有秘密。
 
-Crossplane saves the combined secret with a Crossplane generated name in the
-namespace defined in the Composition's 
-{{<hover label="comp4" line="4">}}writeConnectionSecretsToNamespace{{</hover>}}.
+crossplane 会将资源秘密对象保存在资源的{{<hover label="comp4" line="11">}}writeConnectionSecretToRef 所定义的位置。{{</hover>}}.
+
+Crossplane 会将组合秘密以 Crossplane 生成的名称保存在 Composition 的{{<hover label="comp4" line="4">}}writeConnectionSecretsToNamespace{{</hover>}}.
 
 ```yaml {label="comp4",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -572,9 +480,7 @@ spec:
           fromConnectionSecretKey: username
 ```
 
-If a Claim uses a secret, it's stored in the same namespace as the Claim with
-the name defined in the Claim's 
-{{<hover label="claim3" line="7">}}writeConnectionSecretToRef{{</hover>}}.
+如果索赔使用了秘密，则该秘密会存储在与索赔相同的 namespace 中，其名称在索赔的{{<hover label="claim3" line="7">}}writeConnectionSecretToRef 中定义的名称。{{</hover>}}.
 
 ```yaml {label="claim3",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -587,21 +493,18 @@ spec:
     name: my-access-key-secret
 ```
 
-After applying the Claim Crossplane creates the following secrets:
-* The Claim's secret, {{<hover label="allSec" line="3">}}my-access-key-secret{{</hover>}} 
-  in the Claim's {{<hover label="claim3" line="5">}}namespace{{</hover>}}.
-* The first resource's secret object, {{<hover label="allSec" line="4">}}key1{{</hover>}}.
-* The second resource's secret object, {{<hover label="allSec" line="5">}}key2{{</hover>}}.
-* The composite resource secret object in the 
-  {{<hover label="allSec" line="6">}}other-namespace{{</hover>}} defined by the
-  Composition's `writeConnectionSecretsToNamespace`.
-  
+在应用索赔后，Crossplane 会创建以下秘密: 
+
+* 声称的秘密 {{<hover label="allSec" line="3">}}My-access-key-secret{{</hover>}}  在 claims 的 {{<hover label="claim3" line="5">}}namespace{{</hover>}}.
+* 第一个资源的 secret 对象、 {{<hover label="allSec" line="4">}}key1{{</hover>}}.
+* 第二个资源的秘密对象、 {{<hover label="allSec" line="5">}}密钥 2{{</hover>}}.
+* 的 Composition 资源秘密对象。  {{<hover label="allSec" line="6">}}other-namespace{{</hover>}}由 Composition 的 `writeConnectionSecretsToNamespace` 定义。
 
 ```shell {label="allSec",copy-lines="none"}
- kubectl get secret -A
-NAMESPACE           NAME                                   TYPE                                DATA   AGE
-default             my-access-key-secret                   connection.crossplane.io/v1alpha1   8      29m
-docs                key1                                   connection.crossplane.io/v1alpha1   4      31m
-docs                key2                                   connection.crossplane.io/v1alpha1   4      31m
-other-namespace     b0dc71f8-2688-4ebc-818a-bbad6a2c4f9a   connection.crossplane.io/v1alpha1   8      31m
+kubectl get secret -A
+NAMESPACE NAME TYPE DATA AGE
+default my-access-key-secret connection.crossplane.io/v1alpha1 8 29m
+docs key1 connection.crossplane.io/v1alpha1 4 31m
+docs key2 connection.crossplane.io/v1alpha1 4 31m
+other-namespace b0dc71f8-2688-4ebc-818a-bbad6a2c4f9a connection.crossplane.io/v1alpha1 8 31m
 ```

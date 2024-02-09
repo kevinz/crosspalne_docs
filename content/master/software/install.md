@@ -1,66 +1,61 @@
 ---
-title: Install Crossplane
+
+title: 安装 crossplane
 weight: 100
+
 ---
 
-Crossplane installs into an existing Kubernetes cluster, creating the
-`Crossplane` pod, enabling the installation of Crossplane _Provider_ resources.
+Crossplane 安装到现有的 Kubernetes 集群中，创建 `Crossplane` pod，实现 Crossplane _Provider_ 资源的安装。
 
-{{< hint type="tip" >}}
-If you don't have a Kubernetes cluster create one locally with [Kind](https://kind.sigs.k8s.io/).
-{{< /hint >}}
+{{< hint type="tip" >}}如果没有 Kubernetes 集群，请使用 [Kind](https://kind.sigs.k8s.io/)在本地创建一个。{{< /hint >}}
 
-## Prerequisites
-* An actively [supported Kubernetes version](https://kubernetes.io/releases/patch-releases/#support-period)
-* [Helm](https://helm.sh/docs/intro/install/) version `v3.2.0` or later
+## 先决条件
 
-## Install Crossplane
+* 主动[支持的 Kubernetes 版本](https://kubernetes.io/releases/patch-releases/#support-period)
+* [Helm](https://helm.sh/docs/intro/install/)版本`v3.2.0`或更高版本
 
-Install Crossplane using the Crossplane published _Helm chart_. 
+## 安装 crossplane
 
-### Add the Crossplane Helm repository
+使用 Crossplane 出版的_Helm 图表_安装 Crossplane。
 
-Add the Crossplane repository with the `helm repo add` command.
+### 添加 crossplane helm 存储库
+
+使用 `helm repo add` 命令添加 crossplane 软件仓库。
 
 ```shell
 helm repo add crossplane-stable https://charts.crossplane.io/stable
 ```
 
-Update the
-local Helm chart cache with `helm repo update`.
+使用 `helm repo update` 更新本地 Helm 图表缓存。
+
 ```shell
 helm repo update
 ```
 
-### Install the Crossplane Helm chart
+### 安装 crossplane helm 图表
 
-Install the Crossplane Helm chart with `helm install`.
+使用 `helm install` 安装 crossplane 舵图。
 
-{{< hint "tip" >}}
-View the changes Crossplane makes to your cluster with the 
-`helm install --dry-run --debug` options. Helm shows what configurations it
-applies without making changes to the Kubernetes cluster.
-{{< /hint >}}
+{{< hint "tip" >}}使用 `helm install --dry-run --debug` 选项查看 Crossplane 对集群所做的更改。 Helm 会显示它在不对 Kubernetes 集群做更改的情况下应用了哪些配置。{{< /hint >}}
 
-Crossplane creates and installs into the `crossplane-system` namespace.
+crossplane 创建并安装到 `crossplane-system` 命名空间。
 
 ```shell
 helm install crossplane \
 --namespace crossplane-system \
---create-namespace crossplane-stable/crossplane 
+--create-namespace crossplane-stable/crossplane
 ```
 
-View the installed Crossplane pods with `kubectl get pods -n crossplane-system`.
+使用 `kubectl get pods -n crossplane-system` 查看已安装的 crossplane pod。
 
 ```shell {copy-lines="1"}
 kubectl get pods -n crossplane-system
-NAME                                       READY   STATUS    RESTARTS   AGE
-crossplane-6d67f8cd9d-g2gjw                1/1     Running   0          26m
-crossplane-rbac-manager-86d9b5cf9f-2vc4s   1/1     Running   0          26m
+NAME READY STATUS RESTARTS AGE
+crossplane-6d67f8cd9d-g2gjw 1/1 Running 0 26m
+crossplane-rbac-manager-86d9b5cf9f-2vc4s 1/1 Running 0 26m
 ```
 
-{{< hint "tip" >}}
-Install a specific version of Crossplane with the `--version <version>` option. For example, to install version `1.10.0`:
+{{< hint "tip" >}}使用"--版本<version>"选项安装特定版本的 crossplane。 例如，安装版本 "1.10.0": 
 
 ```shell
 helm install crossplane \
@@ -68,53 +63,53 @@ helm install crossplane \
 --create-namespace crossplane-stable/crossplane \
 --version 1.10.0
 ```
+
 {{< /hint >}}
 
+## 已安装的部署
 
-## Installed deployments
-Crossplane creates two Kubernetes _deployments_ in the `crossplane-system`
-namespace to deploy the Crossplane pods. 
+Crossplane 在 `crossplane-system` 名称空间中创建了两个 Kubernetes _deployments_，用于部署 Crossplane pod。
 
 ```shell {copy-lines="1"}
 kubectl get deployments -n crossplane-system
-NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-crossplane                1/1     1            1           8m13s
-crossplane-rbac-manager   1/1     1            1           8m13s
+NAME READY UP-TO-DATE AVAILABLE AGE
+crossplane 1/1 1 1 8m13s
+crossplane-rbac-manager 1/1 1 1 8m13s
 ```
 
-### Crossplane deployment
-The Crossplane deployment starts with the `crossplane-init container`. The
-`init` container installs the Crossplane _Custom Resource Definitions_ into the
-Kubernetes cluster. 
+### Crossplane 部署
 
-After the `init` container finishes, the `crossplane` pod manages two Kubernetes
-controllers. 
-* The _Package Manager controller_ installs the
-provider and configuration packages.
-* The _Composition controller_ installs and manages the
-Crossplane _Composite Resource Definitions_, _Compositions_ and _Claims_.
+Crossplane 部署从 "crossplane-init 容器 "开始，"init "容器会将 Crossplane_自定义资源定义_安装到 Kubernetes 集群中。
 
-### Crossplane RBAC manager deployment
-The `crossplane-rbac-manager` creates and manages Kubernetes _ClusterRoles_ for
-installed Crossplane _Provider_ and their _Custom Resource Definitions_.
+在`init`容器完成后，`crossplane` pod 会管理两个 Kubernetes 控制器。
 
-The 
-[Crossplane RBAC Manager design document](https://github.com/crossplane/crossplane/blob/master/design/design-doc-rbac-manager.md) 
-has more information on the installed _ClusterRoles_.
+* 软件包管理器控制器会安装
 
-## Installation options
+Provider 和配置包。
 
-### Customize the Crossplane Helm chart
-Crossplane supports customizations at install time by configuring the Helm
-chart.
+* 组件控制器安装并管理
 
-Apply customizations with the command line or with a Helm _values_ file. 
+crossplane _Composite Resource Definitions_、_Compositions_ 和_Claims_。
+
+### crossplane RBAC 管理器的部署
+
+crossplane-rbac-manager "会为已安装的 crossplane _Provider_ 及其 _Custom Resource Definitions_ 创建和管理 Kubernetes _ClusterRoles_。
+
+Crossplane RBAC 管理器设计文档](https://github.com/crossplane/crossplane/blob/master/design/design-doc-rbac-manager.md) 中有更多关于已安装的 _ClusterRoles_ 的信息。
+
+## 安装选项
+
+### 定制 crossplane 舵图
+
+Crossplane 支持在安装时通过配置 Helm 图表进行定制。
+
+通过命令行或 Helm _values_ 文件应用自定义功能。
 
 <!-- vale gitlab.Substitutions = NO -->
+
 <!-- allow lowercase yaml -->
-{{<expand "All Crossplane customization options" >}}
-{{< table "table table-hover table-striped table-sm">}}
-| Parameter | Description | Default |
+
+{{<expand "All Crossplane customization options" >}}{{< table "table table-hover table-striped table-sm">}}| Parameter | Description | Default |
 | --- | --- | --- |
 | `affinity` | Add `affinities` to the Crossplane pod deployment. | `{}` |
 | `args` | Add custom arguments to the Crossplane pod. | `[]` |
@@ -124,65 +119,15 @@ Apply customizations with the command line or with a Helm _values_ file.
 | `deploymentStrategy` | The deployment strategy for the Crossplane and RBAC Manager pods. | `"RollingUpdate"` |
 | `extraEnvVarsCrossplane` | Add custom environmental variables to the Crossplane pod deployment. Replaces any `.` in a variable name with `_`. For example, `SAMPLE.KEY=value1` becomes `SAMPLE_KEY=value1`. | `{}` |
 | `extraEnvVarsRBACManager` | Add custom environmental variables to the RBAC Manager pod deployment. Replaces any `.` in a variable name with `_`. For example, `SAMPLE.KEY=value1` becomes `SAMPLE_KEY=value1`. | `{}` |
-| `extraObjects` | To add arbitrary Kubernetes Objects during a Helm Install | `[]` |
-| `extraVolumeMountsCrossplane` | Add custom `volumeMounts` to the Crossplane pod. | `{}` |
-| `extraVolumesCrossplane` | Add custom `volumes` to the Crossplane pod. | `{}` |
-| `hostNetwork` | Enable `hostNetwork` for the Crossplane deployment. Caution: enabling `hostNetwork` grants the Crossplane Pod access to the host network namespace. | `false` |
-| `image.pullPolicy` | The image pull policy used for Crossplane and RBAC Manager pods. | `"IfNotPresent"` |
-| `image.repository` | Repository for the Crossplane pod image. | `"xpkg.upbound.io/crossplane/crossplane"` |
-| `image.tag` | The Crossplane image tag. Defaults to the value of `appVersion` in `Chart.yaml`. | `""` |
-| `imagePullSecrets` | The imagePullSecret names to add to the Crossplane ServiceAccount. | `{}` |
-| `leaderElection` | Enable [leader election](https://docs.crossplane.io/latest/concepts/pods/#leader-election) for the Crossplane pod. | `true` |
-| `metrics.enabled` | Enable Prometheus path, port and scrape annotations and expose port 8080 for both the Crossplane and RBAC Manager pods. | `false` |
-| `nodeSelector` | Add `nodeSelectors` to the Crossplane pod deployment. | `{}` |
-| `packageCache.configMap` | The name of a ConfigMap to use as the package cache. Disables the default package cache `emptyDir` Volume. | `""` |
-| `packageCache.medium` | Set to `Memory` to hold the package cache in a RAM backed file system. Useful for Crossplane development. | `""` |
-| `packageCache.pvc` | The name of a PersistentVolumeClaim to use as the package cache. Disables the default package cache `emptyDir` Volume. | `""` |
-| `packageCache.sizeLimit` | The size limit for the package cache. If medium is `Memory` the `sizeLimit` can't exceed Node memory. | `"20Mi"` |
-| `podSecurityContextCrossplane` | Add a custom `securityContext` to the Crossplane pod. | `{}` |
-| `podSecurityContextRBACManager` | Add a custom `securityContext` to the RBAC Manager pod. | `{}` |
-| `priorityClassName` | The PriorityClass name to apply to the Crossplane and RBAC Manager pods. | `""` |
-| `provider.packages` | A list of Provider packages to install. | `[]` |
-| `rbacManager.affinity` | Add `affinities` to the RBAC Manager pod deployment. | `{}` |
-| `rbacManager.args` | Add custom arguments to the RBAC Manager pod. | `[]` |
-| `rbacManager.deploy` | Deploy the RBAC Manager pod and its required roles. | `true` |
-| `rbacManager.leaderElection` | Enable [leader election](https://docs.crossplane.io/latest/concepts/pods/#leader-election) for the RBAC Manager pod. | `true` |
-| `rbacManager.nodeSelector` | Add `nodeSelectors` to the RBAC Manager pod deployment. | `{}` |
-| `rbacManager.replicas` | The number of RBAC Manager pod `replicas` to deploy. | `1` |
-| `rbacManager.skipAggregatedClusterRoles` | Don't install aggregated Crossplane ClusterRoles. | `false` |
-| `rbacManager.tolerations` | Add `tolerations` to the RBAC Manager pod deployment. | `[]` |
-| `registryCaBundleConfig.key` | The ConfigMap key containing a custom CA bundle to enable fetching packages from registries with unknown or untrusted certificates. | `""` |
-| `registryCaBundleConfig.name` | The ConfigMap name containing a custom CA bundle to enable fetching packages from registries with unknown or untrusted certificates. | `""` |
-| `replicas` | The number of Crossplane pod `replicas` to deploy. | `1` |
-| `resourcesCrossplane.limits.cpu` | CPU resource limits for the Crossplane pod. | `"100m"` |
-| `resourcesCrossplane.limits.memory` | Memory resource limits for the Crossplane pod. | `"512Mi"` |
-| `resourcesCrossplane.requests.cpu` | CPU resource requests for the Crossplane pod. | `"100m"` |
-| `resourcesCrossplane.requests.memory` | Memory resource requests for the Crossplane pod. | `"256Mi"` |
-| `resourcesRBACManager.limits.cpu` | CPU resource limits for the RBAC Manager pod. | `"100m"` |
-| `resourcesRBACManager.limits.memory` | Memory resource limits for the RBAC Manager pod. | `"512Mi"` |
-| `resourcesRBACManager.requests.cpu` | CPU resource requests for the RBAC Manager pod. | `"100m"` |
-| `resourcesRBACManager.requests.memory` | Memory resource requests for the RBAC Manager pod. | `"256Mi"` |
-| `securityContextCrossplane.allowPrivilegeEscalation` | Enable `allowPrivilegeEscalation` for the Crossplane pod. | `false` |
-| `securityContextCrossplane.readOnlyRootFilesystem` | Set the Crossplane pod root file system as read-only. | `true` |
-| `securityContextCrossplane.runAsGroup` | The group ID used by the Crossplane pod. | `65532` |
-| `securityContextCrossplane.runAsUser` | The user ID used by the Crossplane pod. | `65532` |
-| `securityContextRBACManager.allowPrivilegeEscalation` | Enable `allowPrivilegeEscalation` for the RBAC Manager pod. | `false` |
-| `securityContextRBACManager.readOnlyRootFilesystem` | Set the RBAC Manager pod root file system as read-only. | `true` |
-| `securityContextRBACManager.runAsGroup` | The group ID used by the RBAC Manager pod. | `65532` |
-| `securityContextRBACManager.runAsUser` | The user ID used by the RBAC Manager pod. | `65532` |
-| `serviceAccount.customAnnotations` | Add custom `annotations` to the Crossplane ServiceAccount. | `{}` |
-| `tolerations` | Add `tolerations` to the Crossplane pod deployment. | `[]` |
-| `webhooks.enabled` | Enable webhooks for Crossplane and installed Provider packages. | `true` |
-{{< /table >}}
-{{< /expand >}}
+| `extraObjects` | To ad{{< /table >}}{{< /expand >}}
+
 <!-- vale gitlab.Substitutions = YES -->
 
-#### Command line customization
+#### 命令行定制
 
-Apply custom settings at the command line with 
-`helm install crossplane --set <setting>=<value>`.
+使用 `helm install crossplane --set<setting>=<value>` 命令行应用自定义设置。
 
-For example, to change the image pull policy:
+例如，更改镜像拉动策略: 
 
 ```shell
 helm install crossplane \
@@ -192,9 +137,9 @@ crossplane-stable/crossplane \
 --set image.pullPolicy=Always
 ```
 
-Helm supports comma-separated arguments.
+Helm 支持以逗号分隔的参数。
 
-For example, to change the image pull policy and number of replicas:
+例如，更改镜像拉取策略和副本数量: 
 
 ```shell
 helm install crossplane \
@@ -204,16 +149,15 @@ crossplane-stable/crossplane \
 --set image.pullPolicy=Always,replicas=2
 ```
 
-#### Helm values file
+#### Helm Values 文件
 
-Apply custom settings in a Helm _values_ file with
-`helm install crossplane -f <filename>`.
+使用 `helm install crossplane -f<filename>` 应用 Helm _values_ 文件中的自定义设置。
 
-A YAML file defines the customized settings. 
+YAML 文件定义了自定义设置。
 
-For example, to change the image pull policy and number of replicas:
+例如，更改镜像拉取策略和副本数量: 
 
-Create a YAML with the customized settings.
+创建包含自定义设置的 YAML。
 
 ```yaml
 replicas: 2
@@ -222,7 +166,7 @@ image:
   pullPolicy: Always
 ```
 
-Apply the file with `helm install`:
+用 `helm install` 应用该文件: 
 
 ```shell
 helm install crossplane \
@@ -232,17 +176,11 @@ crossplane-stable/crossplane \
 -f settings.yaml
 ```
 
-#### Feature flags
+#### 功能标志
 
-Crossplane introduces new features behind feature flags. By default
-alpha features are off. Crossplane enables beta features by default. To enable a 
-feature flag, set the `args` value in the Helm chart. Available feature flags
-can be directly found by running `crossplane core start --help`, or by looking 
-at the table below.
+Crossplane 通过特性标志引入新特性。 默认情况下，alpha 特性是关闭的。 Crossplane 默认启用 beta 特性。 要启用特性标志，请在 helm chart 中设置 `args` 值。 可用的特性标志可以通过运行 `crossplane core start --help` 直接找到，也可以查看下表。
 
-{{< expand "Feature flags" >}}
-{{< table caption="Feature flags" >}}
-| Status | Flag | Description |
+{{< expand "Feature flags" >}}{{< table caption="Feature flags" >}}| Status | Flag | Description |
 | --- | --- | --- |
 | Beta | `--enable-composition-revisions` | Enable support for CompositionRevisions. |
 | Beta | `--enable-composition-webhook-schema-validation` | Enable Composition validation using schemas. |
@@ -250,75 +188,59 @@ at the table below.
 | Alpha | `--enable-environment-configs` | Enable support for EnvironmentConfigs. |
 | Alpha | `--enable-external-secret-stores` | Enable support for External Secret Stores. |
 | Alpha | `--enable-usages` | Enable support for Usages. |
-| Alpha | `--enable-realtime-compositions` | Enable support for real time compositions. |
-{{< /table >}}
-{{< /expand >}}
+| Alpha | `--enable-realtime-compositions` | Enable support for real time compositions. |{{< /table >}}{{< /expand >}}
 
-Set these flags either in the `values.yaml` file or at install time using the
-`--set` flag, for example: `--set
-args='{"--enable-composition-functions","--enable-composition-webhook-schema-validation"}'`.
+在 `values.yaml` 文件中或安装时使用 `--set` flag 设置这些 flag，例如:  `--set args='{"--enable-composition-functions","--enable-composition-webhook-schema-validation"}'`.
 
-### Install pre-release Crossplane versions
-Install a pre-release versions of Crossplane from the `master` Crossplane Helm channel.
+### 安装发布前的 crossplane 版本
 
-Versions in the `master` channel are under active development and may be unstable.
+从 "master "Crossplane Helm 频道安装预发布版本的 Crossplane。
 
-{{< hint "warning" >}}
-Don't use Crossplane `master` releases in production. Only use `stable` channel.  
-Only use `master` for testing and development.
-{{< /hint >}}
+master "频道中的版本正在开发中，可能不稳定。
 
+{{< hint "warning" >}}不要在生产中使用 crossplane `master` 发布。 只能使用 `stable` 通道。 只能将 `master` 用于测试和开发。{{< /hint >}}
 
-#### Add the Crossplane master Helm repository
+#### 添加 crossplane 主 Helm 资源库
 
-Add the Crossplane repository with the `helm repo add` command.
+使用 `helm repo add` 命令添加 crossplane 软件仓库。
 
 ```shell
 helm repo add crossplane-master https://charts.crossplane.io/master/
 ```
 
-Update the
-local Helm chart cache with `helm repo update`.
+使用 `helm repo update` 更新本地 Helm 图表缓存。
+
 ```shell
 helm repo update
 ```
 
-#### Install the Crossplane master Helm chart
+#### 安装 crossplane 主 helm 图表
 
-Install the Crossplane `master` Helm chart with `helm install`.
+用 `helm install` 安装 crossplane `master` 舵图。
 
-{{< hint "tip" >}}
-View the changes Crossplane makes to your cluster with the 
-`helm install --dry-run --debug` options. Helm shows what configurations it
-applies without making changes to the Kubernetes cluster.
-{{< /hint >}}
+{{< hint "tip" >}}使用 `helm install --dry-run --debug` 选项查看 Crossplane 对集群所做的更改。 Helm 会显示它在不对 Kubernetes 集群做更改的情况下应用了哪些配置。{{< /hint >}}
 
-Crossplane creates and installs into the `crossplane-system` namespace.
+crossplane 创建并安装到 `crossplane-system` 命名空间。
 
 ```shell
 helm install crossplane \
 --namespace crossplane-system \
 --create-namespace crossplane-master/crossplane \
---devel 
+--devel
 ```
 
-## Crossplane distributions
-Third-party vendors may maintain their own Crossplane distributions. Vendor
-supported distribution may have features or tooling that isn't in the
-Community Crossplane distribution. 
+## crossplane 分布情况
 
-The CNCF certified third-party distributions as 
-"[conformant](https://github.com/cncf/crossplane-conformance)" with the 
-Community Crossplane distribution.
+第三方供应商可能会维护自己的 crossplane 发行版。 供应商支持的发行版可能具有社区 Crossplane 发行版中没有的功能或工具。
 
-### Vendors
-Below are vendors providing conformant Crossplane distributions. 
+CNCF 认证第三方发行版为"[符合](https://github.com/cncf/crossplane-conformance) "Community Crossplane 发行版。
+
+###供应商
+
+以下是提供符合要求的 crossplane 发行版的供应商。
 
 #### Upbound
-Upbound, the founders of Crossplane, maintains a free and open source 
-distribution of Crossplane called 
-[Universal Crossplane](https://www.upbound.io/products/universal-crossplane)
-(`UXP`). 
 
-Find information on UXP in the 
-[Upbound UXP documentation](https://docs.upbound.io/uxp/install/).
+Upbound是crossplane的创始人，它维护着一个名为[Universal Crossplane](https://www.upbound.io/products/universal-crossplane)（`UXP`）的免费开源crossplane发行版。
+
+在 [upbound UXP 文档](https://docs.upbound.io/uxp/install/) 中查找有关 UXP 的信息。

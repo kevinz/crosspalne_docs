@@ -1,16 +1,21 @@
 ---
-title: Getting Started
+
+title: 入门
 weight: 4
-description: An introduction to Crossplane and Crossplane quickstart guides.
+说明: 介绍 Crossplane 和 Crossplane 快速入门指南。
+
 ---
 
 {{<img src="/media/banner.png" alt="Crossplane Popsicle Truck" size="large" >}}
 
-## Hands-On
-Want a hands-on example? Follow a Crossplane Quickstart for your cloud provider.
-* [AWS quickstart]({{<ref "provider-aws" >}})
-* [Azure quickstart]({{<ref "provider-azure" >}})
-* [GCP quickstart]({{<ref "provider-gcp" >}})
+## 上手操作
 
-## Install
-Ready to get started? [Install Crossplane]({{<ref "../software/install" >}}) in a Kubernetes cluster.
+想了解实际操作示例吗？ 请关注云计算 Provider 的 crossplane 快速入门。
+
+* [AWS quickstart]({{<ref "provider-aws" >}})
+* [Azure 快速入门]({{<ref "provider-azure" >}})
+* [GCP 快速入门]({{<ref "provider-gcp" >}})
+
+## 安装
+
+准备好开始了吗？{{<ref "../software/install" >}}) 安装在 Kubernetes 集群中。

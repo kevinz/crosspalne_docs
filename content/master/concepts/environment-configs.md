@@ -1,47 +1,32 @@
 ---
-title: Environment Configurations
+
+title: 环境配置
 weight: 75
 state: alpha
 alphaVersion: "1.11"
-description: "Environment Configurations or EnvironmentConfigs are an in-memory datastore used in patching Compositions"
+description: "环境配置或 EnvironmentConfigs 是一个内存数据存储，在修补 Composition 时被引用"
+
 ---
 
 <!--
 TODO: Add Policies
 -->
 
+crossplane EnvironmentConfig 是一种类似于集群范围的 [ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/) 的资源，由 Composition 使用。Composition 可以使用环境来存储单个资源的信息或引用 [patches]({{<ref "patch-and-transform">}}).
 
-A Crossplane EnvironmentConfig is a cluster scoped 
-[ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/)-like 
-resource used
-by Compositions. Compositions can use the environment to store information from
-individual resources or to apply [patches]({{<ref "patch-and-transform">}}).
+crossplane 支持多个 EnvironmentConfigs，每个都是唯一的数据存储。
 
-Crossplane supports multiple EnvironmentConfigs, each acting as a unique
-data store. 
+Crossplane 创建复合资源时，会合并相关 Composition 中引用的所有 EnvironmentConfigs，并为该复合资源创建一个唯一的内存环境。
 
-When Crossplane creates a composite resource, Crossplane merges all the 
-EnvironmentConfigs referenced in the associated Composition and creates a unique
-in-memory environment for that composite resource.
+Composition 资源可以在其独特的内存环境中读写数据。
 
-The composite resource can read and write data to their unique 
-in-memory environment.
+{{<hint "important" >}}每个 Composition 资源的内存环境都是唯一的。 一个 Composite 资源无法读取另一个 Composite 资源环境中的数据。{{< /hint >}}
 
-{{<hint "important" >}}
-The in-memory environment is unique to each composite resource.  
-A composite resource can't read data in another composite resource's
-environment. 
-{{< /hint >}}
+## 启用环境配置
 
-## Enable EnvironmentConfigs
-EnvironmentConfigs are an alpha feature. Alpha features aren't enabled by
-default.
+EnvironmentConfigs 是一项 alpha 功能，默认情况下不会启用。
 
-Enable EnvironmentConfig support by 
-[changing the Crossplane pod setting]({{<ref "./pods#change-pod-settings">}})
-and enabling  
-{{<hover label="deployment" line="12">}}--enable-environment-configs{{</hover>}}
-argument.
+通过[更改 crossplane pod 设置]({{<ref "./pods#change-pod-settings">}}) 并启用{{<hover label="deployment" line="12">}}--参数{{</hover>}}参数。
 
 ```yaml {label="deployment",copy-lines="12"}
 $ kubectl edit deployment crossplane --namespace crossplane-system
@@ -60,25 +45,19 @@ spec:
 
 {{<hint "tip" >}}
 
-The [Crossplane install guide]({{<ref "../software/install#feature-flags">}}) 
-describes enabling feature flags like 
-{{<hover label="deployment" line="12">}}--enable-environment-configs{{</hover>}}
-with Helm.
-{{< /hint >}}
+crossplane 安装指南]({{<ref "../software/install#feature-flags">}}) 介绍了如何启用功能标志，如{{<hover label="deployment" line="12">}}--启用环境配置{{</hover>}}等功能标志。{{< /hint >}}
 
 <!-- vale Google.Headings = NO -->
-## Create an EnvironmentConfig
+
+## 创建环境配置
+
 <!-- vale Google.Headings = YES -->
 
-An {{<hover label="env1" line="2">}}EnvironmentConfig{{</hover>}} has a single
-object field,
-{{<hover label="env1" line="5">}}data{{</hover>}}.
+一个 {{<hover label="env1" line="2">}}环境配置{{</hover>}}有一个对象字段、{{<hover label="env1" line="5">}}数据{{</hover>}}.
 
-An EnvironmentConfig supports any data inside the 
-{{<hover label="env1" line="5">}}data{{</hover>}} field.
+环境配置支持{{<hover label="env1" line="5">}}数据{{</hover>}}字段内的任何数据。
 
-Here an example 
-{{<hover label="env1" line="2">}}EnvironmentConfig{{</hover>}}.
+下面是一个示例{{<hover label="env1" line="2">}}环境配置{{</hover>}}.
 
 ```yaml {label="env1"}
 apiVersion: apiextensions.crossplane.io/v1alpha1
@@ -97,29 +76,18 @@ data:
 ```
 
 <!-- vale Google.Headings = NO -->
-## Select an EnvironmentConfig
+
+## 选择环境配置
+
 <!-- vale Google.Headings = YES -->
 
-Select the EnvironmentConfigs to use
-inside a Composition's 
-{{<hover label="comp" line="6">}}environment{{</hover>}} field.
+选择要在 Composition 内部引用的 EnvironmentConfigs{{<hover label="comp" line="6">}}环境{{</hover>}}字段。
 
-The {{<hover label="comp" line="7">}}environmentConfigs{{</hover>}} field is a
-list of environments this Composition can use. 
+环境配置 {{<hover label="comp" line="7">}}environmentConfigs{{</hover>}}字段是该 Composition 可以引用的环境列表。
 
-Select an environment by 
-{{<hover label="comp" line="8">}}Reference{{</hover>}} or 
-by 
-{{<hover label="comp" line="11">}}Selector{{</hover>}}.
+通过以下方式选择环境{{<hover label="comp" line="8">}}参考{{</hover>}}或{{<hover label="comp" line="11">}}选择器{{</hover>}}.
 
-A 
-{{<hover label="comp" line="8">}}Reference{{</hover>}}
-selects an environment by 
-{{<hover label="comp" line="10">}}name{{</hover>}}.  
-The 
-{{<hover label="comp" line="11">}}Selector{{</hover>}} selects an environment
-based on the 
-{{<hover label="comp" line="13">}}Labels{{</hover>}} applied to the environment. 
+A{{<hover label="comp" line="8">}}参考{{</hover>}}通过{{<hover label="comp" line="10">}}名称来选择环境。{{</hover>}}的{{<hover label="comp" line="11">}}选择器{{</hover>}}根据{{<hover label="comp" line="13">}}标签{{</hover>}}应用于环境。
 
 ```yaml {label="comp",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -138,31 +106,17 @@ spec:
       # Removed for brevity
 ```
 
-If a Composition uses multiple 
-{{<hover label="comp" line="7">}}environmentConfigs{{</hover>}}
-Crossplane merges them together in the order they're listed. 
+如果一个 Composition 被引用多个{{<hover label="comp" line="7">}}环境配置{{</hover>}}crossplane 会按照列出的顺序将它们合并在一起。
 
-{{<hint "note" >}}
-If multiple 
-{{<hover label="comp" line="7">}}environmentConfigs{{</hover>}}
-use the same key, the Composition uses the value of the last environment listed.
-{{</hint >}}
+{{<hint "note" >}}如果多个{{<hover label="comp" line="7">}}environmentConfigs{{</hover>}}如果多个 environmentConfigs 使用相同的键，则 Composition 会引用最后列出的环境的值。{{</hint >}}
 
-### Select by name
+#### 按名称选择
 
-Select an environment by name with
-{{<hover label="byName" line="8">}}type: Reference{{</hover>}}. 
+通过名称选择环境{{<hover label="byName" line="8">}}类型:  参考{{</hover>}}.
 
-Define the
-{{<hover label="byName" line="9">}}ref{{</hover>}} object and the 
-{{<hover label="byName" line="10">}}name{{</hover>}} matching the exact name of
-the environment.
+定义{{<hover label="byName" line="9">}}对象和{{</hover>}}对象和{{<hover label="byName" line="10">}}名称{{</hover>}}与环境的确切名称相匹配。
 
-
-For example, select the 
-{{<hover label="byName" line="7">}}environmentConfig{{</hover>}}
-named
-{{<hover label="byName" line="10">}}example-environment{{</hover>}}
+例如，选择{{<hover label="byName" line="7">}}环境配置{{</hover>}}名为{{<hover label="byName" line="10">}}example-environment{{</hover>}}
 
 ```yaml {label="byName",copy-lines="all"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -177,31 +131,19 @@ spec:
         name: example-environment
 ```
 
-### Select by label
+### 按标签选择
 
-Select an environment by labels with a
-{{<hover label="byLabel" line="8">}}type: Selector{{</hover>}}.  
+通过带有{{<hover label="byLabel" line="8">}}类型: 选择器{{</hover>}}.
 
-Define the {{<hover label="byLabel" line="9">}}selector{{</hover>}} object.  
+定义 {{<hover label="byLabel" line="9">}}选择器{{</hover>}}对象。
 
-The
-{{<hover label="byLabel" line="10">}}matchLabels{{</hover>}} object contains a
-list of labels to match on. 
+匹配标签{{<hover label="byLabel" line="10">}}matchLabels{{</hover>}}对象包含一个要匹配的标签列表。
 
-Selecting a label requires matching both the label 
-{{<hover label="byLabel" line="11">}}key{{</hover>}} 
-and the value of key. 
+选择标签需要同时匹配标签{{<hover label="byLabel" line="11">}}键{{</hover>}}和 key 的值。
 
-When matching the label's value, provide an exact value with a 
-{{<hover label="byLabel" line="12">}}type: Value{{</hover>}} and provide the value
-to match in the 
-{{<hover label="byLabel" line="13">}}value{{</hover>}} field.
+匹配标签值时，请提供一个精确的值，并用{{<hover label="byLabel" line="12">}}类型: Values{{</hover>}}并在{{<hover label="byLabel" line="13">}}Values{{</hover>}}字段中提供要匹配的值。
 
-Crossplane can also match a label's value based on an input in the composite
-resource. Use 
-{{<hover label="byLabel" line="15">}}type: FromCompositeFieldPath{{</hover>}} 
-and provide the field to match in the 
-{{<hover label="byLabel" line="16">}}valueFromFieldPath{{</hover>}} field.
+crossplane 还可以根据 Composition 资源中的输入匹配标签值。 使用{{<hover label="byLabel" line="15">}}类型: FromCompositeFieldPath{{</hover>}}并在{{<hover label="byLabel" line="16">}}字段中提供要匹配的字段。{{</hover>}}字段中提供要匹配的字段。
 
 ```yaml {label="byLabel",copy-lines="all"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -224,28 +166,15 @@ spec:
   # Removed for brevity
 ```
 
-#### Manage selector results
+#### 管理选择器结果
 
-Selecting environments by labels may return more than one environment.  
-The Composition sorts all the results by the name of the environments and
-only uses the first environment in the sorted list. 
+按标签选择环境可能会返回多个环境。 Composition 会按环境名称对所有结果进行排序，并只引用排序列表中的第一个环境。
 
-Set the {{<hover label="selectResults" line="10">}}mode{{</hover>}} as 
-{{<hover label="selectResults" line="10">}}mode: Multiple{{</hover>}} to return
-all matched environments. Use 
-{{<hover label="selectResults" line="19">}}mode: Single{{</hover>}} to 
-return a single environment.
+设置 {{<hover label="selectResults" line="10">}}模式{{</hover>}}为{{<hover label="selectResults" line="10">}}模式: 多重{{</hover>}}以返回所有匹配的环境。 使用{{<hover label="selectResults" line="19">}}模式: 单{{</hover>}}返回单个环境。
 
-{{<hint "note" >}}
-Sorting and the selection 
-{{<hover label="selectResults" line="10">}}mode{{</hover>}}
-only applies to a single 
-{{<hover label="selectResults" line="8">}}type: Selector{{</hover>}}. 
+{{<hint "note" >}}排序和选择{{<hover label="selectResults" line="10">}}模式{{</hover>}}仅适用于单个{{<hover label="selectResults" line="8">}}类型: 选择器{{</hover>}}.
 
-This doesn't change how Compositions merge multiple
-{{<hover label="selectResults" line="7">}}environmentConfigs{{</hover>}}.
-{{< /hint >}}
-
+这不会改变 Composition 合并多个{{<hover label="selectResults" line="7">}}环境配置{{</hover>}}.{{< /hint >}}
 
 ```yaml {label="selectResults"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -277,20 +206,11 @@ spec:
             valueFromFieldPath: spec.parameters.deploy
 ```
 
-When using 
-{{<hover label="maxMatch" line="10">}}mode: Multiple{{</hover>}} limit the
-number of returned environments with
-{{<hover label="maxMatch" line="11">}}maxMatch{{</hover>}} and define the
-maximum number of environments returned. 
+被引用时{{<hover label="maxMatch" line="10">}}模式: 多重{{</hover>}}时，使用{{<hover label="maxMatch" line="11">}}maxMatch{{</hover>}}并定义返回环境的最大数量。
 
-Use `minMatch` and define the minimum 
-number of environments returned.
+使用 `minMatch` 并定义返回环境的最小数量。
 
-The Composition sorts the returned environments alphabetically by name. Sort the
-environments on a different field with 
-{{<hover label="maxMatch" line="12">}}sortByFieldPath{{</hover>}} and define
-the field to sort by. 
-
+Composition 按名称的字母顺序对返回的环境排序。 使用{{<hover label="maxMatch" line="12">}}sortByFieldPath{{</hover>}}并定义要排序的字段。
 
 ```yaml {label="maxMatch"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -314,20 +234,13 @@ spec:
             valueFromFieldPath: spec.parameters.deploy
 ```
 
-The environments selected by
-{{<hover label="maxMatch" line="18">}}matchLabels{{</hover>}} are then merged
-into any other environments listed in the 
-{{<hover label="maxMatch" line="7">}}environmentConfigs{{</hover>}}.
+选择的环境{{<hover label="maxMatch" line="18">}}匹配标签{{</hover>}}中列出的任何其他环境进行合并。{{<hover label="maxMatch" line="7">}}环境配置{{</hover>}}.
 
-#### Optional selector labels
-By default, Crossplane issues an error if a
-{{<hover label="byLabelOptional" line="16">}}valueFromFieldPath{{</hover>}}
-field doesn't exist in the composite resource.  
+#### 可选的选择器标签
 
-Add
-{{<hover label="byLabelOptional" line="17">}}fromFieldPathPolicy{{</hover>}}
-as {{<hover label="byLabelOptional" line="17">}}Optional{{</hover>}} 
-to ignore a field if it doesn't exist.
+默认情况下，如果一个{{<hover label="byLabelOptional" line="16">}}valueFromFieldPath{{</hover>}}字段不存在于 Composition 资源中时，Crossplane 会出错。
+
+添加{{<hover label="byLabelOptional" line="17">}}fromFieldPathPolicy{{</hover>}}作为 {{<hover label="byLabelOptional" line="17">}}可选{{</hover>}}以忽略不存在的字段。
 
 ```yaml {label="byLabelOptional",copy-lines="all"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -351,19 +264,9 @@ spec:
   # Removed for brevity
 ```
 
+为可选标签设置默认值，方法是设置默认值{{<hover label="byLabelOptionalDefault" line="15">}}Values{{</hover>}}的{{<hover label="byLabelOptionalDefault" line="14">}}键的默认值{{</hover>}}的默认值，然后定义{{<hover label="byLabelOptionalDefault" line="20">}}可选{{</hover>}}标签。
 
-Set a default value for an optional label by setting the default
-{{<hover label="byLabelOptionalDefault" line="15">}}value{{</hover>}} for the
-{{<hover label="byLabelOptionalDefault" line="14">}}key{{</hover>}} first, then
-define the
-{{<hover label="byLabelOptionalDefault" line="20">}}Optional{{</hover>}} label.
-
-For example, this Composition defines
-{{<hover label="byLabelOptionalDefault" line="16">}}value: my-default-value{{</hover>}}
-for the key {{<hover label="byLabelOptionalDefault" line="14">}}my-second-label-key{{</hover>}}.
-If the label
-{{<hover label="byLabelOptionalDefault" line="17">}}my-second-label-key{{</hover>}}
-exists, Crossplane uses the value from the label instead.
+例如，该 Composition 定义了{{<hover label="byLabelOptionalDefault" line="16">}}Values: my-default-value{{</hover>}}为键 {{<hover label="byLabelOptionalDefault" line="14">}}my-second-label-key 的值。{{</hover>}}如果标签{{<hover label="byLabelOptionalDefault" line="17">}}my-second-label-key{{</hover>}}存在，则 crossplane 会引用该标签的值。
 
 ```yaml {label="byLabelOptionalDefault",copy-lines="all"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -390,40 +293,25 @@ spec:
   # Removed for brevity
 ```
 
-{{<hint "warning" >}}
-Crossplane applies values in order. The value of the last key defined always takes precedence.
+{{<hint "warning" >}}crossplane 按顺序应用 Values 值，最后定义的键值总是优先。
 
-Defining the default value _after_ the label always overwrites the label
-value.
-{{< /hint >}}
+在标签之后定义默认值总是会覆盖标签值。{{< /hint >}}
 
-## Patching with EnvironmentConfigs
+## 使用 EnvironmentConfigs 进行修补
 
-When Crossplane creates or updates a composite resource, Crossplane 
-merges all the specified EnvironmentConfigs into an in-memory environment.
+当 crossplane 创建或更新复合资源时，Crossplane 会将所有指定的 EnvironmentConfigs 合并到内存环境中。
 
-The composite resource can read or write data between the EnvironmentConfig and
-composite resource or between the EnvironmentConfig and individual resources
-defined inside the composite resource. 
+复合资源可以在环境配置和复合资源之间或环境配置和复合资源内部定义的单个资源之间读写数据。
 
-{{<hint "tip" >}}
-Read about EnvironmentConfig patch types in the 
-[Patch and Transform]({{<ref "./patch-and-transform">}}) documentation.
-{{< /hint >}}
+{{<hint "tip" >}}在 [补丁和转换]({{<ref "./patch-and-transform">}}) 文档中有关环境配置补丁类型的信息。{{< /hint >}}
 
-<!-- these two sections are duplicated in the compositions doc with different header depths --> 
+<!-- these two sections are duplicated in the compositions doc with different header depths -->
 
-### Patch a composite resource
-To patch the composite resource use
-{{< hover label="xrpatch" line="7">}}patches{{</hover>}} inside of the 
-{{< hover label="xrpatch" line="5">}}environment{{</hover>}}.
+#### 修补一个 Composition 资源
 
-Use the 
-{{< hover label="xrpatch" line="5">}}ToCompositeFieldPath{{</hover>}} to copy
-data from the in-memory environment to the composite resource.  
-Use the 
-{{< hover label="xrpatch" line="5">}}FromCompositeFieldPath{{</hover>}} to copy
-data from the composite resource to the in-memory environment.
+要给 Composition 资源打补丁，请引用{{< hover label="xrpatch" line="7">}}补丁{{</hover>}}内的{{< hover label="xrpatch" line="5">}}环境{{</hover>}}.
+
+被引用{{< hover label="xrpatch" line="5">}}到复合字段路径{{</hover>}}将数据从内存环境复制到 Composition 资源。 使用{{< hover label="xrpatch" line="5">}}从复合字段路径{{</hover>}}将数据从 Composition 资源复制到内存环境。
 
 ```yaml {label="xrpatch",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -441,16 +329,11 @@ spec:
         toFieldPath: newEnvironmentKey
 ```
 
-Individual resources can use any data written to the in-memory environment.
+单个资源可以使用写入内存环境的任何数据。
 
-### Patch an individual resource
-To patch an individual resource, inside the 
-{{<hover label="envpatch" line="16">}}patches{{</hover>}} of the 
-resource, use 
-{{<hover label="envpatch" line="17">}}ToEnvironmentFieldPath{{</hover>}} to copy
-data from the resource to the in-memory environment.  
-Use {{<hover label="envpatch" line="20">}}FromEnvironmentFieldPath{{</hover>}}
-to copy data to the resource from the in-memory environment.
+#### 对个别资源进行修补
+
+要为单个资源打补丁，请在{{<hover label="envpatch" line="16">}}补丁{{</hover>}}内，使用{{<hover label="envpatch" line="17">}}环境字段路径{{</hover>}}将数据从资源复制到内存环境。 使用 {{<hover label="envpatch" line="20">}}从环境字段路径{{</hover>}}将数据从内存环境复制到资源。
 
 ```yaml {label="envpatch",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -477,7 +360,6 @@ spec:
           toFieldPath: spec.forProvider.tags
 ```
 
-The [Patch and Transform]({{<ref "./patch-and-transform">}}) documentation has
-more information on patching individual resources.
+补丁和转换]({{<ref "./patch-and-transform">}}) 文档中有更多关于修补单个资源的信息。
 
 <!-- End duplicated content -->

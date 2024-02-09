@@ -1,43 +1,34 @@
 ---
-title: Managed Resources
+
+title: 管理资源
 weight: 10
-description: "Managed resources are the Crossplane representation of external provider resources"
+description: "托管资源是外部 Provider 资源的 crossplane 表示"
+
 ---
 
-A _managed resource_ (`MR`) represents an external service in a Provider. When
-users create a new managed resource, the Provider reacts by creating an external 
-resource inside the Provider's environment. Every external service managed by 
-Crossplane maps to a managed resource. 
+受管资源（`MR`）代表 Provider 中的外部服务。 当用户创建一个新的受管资源时，Provider 会在 Provider 环境中创建一个外部资源来做出反应。 Crossplane 管理的每个外部服务都会映射到一个受管资源。
 
-{{< hint "note" >}}
-Crossplane calls the object inside Kubernetes a _managed resource_ and the
-external object inside the Provider an _external resource_.
-{{< /hint >}}
+{{< hint "note" >}}crossplane 将 Kubernetes 内部的对象称为_managed resource_，将 Provider 内部的外部对象称为_external resource_。{{< /hint >}}
 
-Examples of managed resources include:
-* Amazon AWS EC2 [`Instance`](https://marketplace.upbound.io/providers/upbound/provider-aws/latest/resources/ec2.aws.upbound.io/Instance/v1beta1)
-* Google Cloud GKE [`Cluster`](https://marketplace.upbound.io/providers/upbound/provider-gcp/latest/resources/container.gcp.upbound.io/Cluster/v1beta1)
-* Microsoft Azure PostgreSQL [`Database`](https://marketplace.upbound.io/providers/upbound/provider-azure/latest/resources/dbforpostgresql.azure.upbound.io/Database/v1beta1)
+管理资源的例子包括
+
+* Amazon AWS EC2 [`实例`](https://marketplace.upbound.io/providers/upbound/provider-aws/latest/resources/ec2.aws.upbound.io/Instance/v1beta1)
+* Google Cloud GKE [`集群`](https://marketplace.upbound.io/providers/upbound/provider-gcp/latest/resources/container.gcp.upbound.io/Cluster/v1beta1)
+* Microsoft Azure PostgreSQL [`数据库`](https://marketplace.upbound.io/providers/upbound/provider-azure/latest/resources/dbforpostgresql.azure.upbound.io/Database/v1beta1)
 
 {{< hint "tip" >}}
 
-You can create individual managed resources, but Crossplane recommends using
-[Compositions]({{<ref "./compositions" >}}) and Claims to create
-managed resources.
-{{< /hint >}}
+您可以创建单独的托管资源，但 crossplane 建议您使用 [Composition]({{<ref "./compositions" >}}) 和 claims 来创建托管资源。{{< /hint >}}
 
-## Managed resource fields
+## 受管资源字段
 
-The Provider defines the group, kind and version of a managed resource. The
-Provider also define the available settings of a managed resource.
+Provider 定义受管资源的组别、种类和版本。 Provider 还定义受管资源的可用设置。
 
-### Group, kind and version
-Each managed resource is a unique API endpoint with their own
-group, kind and version. 
+#### 组别、种类和版本
 
-For example the [Upbound AWS Provider](https://marketplace.upbound.io/providers/upbound/provider-aws/latest/)
-defines the {{<hover label="gkv" line="2">}}Instance{{</hover>}} kind from the
-group {{<hover label="gkv" line="1">}}ec2.aws.upbound.io{{</hover>}}
+每个托管资源都是一个独特的 API 组端点，有自己的组、种类和版本。
+
+例如，[Upbound AWS Provider](https://marketplace.upbound.io/providers/upbound/provider-aws/latest/)定义了 {{<hover label="gkv" line="2">}}实例{{</hover>}}类中的 {{<hover label="gkv" line="1">}}ec2.aws.upbound.io{{</hover>}}
 
 ```yaml {label="gkv",copy-lines="none"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -45,59 +36,47 @@ kind: Instance
 ```
 
 <!-- vale off -->
-### deletionPolicy
-<!-- vale on --> 
 
-A managed resource's `deletionPolicy` tells the Provider what to do after
-deleting the managed resource. If the `deletionPolicy` is `delete` the Provider
-deletes the external resource as well. If the `deletionPolicy` is `orphan` the
-Provider deletes the managed resource but doesn't delete the external resource.
+#### 删除政策
 
-#### Options
-* `deletionPolicy: Delete` - **Default** - Delete the external resource when deleting the managed resource.
-* `deletionPolicy: Orphan` - Leave the external resource when deleting the managed resource.
-
-#### Interaction with management policies
-
-The [management policy](#managementpolicies) takes precedence over the
-`deletionPolicy` when:
-<!-- vale write-good.Passive = NO -->
-- The related management policy alpha feature is enabled.
-<!-- vale write-good.Passive = YES -->
-- The resource configures a management policy other than the default value.
-
-See the table below for more details.
-
-{{< table "table table-sm table-hover">}}
-| managementPolicies          | deletionPolicy   | result  |
-|-----------------------------|------------------|---------|
-| "*" (default)               | Delete (default) | Delete  |
-| "*" (default)               | Orphan           | Orphan  |
-| contains "Delete"           | Delete (default) | Delete  |
-| contains "Delete"           | Orphan           | Delete  |
-| doesn't contain "Delete"   | Delete (default) | Orphan  |
-| doesn't contain "Delete"   | Orphan           | Orphan  |
-{{< /table >}}
-
-<!-- vale off -->
-### forProvider
 <!-- vale on -->
 
-The {{<hover label="forProvider" line="4">}}spec.forProvider{{</hover>}} of a 
-managed resource maps to the parameters of the external resource. 
+托管资源的 "删除策略 "会告诉 Provider 删除托管资源后要做什么。 如果 "删除策略 "是 "删除"，Provider 就会同时删除外部资源。 如果 "删除策略 "是 "orphan"，Provider 就会删除托管资源，但不会删除外部资源。
 
-For example, when creating an AWS EC2 instance, the Provider supports defining 
-the AWS {{<hover label="forProvider" line="5">}}region{{</hover>}} and the VM 
-size, called the 
-{{<hover label="forProvider" line="6">}}instanceType{{</hover>}}.
+#### 选项
 
-{{< hint "note" >}}
-The Provider defines the settings and their valid values. Providers also define
-required and optional values in the `forProvider` definition.
+* 删除策略: Delete` - **默认** - 删除托管资源时删除外部资源。
+* `deletionPolicy: Orphan` - 删除托管资源时保留外部资源。
 
-Refer to the documentation of your specific Provider for details. 
-{{< /hint >}}
+#### 与管理政策的互动
 
+在下列情况下，[管理策略](#managementpolicies) 优先于 "删除策略": 
+
+<!-- vale write-good.Passive = NO -->
+
+* 相关管理策略 alpha 功能已启用。
+
+<!-- vale write-good.Passive = YES -->
+
+* 该资源配置了默认值以外的管理策略。
+
+详见下表。
+
+{{< table "table table-sm table-hover">}}| managementPolicies | deletionPolicy | result | |-----------------------------|------------------|---------| | "_" (默认) | Delete (默认) | Delete | "_" (默认) | Orphan | Orphan | | 包含 "删除" | Delete (默认) | Delete | 包含 "删除" | Orphan | Delete | 不包含 "删除" | Delete (默认) | Orphan | 不包含 "删除" | Orphan | Orphan | 不包含 "删除" | Orphan | Orphan |{{< /table >}}
+
+<!-- vale off -->
+
+### 为提供者
+
+<!-- vale on -->
+
+规格 {{<hover label="forProvider" line="4">}}的{{</hover>}}会映射到外部资源的参数。
+
+例如，在创建 AWS EC2 实例时，Provider 支持定义 AWS {{<hover label="forProvider" line="5">}}区域{{</hover>}}和虚拟机大小，称为{{<hover label="forProvider" line="6">}}实例类型{{</hover>}}.
+
+{{< hint "note" >}}Provider 定义了设置及其有效值。 Provider 还在 `forProvider` 定义中定义了必填值和可选值。
+
+详情请参阅特定 Provider 的文档。{{< /hint >}}
 
 ```yaml {label="forProvider",copy-lines="none"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -109,38 +88,27 @@ spec:
     instanceType: t2.micro
 ```
 
-{{< hint "important">}}
-Crossplane considers the `forProvider` field of a managed resource 
-the "source of truth" for external resources. Crossplane overrides any changes 
-made to an external resource outside of Crossplane. If a user makes a change 
-inside a Provider's web console, Crossplane reverts that change back to what's
-configured in the `forProvider` setting. 
-{{< /hint >}}
+{{< hint "important">}}Crossplane 将托管资源的 "for Provider "字段视为外部资源的 "真实来源"。 Crossplane 会覆盖在 Crossplane 之外对外部资源所做的任何更改。 如果用户在 Provider 的网络控制台内进行更改，Crossplane 会将更改还原为 "for Provider "设置中的配置。{{< /hint >}}
 
-#### Referencing other resources
+#### 引用其他资源
 
-Some fields in a managed resource may depend on values from other managed
-resources. For example a VM may need the name of a virtual network to use. 
+受管资源中的某些字段可能依赖于其他受管资源中的 Values。 例如，虚拟机可能需要使用虚拟网络的名称。
 
-Managed resources can reference other managed resources by external name, name
-reference or selector. 
+托管资源可以通过外部名称、名称引用或选择器引用其他托管资源。
 
-##### Matching by external name
+##### 按外部名称匹配
 
-When matching a resource by name Crossplane looks for the name of the external
-resource in the Provider. 
+通过名称匹配资源时，crossplane 会在 Provider 中查找外部资源的名称。
 
-For example, a AWS VPC object named `my-test-vpc` has the external name
-`vpc-01353cfe93950a8ff`.
+例如，名为 "my-test-vpc "的 AWS VPC 对象的外部名称为 "vpc-01353cfe93950a8ff"。
 
 ```shell {copy-lines="1"
 kubectl get vpc
-NAME            READY   SYNCED   EXTERNAL-NAME           AGE
-my-test-vpc     True    True     vpc-01353cfe93950a8ff   49m
+NAME READY SYNCED EXTERNAL-NAME AGE
+my-test-vpc True True vpc-01353cfe93950a8ff 49m
 ```
 
-To match the VPC by name, use the external name. For example, creating a Subnet
-managed resource attached to this VPC.
+要按名称匹配 VPC，请引用外部名称。 例如，创建附加到此 VPC 的子网托管资源。
 
 ```yaml {copy-lines="none"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -149,24 +117,21 @@ spec:
   forProvider:
     # Removed for brevity
     vpcId: vpc-01353cfe93950a8ff
-```      
+```
 
-##### Matching by name reference
+##### 根据名称参考进行匹配
 
-To match a resource based on the name of the managed resource and not the
-external resource name inside the Provider, use a `nameRef`.
+要根据管理资源的名称而不是 Provider 内部的外部资源名称来匹配资源，请使用 `nameRef`。
 
-For example, a AWS VPC object named `my-test-vpc` has the external name
-`vpc-01353cfe93950a8ff`.
+例如，名为 "my-test-vpc "的 AWS VPC 对象的外部名称为 "vpc-01353cfe93950a8ff"。
 
 ```shell {copy-lines="1"}
 kubectl get vpc
-NAME            READY   SYNCED   EXTERNAL-NAME           AGE
-my-test-vpc     True    True     vpc-01353cfe93950a8ff   49m
+NAME READY SYNCED EXTERNAL-NAME AGE
+my-test-vpc True True vpc-01353cfe93950a8ff 49m
 ```
 
-To match the VPC by name reference, use the managed resource name. For example,
-creating a Subnet managed resource attached to this VPC.
+要通过名称引用匹配 VPC，请使用托管资源名称。 例如，创建附加到此 VPC 的子网托管资源。
 
 ```yaml {copy-lines="none"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -176,22 +141,17 @@ spec:
     # Removed for brevity
     vpcIdRef: 
       name: my-test-vpc
-```      
+```
 
+##### 按选择器匹配
 
-##### Matching by selector
-
-Matching by selector is the most flexible matching method. 
+通过选择器匹配是最灵活的匹配方法。
 
 {{<hint "note" >}}
 
-The [Compositions]({{<ref "./compositions">}}) section covers the 
-`matchControllerRef` selector.
-{{</hint >}}
+Composition]({{<ref "./compositions">}}) 部分涵盖了 `matchControllerRef` 选择器。{{</hint >}}
 
-Use `matchLabels` to match the labels applied to a resource. For example, this
-Subnet resource only matches VPC resources with the label 
-`my-label: label-value`.
+使用 "matchLabels "匹配被引用到资源的标签。 例如，此子网资源只匹配标签为 "my-label: label-value "的 VPC 资源。
 
 ```yaml {copy-lines="none"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -204,88 +164,57 @@ spec:
         my-label: label-value
 ```
 
+#### 不可变字段
 
-#### Immutable fields
+有些 Provider 不支持在创建后更改某些托管资源的字段。 例如，您不能更改 Amazon AWS `RDSInstance` 的 `region` 字段。 这些字段是_不可更改字段_。 Amazon 要求您删除并重新创建资源。
 
-Some providers don't support changing the fields of some managed resources after
-creation. For example, you can't change the `region` of an Amazon AWS
-`RDSInstance`. These fields are _immutable fields_. Amazon requires you delete 
-and recreate the resource.
-
-Crossplane allows you to edit the immutable field of a managed resource, but
-doesn't apply the change. Crossplane never deletes a resource based on a
-`forProvider` change. 
+Crossplane 允许你编辑托管资源的不可变字段，但不会应用更改。 Crossplane 绝不会根据 "forProvider "更改删除资源。
 
 {{<hint "note" >}}
+
 <!-- vale write-good.Passive = NO -->
-Crossplane behaves differently than other tools like Terraform. Terraform
-deletes and recreates a resource to change an immutable field. Crossplane only
-deletes an external resource if their corresponding managed 
-resource object is deleted from Kubernetes and the `deletionPolicy` is 
-`delete`.
+
+Crossplane 的行为与 Terraform 等其他工具不同。 Terraform 会删除并重新创建资源，以更改不可变字段。 Crossplane 只有在相应的托管资源对象从 Kubernetes 中删除且 "deletionPolicy "为 "delete "时，才会删除外部资源。
+
 <!-- vale write-good.Passive = YES -->
+
 {{< /hint >}}
 
-#### Late initialization
+#### 初始化延迟
 
-Crossplane treats the managed resource as the source of truth by default;
-it expects to have all values under `spec.forProvider` including the
-optional ones. If not provided, Crossplane populates the empty fields with
-the values assigned by the provider. For example, consider fields such as
-`region` and `availabilityZone`. You might specify only the region and let the
-cloud provider choose the availability zone. In this case, if the provider
-assigns an availability zone, Crossplane uses that value to populate the
-`spec.forProvider.availabilityZone` field.
+Crossplane 默认将托管资源视为真实值来源；它希望拥有 `spec.forProvider` 下的所有值，包括可选值。 如果未提供，Crossplane 将使用提供商分配的值填充空字段。 例如，考虑 `region` 和 `availabilityZone` 等字段。 您可以只指定区域，让云提供商选择可用性区域。 在这种情况下，如果提供商分配了可用性区域，Crossplane 将使用该值填充 `spec.forProviders.availabilityZone` 字段。
 
 {{<hint "note" >}}
+
 <!-- vale write-good.Passive = NO -->
-With [managementPolicies]({{<ref "./managed-resources#managementpolicies" >}}),
-this behavior can be turned off by not including the `LateInitialize` policy in
-the `managementPolicies` list.
+
+使用 [managementPolicies]({{<ref "./managed-resources#managementpolicies" >}})，可以通过在 "managementPolicies "列表中不包含 "LateInitialize "策略来关闭此行为。
+
 <!-- vale write-good.Passive = YES -->
+
 {{< /hint >}}
 
 <!-- vale off -->
+
 ### initProvider
+
 <!-- vale on -->
 
-{{<hint "important" >}}
-The managed resource `initProvider` option is a beta feature related to
-[managementPolicies]({{<ref "./managed-resources#managementpolicies" >}}).
+{{<hint "important" >}}托管资源 `initProvider` 选项是一个测试版功能，与 [managementPolicies]({{<ref "./managed-resources#managementpolicies" >}}).
 
 {{< /hint >}}
 
-The
-{{<hover label="initProvider" line="7">}}initProvider{{</hover>}} defines
-settings Crossplane applies only when creating a new managed resource.  
-Crossplane ignores settings defined in the
-{{<hover label="initProvider" line="7">}}initProvider{{</hover>}}
-field that change after creation.
+启动{{<hover label="initProvider" line="7">}}initProvider{{</hover>}}定义了 Crossplane 仅在创建新托管资源时应用的设置。 Crossplane 会忽略在{{<hover label="initProvider" line="7">}}中定义的设置。{{</hover>}}字段中定义的设置。
 
-{{<hint "note" >}}
-Settings in `forProvider` are always enforced by Crossplane. Crossplane reverts
-any changes to a `forProvider` field in the external resource.
+{{<hint "note" >}}Crossplane始终会强制执行 "forProvider "中的设置。 Crossplane会恢复对外部资源中 "forProvider "字段的任何更改。
 
-Settings in `initProvider` aren't enforced by Crossplane. Crossplane ignores any
-changes to a `initProvider` field in the external resource.
-{{</hint >}}
+Crossplane不会强制执行 "initProvider "中的设置。 Crossplane会忽略外部资源中 "initProvider "字段的任何更改。{{</hint >}}
 
-Using `initProvider` is useful for setting initial values that a Provider may
-automatically change, like an auto scaling group.
+在设置 Provider 可能自动更改的初始 Values（如自动缩放组）时，使用 `initProvider` 非常有用。
 
-For example, creating a
-{{<hover label="initProvider" line="2">}}NodeGroup{{</hover>}}
-with an initial
-{{<hover label="initProvider" line="9">}}desiredSize{{</hover>}}.  
-Crossplane doesn't change the
-{{<hover label="initProvider" line="9">}}desiredSize{{</hover>}}
-setting back when an autoscaler scales the Node Group external resource.
+例如，创建一个{{<hover label="initProvider" line="2">}}节点组{{</hover>}}的初始{{<hover label="initProvider" line="9">}}的节点组。{{</hover>}}的 NodeGroup 不会改变{{<hover label="initProvider" line="9">}}desiredSize{{</hover>}}设置。
 
-{{< hint "tip" >}}
-Crossplane recommends configuring
-{{<hover label="initProvider" line="6">}}managementPolicies{{</hover>}} without
-`LateInitialize` to avoid conflicts with `initProvider` settings.
-{{< /hint >}}
+{{< hint "tip" >}}crossplane 建议配置{{<hover label="initProvider" line="6">}}管理策略{{</hover>}}以避免与 `initProvider` 设置冲突。{{< /hint >}}
 
 ```yaml {label="initProvider",copy-lines="none"}
 apiVersion: eks.aws.upbound.io/v1beta1
@@ -305,30 +234,18 @@ spec:
 ```
 
 <!-- vale off -->
-### managementPolicies
-<!-- vale on --> 
 
-{{<hint "note" >}}
-The managed resource `managementPolicies` option is a beta feature. Crossplane enables
-beta features by default. 
+#### 管理政策
 
-The Provider determines support for management policies.  
-Refer to the Provider's documentation to see if the Provider supports
-management policies.
-{{< /hint >}}
+<!-- vale on -->
 
-Crossplane
-{{<hover label="managementPol1" line="4">}}managementPolicies{{</hover>}}
-determine which actions Crossplane can take on a
-managed resource and its corresponding external resource.  
-Apply one or more
-{{<hover label="managementPol1" line="4">}}managementPolicies{{</hover>}}
-to a managed resource to determine what permissions
-Crossplane has over the resource.
+{{<hint "note" >}}受管资源 "managementPolicies "选项是测试版功能。 Crossplane 默认启用测试版功能。
 
-For example, give Crossplane permission to create and delete an external resource,
-but not make any changes, set the policies to
-{{<hover label="managementPol1" line="4">}}["Create", "Delete", "Observe"]{{</hover>}}.
+请参阅 "提供方 "的文件，查看 "提供方 "是否支持管理政策。{{< /hint >}}
+
+crossplane{{<hover label="managementPol1" line="4">}}管理策略{{</hover>}}决定 Crossplane 可对受管资源及其相应的外部资源采取哪些行动。 应用一个或多个{{<hover label="managementPol1" line="4">}}管理策略{{</hover>}}来确定 Crossplane 对资源的权限。
+
+例如，要赋予 crossplane 创建和删除外部资源的权限，但不做任何更改，可将策略设置为{{<hover label="managementPol1" line="4">}}["创建"、"删除"、"观察"] .{{</hover>}}.
 
 ```yaml {label="managementPol1"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -339,63 +256,34 @@ spec:
     # Removed for brevity
 ```
 
-The default policy grants Crossplane full control over the resources.  
-Defining the `managementPolicies` field with an empty array [pauses](#paused)
-the resource.
+默认策略授予 crossplane 对资源的完全控制权。 使用空数组定义 `managementPolicies` 字段 [pauses]（#paused）资源。
 
-{{<hint "important" >}}
-The Provider determines support for management policies.  
-Refer to the Provider's documentation to see if the Provider supports
-management policies.
-{{< /hint >}}
+{{<hint "important" >}}请参阅 "提供方 "的文件，查看 "提供方 "是否支持管理政策。{{< /hint >}}
 
-Crossplane supports the following policies:
-{{<table "table table-sm table-hover">}}
-| Policy | Description |
-| --- | --- |
-| `*` | _Default policy_. Crossplane has full control over a resource. |
-| `Create` | If the external resource doesn't exist, Crossplane creates it based on the managed resource settings. |
-| `Delete` | Crossplane can delete the external resource when deleting the managed resource. |
-| `LateInitialize` | Crossplane initializes some external resource settings not defined in the `spec.forProvider` of the managed resource. See [the late initialization]({{<ref "./managed-resources#late-initialization" >}}) section for more details. |
-| `Observe` | Crossplane only observes the resource and doesn't make any changes. Used for [observe only resources]({{<ref "/knowledge-base/guides/import-existing-resources#import-resources-automatically">}}). |
-| `Update` | Crossplane changes the external resource when changing the managed resource. |
-{{</table >}}
+Crossplane 支持以下策略: {{<table "table table-sm table-hover">}}| 策略 | 描述 | | --- | --- | | `*` | _默认策略_。 Crossplane 可以完全控制资源。 | | `Create` | 如果外部资源不存在，Crossplane 会根据托管资源的设置创建它。 | | `Delete` | Crossplane 可以在删除托管资源时删除外部资源。 | | `LateInitialize` | Crossplane 会初始化托管资源的 `spec.forProvider` 中没有定义的一些外部资源设置。 更多详情，请参阅 [late initialization]() 部分。{{<ref "./managed-resources#late-initialization" >}}更多详情，请参阅[the late initialization]()部分。 | | `Observe` | crossplane只观察资源，不做任何更改。 被引用到[observe only resources]({{<ref "/knowledge-base/guides/import-existing-resources#import-resources-automatically">}}| |`Update` | Crossplane 会在更改托管资源时更改外部资源。{{</table >}}
 
-The following is a list of common policy combinations:
-{{<table "table table-sm table-hover table-striped-columns" >}}
-| Create | Delete | LateInitialize | Observe | Update | Description |
+以下是常见策略组合的列表: {{<table "table table-sm table-hover table-striped-columns" >}}| Create | Delete | LateInitialize | Observe | Update | Description |
 | :---:  | :---:  | :---:          | :---:   | :---:  | ---         |
 | ✔️      | ✔️      | ✔️              | ✔️       | ✔️      | _Default policy_. Crossplane has full control over the resource.                                                                                                     |
 | ✔️      | ✔️      | ✔️              | ✔️       |        | After creation any changes made to the managed resource aren't passed to the external resource. Useful for immutable external resources. |
 | ✔️      | ✔️      |                | ✔️       | ✔️      | Prevent Crossplane from managing any settings not defined in the managed resource. Useful for immutable fields in an external resource. |
-| ✔️      | ✔️      |                | ✔️       |        | Crossplane doesn't import any settings from the external resource and doesn't push changes to the managed resource. Crossplane recreates the external resource if it's deleted. |
-| ✔️      |        | ✔️              | ✔️       | ✔️      | Crossplane doesn't delete the external resource when deleting the managed resource. |
-| ✔️      |        | ✔️              | ✔️       |        | Crossplane doesn't delete the external resource when deleting the managed resource. Crossplane doesn't apply changes to the external resource after creation. |
-| ✔️      |        |                | ✔️       | ✔️      | Crossplane doesn't delete the external resource when deleting the managed resource. Crossplane doesn't import any settings from the external resource. |
-| ✔️      |        |                | ✔️       |        | Crossplane creates the external resource but doesn't apply any changes to the external resource or managed resource. Crossplane can't delete the resource. |
-|        |        |                | ✔️       |        | Crossplane only observes a resource. Used for [observe only resources]({{<ref "/knowledge-base/guides/import-existing-resources#import-resources-automatically">}}). |
-|        |        |                |         |        | No policy set. An alternative method for [pausing](#paused) a resource.                                                                                              |
-{{< /table >}}
+| ✔️      | ✔️      |                | ✔️       |        | Crossplane doesn't import any settings from the external resource and doesn't push changes to the managed resource. Crossplane recreates{{<ref "/knowledge-base/guides/import-existing-resources#import-resources-automatically">}}没有策略设置。 [暂停]（#paused）资源的替代方法。{{< /table >}}
 
 <!-- vale off -->
-### providerConfigRef
+
+### ProviderConfigRef
+
 <!-- vale on -->
 
-The `providerConfigRef` on a managed resource tells the Provider which
-[ProviderConfig]({{<ref "./providers#provider-configuration">}}) to
-use when creating the managed resource.  
+托管资源上的 `providerConfigRef` 会告诉 Provider 在创建托管资源时使用哪种 [ProviderConfig{{<ref "./providers#provider-configuration">}}在创建托管资源时被引用的 [ProviderConfigRef]。
 
-Use a ProviderConfig to define the authentication method to use when 
-communicating to the Provider.
+使用 ProviderConfig 定义与 Provider 通信时使用的身份验证方法。
 
-{{< hint "important" >}}
-If `providerConfigRef` isn't applied, Providers use the ProviderConfig named `default`.
-{{< /hint >}}
+{{< hint "important" >}}如果未引用 `providerConfigRef`，Provider 会使用名为 `default` 的 ProviderConfig。{{< /hint >}}
 
-For example, a managed resource references a ProviderConfig named 
-{{<hover label="pcref" line="6">}}user-keys{{</hover>}}.
+例如，一个托管资源引用了名为{{<hover label="pcref" line="6">}}用户键{{</hover>}}.
 
-This matches the {{<hover label="pc" line="4">}}name{{</hover>}} of a ProviderConfig.
+这与 {{<hover label="pc" line="4">}}名称{{</hover>}}的名称。
 
 ```yaml {label="pcref",copy-lines="none"}}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -414,40 +302,31 @@ metadata:
 # Removed for brevity
 ```
 
-{{< hint "tip" >}}
-Each managed resource can reference different ProviderConfigs. This allows
-different managed resources to authenticate with different credentials to the
-same Provider. 
-{{< /hint >}}
+{{< hint "tip" >}}每个受管资源可以引用不同的 ProviderConfigs，这样不同的受管资源就可以使用不同的凭据对同一个 Provider 进行身份验证。{{< /hint >}}
 
 <!-- vale off -->
-### providerRef
-<!-- vale on --> 
+
+### ProviderRef
+
+<!-- vale on -->
 
 <!-- vale Crossplane.Spelling = NO -->
-Crossplane deprecated the `providerRef` field in `crossplane-runtime` 
-[v0.10.0](https://github.com/crossplane/crossplane-runtime/releases/tag/v0.10.0). 
-Managed resources using `providerRef`must use [`providerConfigRef`](#providerconfigref).
+
+在 `crossplane-runtime` [v0.10.0](https://github.com/crossplane/crossplane-runtime/releases/tag/v0.10.0) 中，crossplane 废弃了 `providerRef` 字段。使用 `providerRef` 的托管资源必须使用 [`providerConfigRef`](#providerconfigref)。
+
 <!-- vale Crossplane.Spelling = YES -->
 
 <!-- vale off -->
+
 ### writeConnectionSecretToRef
-<!-- vale on --> 
 
-When a Provider creates a managed resource it may generate resource-specific
-details, like usernames, passwords or connection details like an IP address. 
+<!-- vale on -->
 
-Crossplane stores these details in a Kubernetes Secret object specified by the
-`writeConnectionSecretToRef` values. 
+Provider 创建受管资源时，可能会生成特定于资源的详细信息，如用户名、密码或 IP 地址等连接详细信息。
 
-For example, when creating an AWS RDS database instance with the Crossplane 
-[community AWS provider](https://marketplace.upbound.io/providers/crossplane-contrib/provider-aws/v0.40.0) 
-generates an endpoint, password, port and username data. The Provider saves
-these variables in the Kubernetes secret 
-{{<hover label="secretname" line="9" >}}rds-secret{{</hover>}}, referenced by
-the 
-{{<hover label="secretname" line="9" >}}writeConnectionSecretToRef{{</hover>}}
-field. 
+crossplane 会将这些详细信息存储在由 `writeConnectionSecretToRef` 值指定的 Kubernetes Secret 对象中。
+
+例如，当用 crossplane [community AWS provider](https://marketplace.upbound.io/providers/crossplane-contrib/provider-aws/v0.40.0)创建 AWS RDS 数据库实例时，会生成端点、密码、端口和用户名数据。 Provider 会将这些变量保存在 Kubernetes secret 中{{<hover label="secretname" line="9" >}}rds-secret{{</hover>}}中，由{{<hover label="secretname" line="9" >}}writeConnectionSecretToRef{{</hover>}}字段引用。
 
 ```yaml {label="secretname",copy-lines="none"}
 apiVersion: database.aws.crossplane.io/v1beta1
@@ -461,7 +340,7 @@ spec:
     name: rds-secret
 ```
 
-Viewing the Secret object shows the saved fields.
+查看 Secret 对象会显示保存的字段。
 
 ```yaml {copy-lines="1"}
 kubectl describe secret rds-secret
@@ -475,35 +354,23 @@ endpoint:  54 bytes
 password:  27 bytes
 ```
 
-{{<hint "important" >}}
-The Provider determines the data written to the Secret object. Refer to the
-specific Provider documentation for the generated Secret data.
-{{< /hint >}}
+{{<hint "important" >}}Provider 决定写入 Secret 对象的数据。 有关生成的 Secret 数据，请参阅特定 Provider 文档。{{< /hint >}}
 
 <!-- vale off -->
-### publishConnectionDetailsTo
-<!-- vale on --> 
 
-The `publishConnectionDetailsTo` field expands on 
-[`writeConnectionSecretToRef`](#writeconnectionsecrettoref) supporting storing
-managed resource information as a Kubernetes Secret object or in an external
-secrets store like [HashiCorp Vault](https://www.vaultproject.io/).
+### PublishConnectionDetailsTo
 
-Using `publishConnectionDetailsTo` requires enabling Crossplane 
-External Secrets Stores (ESS). Enable ESS inside a Provider with a
-[DeploymentRuntimeConfig]({{<ref "providers#runtime-configuration" >}}) and
-in Crossplane with the `--enable-external-secret-stores` argument.
+<!-- vale on -->
 
-{{< hint "note" >}}
-Not all Providers support `publishConnectionDetailsTo`. Check your Provider
-documentation for details.
-{{< /hint >}}
+publishConnectionDetailsTo "字段扩展了[`writeConnectionSecretToRef`](#writeconnectionsecrettoref)，支持将托管资源信息存储为 Kubernetes Secret 对象或 [Vault](https://www.vaultproject.io/) 等外部存储。
 
-#### Publish secrets to Kubernetes
+使用 "publishConnectionDetailsTo "需要启用 Crossplane 外部存储（ESS）。 在 Provider 中使用 [DeploymentRuntimeConfig]() 启用 ESS，在 Crossplane 中使用"--enable-external-secret-stores "参数启用 ESS。{{<ref "providers#runtime-configuration" >}}) 并在 crossplane 中使用 `--enable-external-secret-stores` 参数启用 ESS。
 
-To publish the data generated by a managed resource as a Kubernetes Secret
-object provide a 
-{{<hover label="k8secret" line="7">}}publishConnectionDetailsTo.name{{< /hover >}} 
+{{< hint "note" >}}并非所有 Provider 都支持 "publishConnectionDetailsTo"，详情请查看 Provider 文档。{{< /hint >}}
+
+#### 向 Kubernetes 发布秘密
+
+要将托管资源生成的数据发布为 Kubernetes Secret 对象，请提供一个{{<hover label="k8secret" line="7">}}publishConnectionDetailsTo.name{{< /hover >}}
 
 ```yaml {label="k8secret",copy-lines="none"}
 apiVersion: rds.aws.upbound.io/v1beta1
@@ -515,9 +382,7 @@ spec:
     name: rds-kubernetes-secret
 ```
 
-Crossplane can apply labels and annotations to the Kubernetes secret as well
-using 
-{{<hover label="k8label" line="8">}}publishConnectionDetailsTo.metadata{{</hover>}}.
+crossplane 还可以通过使用{{<hover label="k8label" line="8">}}publishConnectionDetailsTo.metadata{{</hover>}}.
 
 ```yaml {label="k8label",copy-lines="none"}
 apiVersion: rds.aws.upbound.io/v1beta1
@@ -534,16 +399,11 @@ spec:
         annotation-tag: annotation-value
 ```
 
-#### Publish secrets to an external secrets store
+#### 向外部秘密存储发布秘密
 
-Publishing secrets data to an external secret store like 
-[HashiCorp Vault](https://www.vaultproject.io/) relies on a 
-{{<hover label="configref" line="8">}}publishConnectionDetailsTo.configRef{{</hover>}}. 
+向外部秘密存储（如 [HashiCorp Vault](https://www.vaultproject.io/)）发布秘密数据依赖于一个{{<hover label="configref" line="8">}}publishConnectionDetailsTo.configRef{{</hover>}}.
 
-The 
-{{<hover label="configref" line="9">}}configRef.name{{</hover>}} references a 
-{{<hover label="storeconfig" line="4">}}StoreConfig{{</hover>}}
-object. 
+配置{{<hover label="configref" line="9">}}configRef.name{{</hover>}}引用了一个{{<hover label="storeconfig" line="4">}}存储配置{{</hover>}}对象。
 
 ```yaml {label="configref",copy-lines="none"}
 apiVersion: rds.aws.upbound.io/v1beta1
@@ -565,36 +425,26 @@ metadata:
 # Removed for brevity
 ```
 
-{{<hint "tip" >}}
-Read the 
-[Vault as an External Secrets Store]({{<ref "knowledge-base/integrations/vault-as-secret-store">}})
-guide for details on using StoreConfig objects.
-{{< /hint >}}
+{{<hint "tip" >}}请阅读[Vault 作为外部秘密存储]({{<ref "knowledge-base/integrations/vault-as-secret-store">}}) 指南，了解使用 StoreConfig 对象的详情。{{< /hint >}}
 
 ## Annotations
 
-Crossplane applies a standard set of Kubernetes `annotations` to managed
-resources.
+crossplane 将一套标准的 Kubernetes "Annotations "应用于托管资源。
 
-{{<table "table table-sm">}}
-| Annotation | Definition | 
+{{<table "table table-sm">}}| Annotation | Definition | 
 | --- | --- | 
 | `crossplane.io/external-name` | The name of the managed resource inside the Provider. |
 | `crossplane.io/external-create-pending` | The timestamp of when Crossplane began creating the managed resource. | 
 | `crossplane.io/external-create-succeeded` | The timestamp of when the Provider successfully created the managed resource. | 
 | `crossplane.io/external-create-failed` | The timestamp of when the Provider failed to create the managed resource. | 
 | `crossplane.io/paused` | Indicates Crossplane isn't reconciling this resource. Read the [Pause Annotation](#paused) for more details. |
-| `crossplane.io/composition-resource-name` | For managed resource created by a Composition, this is the Composition's `resources.name` value. | 
-{{</table >}}
+| `crossplane.io/composition-resource-name` | For managed resource created by a Composition, this is the Composition's `resources.name` value. |{{</table >}}
 
-### Naming external resources
-By default Providers give external resources the same name as the Kubernetes
-object.
+### 命名外部资源
 
-For example, a managed resource named 
-{{<hover label="external-name" line="4">}}my-rds-instance{{</hover >}} has
-the name `my-rds-instance` as an external resource inside the Provider's
-environment. 
+默认情况下，Provider 会将外部资源命名为与 Kubernetes 对象相同的名称。
+
+例如，一个名为{{<hover label="external-name" line="4">}}my-rds-instance{{</hover >}}的托管资源的名称为 "my-rds-instance"，作为 Provider 环境中的外部资源。
 
 ```yaml {label="external-name",copy-lines="none"}
 apiVersion: database.aws.crossplane.io/v1beta1
@@ -605,18 +455,13 @@ metadata:
 
 ```shell
 kubectl get rdsinstance
-NAME                 READY   SYNCED   EXTERNAL-NAME        AGE
-my-rds-instance      True    True     my-rds-instance      11m
+NAME READY SYNCED EXTERNAL-NAME AGE
+my-rds-instance True True my-rds-instance 11m
 ```
 
-Managed resource created with a `crossplane.io/external-name` 
-annotation already provided use the annotation value as the external
-resource name.
+使用已提供的 "crossplane.io/external-name "注解创建的托管资源会使用注解值作为外部资源名称。
 
-For example, the Provider creates managed resource named 
-{{< hover label="custom-name" line="6">}}my-rds-instance{{</hover>}} but uses
-the name {{<hover label="custom-name" line="5">}}my-custom-name{{</hover >}}
-for the external resource inside AWS.
+例如，Provider 创建了名为{{< hover label="custom-name" line="6">}}my-rds-instance{{</hover>}}但被引用为 {{<hover label="custom-name" line="5">}}我的自定义名称{{</hover >}}作为 AWS 内部的外部资源。
 
 ```yaml {label="custom-name",copy-lines="none"}
 apiVersion: database.aws.crossplane.io/v1beta1
@@ -629,32 +474,23 @@ metadata:
 
 ```shell {copy-lines="1"}
 kubectl get rdsinstance
-NAME                 READY   SYNCED   EXTERNAL-NAME        AGE
-my-rds-instance      True    True     my-custom-name       11m
+NAME READY SYNCED EXTERNAL-NAME AGE
+my-rds-instance True True my-custom-name 11m
 ```
 
-### Creation annotations
+#### 创建 Annotations
 
-When an external system like AWS generates nondeterministic resource names it's
-possible for a provider to create a resource but not record that it did. When
-this happens the provider can't manage the resource.
+当 AWS 等外部系统生成不确定的资源名称时，Provider 就有可能创建了一个资源，但却没有记录。 出现这种情况时，Provider 就无法管理该资源。
 
-{{<hint "tip">}}
-Crossplane calls resources that a provider creates but doesn't manage _leaked
-resources_.
-{{</hint>}}
+{{<hint "tip">}}crossplane 将 Provider 创建但不管理的资源称为_leaked resources_。{{</hint>}}
 
-Providers set three creation annotations to avoid and detect leaked resources:
+Providers 设置了三个创建 Annotations，以避免和检测泄漏的资源: 
 
-* {{<hover label="creation" line="8">}}crossplane.io/external-create-pending{{</hover>}} -
-  The last time the provider was about to create the resource.
-* {{<hover label="creation" line="9">}}crossplane.io/external-create-succeeded{{</hover>}} -
-  The last time the provider successfully created the resource.
-* `crossplane.io/external-create-failed` - The last time the provider failed to
-  create the resource.
+* {{<hover label="creation" line="8">}}crossplane.io/external-create-pending{{</hover>}} - Providers 上次准备创建资源的时间。
+* {{<hover label="creation" line="9">}}crossplane.io/external-create-succeeded{{</hover>}} - Provider 上次成功创建资源的时间。
+* crossplane.io/external-create-failed` - 上次 Providers 创建资源失败的时间。
 
-Use `kubectl get` to view the annotations on a managed resource. For example, an
-AWS VPC resource:
+使用 `kubectl get` 查看受管资源上的 annotations。 例如，AWS VPC 资源: 
 
 ```yaml {label="creation" copy-lines="2-9"}
 $ kubectl get -o yaml vpc my-vpc
@@ -668,44 +504,25 @@ metadata:
     crossplane.io/external-create-succeeded: "2023-12-18T21:48:40Z"
 ```
 
-A provider uses the
-{{<hover label="creation" line="7">}}crossplane.io/external-name{{</hover>}}
-annotation to lookup a managed resource in an external system.
+一个 Provider 会被引用{{<hover label="creation" line="7">}}crossplane.io/external-name{{</hover>}}Annotations 来查找外部系统中的托管资源。
 
-The provider looks up the resource in the external system to determine if it
-exists, and if it matches the managed resource's desired state. If the provider
-can't find the resource, it creates it.
+Providers 会在外部系统中查找资源，以确定它是否存在，以及是否与托管资源的期望状态相匹配。 如果找不到资源，Providers 就会创建它。
 
-Some external systems don't let a provider specify a resource's name when the
-provider creates it. Instead the external system generates an nondeterministic
-name and returns it to the provider.
+有些外部系统不允许 Providers 在创建资源时指定资源名称，而是由外部系统生成一个非确定名称并返回给 Providers。
 
-When the external system generates the resource's name, the provider attempts to
-save it to the managed resource's `crossplane.io/external-name` annotation. If
-it doesn't, it _leaks_ the resource.
+当外部系统生成资源名称时，Provider 会尝试将其保存到受管资源的 `crossplane.io/external-name` 注解中。 如果没有，它就会_泄露_资源。
 
-A provider can't guarantee that it can save the annotation. The provider could
-restart or lose network connectivity between creating the resource and saving
-the annotation.
+Providers 无法保证能保存 Annotations。 Providers 可能会在创建资源和保存注释之间重新启动或失去网络连接。
 
-A provider can detect that it might have leaked a resource. If the provider
-thinks it might have leaked a resource, it stops reconciling it until you tell
-the provider it's safe to proceed.
+Providers 可以检测到自己可能泄露了资源。 如果 Providers 认为自己可能泄露了资源，它就会停止对账，直到您告诉 Providers 可以安全继续。
 
-{{<hint "important">}}
-Anytime an external system generates a resource's name there is a risk the
-provider could leak the resource.
+{{<hint "important">}}只要外部系统生成了资源名称，Providers 就有可能泄露资源。
 
-The safest thing for a provider to do when it detects that it might have leaked
-a resource is to stop and wait for human intervention.
+当 Providers 检测到自己可能泄露了资源时，最安全的做法就是停下来等待人工干预。
 
-This ensures the provider doesn't create duplicates of the leaked resource.
-Duplicate resources can be costly and dangerous.
-{{</hint>}}
+这样可以确保 Providers 不会重复创建泄漏的资源。 重复的资源可能代价高昂而且危险。{{</hint>}}
 
-When a provider thinks it might have leaked a resource it creates a `cannot
-determine creation result` event associated with the managed resource. Use
-`kubectl describe` to see the event.
+当 Provider 认为自己可能泄露了资源时，它会创建一个与托管资源相关的 "无法确定创建结果 "事件。 被引用 "kubectl describe "可查看该事件。
 
 ```shell {copy-lines="1"}
 kubectl describe queue my-sqs-queue
@@ -713,79 +530,46 @@ kubectl describe queue my-sqs-queue
 # Removed for brevity
 
 Events:
-  Type     Reason                           Age                 From                                 Message
+  Type Reason Age From Message
   ----     ------                           ----                ----                                 -------
-  Warning  CannotInitializeManagedResource  29m (x19 over 19h)  managed/queue.sqs.aws.crossplane.io  cannot determine creation result - remove the crossplane.io/external-create-pending annotation if it is safe to proceed
+  Warning CannotInitializeManagedResource 29m (x19 over 19h)  managed/queue.sqs.aws.crossplane.io cannot determine creation result - remove the crossplane.io/external-create-pending annotation if it is safe to proceed
 ```
 
-Providers use the creation annotations to detect that they might have leaked a
-resource.
+Provider 使用创建 Annotations 来检测自己是否可能泄露了资源。
 
-Each time a provider reconciles a managed resource it checks the resource's
-creation annotations. If the provider sees a create pending time that's more
-recent than the most recent create succeeded or create failed time, it knows
-that it might have leaked a resource.
+Providers 每次核对托管资源时都会检查资源的创建 Annotations。 如果 Providers 看到创建等待时间比最近的创建成功或创建失败时间更近，它就知道自己可能泄露了资源。
 
-{{<hint "note">}}
-Providers don't remove the creation annotations. They use the timestamps to
-determine which is most recent. It's normal for a managed resource to have
-several creation annotations.
-{{</hint>}}
+{{<hint "note">}}Providers 不会删除创建注解。 他们会使用时间戳来确定哪个是最新的。 一个托管资源有几个创建注解是很正常的。{{</hint>}}
 
-The provider knows it might have leaked a resource because it updates all the
-resource's annotations at the same time. If the provider couldn't update the
-creation annotations after it created the resource, it also couldn't update the
-`crossplane.io/external-name` annotation.
+Provider 知道自己可能泄露了资源，因为它会同时更新资源的所有 Annotations。 如果 Provider 在创建资源后无法更新创建注解，那么它也无法更新 `crossplane.io/external-name` 注解。
 
-{{<hint "tip">}}
-If a resource has a `cannot determine creation result` error, inspect the
-external system.
+{{<hint "tip">}}如果资源出现 "无法确定创建结果 "错误，请检查外部系统。
 
-Use the timestamp from the `crossplane.io/external-create-pending` annotation to
-determine when the provider might have leaked a resource. Look for resources
-created around this time.
+使用来自 `crossplane.io/external-create-pending` 注解的时间戳来确定 Providers 可能泄露资源的时间。 查找在此时间前后创建的资源。
 
-If you find a leaked resource, and it's safe to do so, delete it from the
-external system.
+如果发现泄漏的资源，而且安全的话，请将其从外部系统中删除。
 
-Remove the `crossplane.io/external-create-pending` annotation from the managed
-resource after you're sure no leaked resource exists. This tells the provider to
-resume reconciliation of and recreate the managed resource.
-{{</hint>}}
+在确定不存在泄漏资源后，从托管资源中移除 "crossplane.io/external-create-pending "注解。 这将告诉 Providers 恢复调节并重新创建托管资源。{{</hint>}}
 
-Providers also use the creation annotations to avoid leaking resources.
+Provider 也会使用创建 Annotations 来避免资源泄露。
 
-When a provider writes the `crossplane.io/external-create-pending` annotation it
-knows it's reconciling the latest version of the managed resource. The write
-would fail if the provider was reconciling an old version of the managed
-resource.
+当 Providers 写入 "crossplane.io/external-create-pending "注解时，它知道自己正在调和最新版本的托管资源。 如果 Providers 正在调和旧版本的托管资源，写入将失败。
 
-If the provider reconciled an old version with an outdated
-`crossplane.io/external-name` annotation it could mistakenly determine that the
-resource didn't exist. The provider would create a new resource, and leak the
-existing one.
+如果 Providers 将旧版本与过时的 `crossplane.io/external-name` 注解进行核对，它可能会错误地判定该资源不存在。 Providers 会创建一个新资源，并泄漏现有资源。
 
-Some external systems have a delay between when a provider creates a resource
-and when the system reports that it exists. The provider uses the most recent
-create succeeded time to account for this delay.
+有些外部系统在 Providers 创建资源和系统报告资源存在之间会有延迟。 Providers 会使用最近的创建成功时间来解释这一延迟。
 
-If the provider didn't account for the delay, it could mistakenly determine
-that the resource didn't exist. The provider would create a new resource, and
-leak the existing one.
+如果 Providers 没有考虑到延迟，它可能会错误地判断该资源不存在。 Providers 会创建一个新资源，并泄漏现有资源。
 
-### Paused
-Manually applying the `crossplane.io/paused` annotation causes the Provider to
-stop reconciling the managed resource. 
+#### 暂停
 
-Pausing a resource is useful when modifying Providers or preventing
-race-conditions when editing Kubernetes objects.
+手动应用 `crossplane.io/paused` 注解会导致 Provider 停止调节托管资源。
 
-Apply a {{<hover label="pause" line="6">}}crossplane.io/paused: "true"{{</hover>}}
-annotation to a managed resource to pause reconciliation. 
+在修改 Provider 或编辑 Kubernetes 对象时，暂停资源非常有用。
 
-{{< hint "note" >}}
-Only the value `"true"` pauses reconciliation.
-{{< /hint >}}
+apply a {{<hover label="pause" line="6">}}crossplane.io/paused: "true"{{</hover>}}注释来暂停调和托管资源。
+
+{{< hint "note" >}}只有值`"true"`才会暂停调和。{{< /hint >}}
 
 ```yaml {label="pause"}
 apiVersion: ec2.aws.upbound.io/v1beta1
@@ -800,39 +584,27 @@ spec:
     instanceType: t2.micro
 ```
 
-Remove the annotation to resume reconciliation.
+删除 Annotations，恢复对账。
 
-## Finalizers
-Crossplane applies a 
-[Finalizer](https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/)
-on managed resources to control their deletion. 
+## Finalizer
 
-{{< hint "note" >}}
-Kubernetes can't delete objects with Finalizers.
-{{</hint >}}
+crossplane 对托管资源应用 [Finalizer](https://kubernetes.io/docs/concepts/overview/working-with-objects/finalizers/) 来控制其删除。
 
-When Crossplane deletes a managed resource the Provider begins deleting the
-external resource, but the managed resource remains until the external 
-resource is fully deleted.
+{{< hint "note" >}}Kubernetes 无法使用 Finalizer 删除对象。{{</hint >}}
 
-When the external resource is fully deleted Crossplane removes the Finalizer and
-deletes the managed resource object.
+当 crossplane 删除受管资源时，Provider 会开始删除外部资源，但受管资源仍会保留，直到外部资源被完全删除。
 
-## Conditions
+外部资源完全删除后，crossplane 会移除 Finalizer 并删除托管资源对象。
 
-Crossplane has a standard set of `Conditions` for a managed 
-resource. View the `Conditions` of a managed resource with 
-`kubectl describe <managed_resource>`
+## 条件
 
+crossplane 有一套标准的受管资源 "条件 "集。 使用 `kubectl describe<managed_resource>` 查看受管资源的 "条件"。
 
-{{<hint "note" >}}
-Providers may define their own custom `Conditions`. 
-{{</hint >}}
+{{<hint "note" >}}提供商可以定义自己的自定义 "条件"。{{</hint >}}
 
+### 可用
 
-### Available
-`Reason: Available` indicates the Provider created the managed resource and it's
-ready for use. 
+Reason: Available "表示 Provider 创建了托管资源，并已准备好供使用。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -840,10 +612,10 @@ Conditions:
   Status:                True
   Reason:                Available
 ```
-### Creating
 
-`Reason: Creating` indicates the Provider is attempting to create the managed
-resource. 
+#### 创建
+
+原因: 正在创建 "表示 Provider 正在尝试创建托管资源。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -852,9 +624,9 @@ Conditions:
   Reason:                Creating
 ```
 
-### Deleting
-`Reason: Deleting` indicates the Provider is attempting to delete the managed
-resource. 
+#### 删除
+
+原因: 正在删除 "表示 Provider 正在尝试删除托管资源。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -864,10 +636,12 @@ Conditions:
 ```
 
 <!-- vale off -->
+
 ### ReconcilePaused
+
 <!-- vale on -->
-`Reason: ReconcilePaused` indicates the managed resource has a [Pause](#paused)
-annotation 
+
+Reason:ReconcilePaused "表示受管资源有[Pause]（#paused）注解
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -877,11 +651,12 @@ Conditions:
 ```
 
 <!-- vale off -->
+
 ### ReconcileError
+
 <!-- vale on -->
-`Reason: ReconcileError` indicates Crossplane encountered an error while
-reconciling the managed resource. The `Message:` value of the `Condition` helps
-identify the Crossplane error. 
+
+原因: ReconcileError "表示 Crossplane 在调节托管资源时遇到错误。 条件 "的 "Message: "值有助于识别 Crossplane 的错误。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -891,10 +666,12 @@ Conditions:
 ```
 
 <!-- vale off -->
+
 ### ReconcileSuccess
+
 <!-- vale on -->
-`Reason: ReconcileSuccess` indicates the Provider created and is monitoring the 
-managed resource.
+
+Reason:ReconcileSuccess "表示 Provider 创建并正在监控托管资源。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -903,9 +680,9 @@ Conditions:
   Reason:                ReconcileSuccess
 ```
 
-### Unavailable
-`Reason: Unavailable` indicates Crossplane expects the managed resource to be 
-available, but the Provider reports the resource is unhealthy.
+### 无法提供
+
+Reason:Unavailable"（原因: 不可用）表示 crossplane 预计受管资源可用，但 Provider 报告该资源不健康。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -914,10 +691,9 @@ Conditions:
   Reason:                Unavailable
 ```
 
-### Unknown
-`Reason: Unknown` indicates the Provider has an unexpected error with the
-managed resource. The `conditions.message` provides more information on what
-went wrong. 
+### 未知
+
+`Reason: Unknown` 表示 Provider 与托管资源发生了意外错误。 `conditions.message`提供了出错原因的更多信息。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -926,24 +702,21 @@ Conditions:
   Reason:                Unknown
 ```
 
+### Upjet Providers 条件
 
-### Upjet Provider conditions
-[Upjet](https://github.com/upbound/upjet), the open source tool to generate
-Crossplane Providers, also has a set of standard `Conditions`.
-
+[Upjet](https://github.com/upbound/upjet)是生成 Crossplane Providider 的开源工具，它也有一套标准的 "条件"。
 
 <!-- vale off -->
+
 #### AsyncOperation
+
 <!-- vale on -->
 
-Some resources may take more than a minute to create. Upjet based providers can 
-complete their Kubernetes command before creating the managed resource by using 
-an asynchronous operation. 
+有些资源的创建时间可能超过一分钟，基于 Upjet 的 Provider 可以通过异步操作，在创建托管资源前完成 Kubernetes 命令。
 
+##### 已完成
 
-##### Finished 
-The `Reason: Finished` indicates the asynchronous operation completed
-successfully. 
+原因: 已完成 "表示异步操作已成功完成。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -952,10 +725,9 @@ Conditions:
   Reason:                Finished
 ```
 
+##### 进行中
 
-##### Ongoing
-
-`Reason: Ongoing` indicates the managed resource operation is still in progress. 
+原因: 正在进行 "表示受管资源操作仍在进行中。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -965,19 +737,20 @@ Conditions:
 ```
 
 <!-- vale off -->
+
 #### LastAsyncOperation
+
 <!-- vale on -->
 
-The Upjet `Type: LastAsyncOperation` captures the previous asynchronous
-operation status as either `Success` or a failure `Reason`. 
+Upjet `Type: LastAsyncOperation` 捕获上一次异步操作的状态，即 "成功 "或失败 "原因"。
 
 <!-- vale off -->
+
 ##### ApplyFailure
+
 <!-- vale on -->
 
-`Reason: ApplyFailure` indicates the Provider failed to apply a setting to the
-managed resource. The `conditions.message` provides more information on what
-went wrong. 
+`Reason: ApplyFailure` 表示 Provider 向托管资源应用设置失败。 `conditions.message`提供了更多有关出错原因的信息。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -987,12 +760,12 @@ Conditions:
 ```
 
 <!-- vale off -->
+
 ##### DestroyFailure
+
 <!-- vale on -->
 
-`Reason: DestroyFailure` indicates the Provider failed to delete the managed
-resource. The `conditions.message` provides more information on what
-went wrong. 
+`Reason: DestroyFailure` 表示 Provider 删除托管资源失败。 `conditions.message`提供了更多关于出错原因的信息。
 
 ```yaml {copy-lines="none"}
 Conditions:
@@ -1001,9 +774,9 @@ Conditions:
   Reason:                DestroyFailure
 ```
 
-##### Success
-`Reason: Success` indicates the Provider successfully created the managed
-resource asynchronously. 
+##### 成功
+
+原因: 成功 "表示 Provider 成功地异步创建了托管资源。
 
 ```yaml {copy-lines="none"}
 Conditions:

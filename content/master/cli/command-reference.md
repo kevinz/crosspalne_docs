@@ -1,355 +1,248 @@
 ---
+
 weight: 50
-title: Command Reference
-description: "Command reference for the Crossplane CLI"
+title: 命令参考
+description: "Crossplane CLI 的命令参考"
+
 ---
 
 <!-- vale Google.Headings = NO -->
-The `crossplane` CLI provides utilities to make using Crossplane easier. 
 
-Read the [Crossplane CLI overview]({{<ref "../cli">}}) page for information on 
-installing `crossplane`.
+`crossplane` CLI 提供了一些实用程序，让使用 crossplane 变得更容易。
 
-## Global flags
-The following flags are available for all commands.
+请阅读 [Crossplane CLI overview]({{<ref "../cli">}}) 页面，了解有关安装 `crossplane` 的信息。
 
-{{< table "table table-sm table-striped">}}
-| Short flag | Long flag   | Description                  |
-|------------|-------------|------------------------------|
-| `-h`       | `--help`    | Show context sensitive help. |
-| `-v`       | `--version` | Print version and exit.      |
-|            | `--verbose` | Print verbose output.        |
-{{< /table >}}
+## global flags
+
+以下 flag 适用于所有命令。
+
+{{< table "table table-sm table-striped">}}| 短标志 | 长标志 | 说明 | |------------|-------------|------------------------------| | `-h` | `--help` | 显示上下文相关帮助。 | | `-v` | `--version` | 打印版本并退出。 | | | `--verbose` | 打印冗余输出。{{< /table >}}
 
 ## xpkg
 
-The `crossplane xpkg` commands create, install and update Crossplane
-[packages]({{<ref "../concepts/packages">}}) as well as enable authentication
-and publishing of Crossplane packages to a Crossplane package registry. 
+crossplane xpkg` 命令用于创建、安装和更新 Crossplane [packages]({{<ref "../concepts/packages">}}) 以及启用身份验证和将 crossplane 软件包发布到 crossplane 软件包注册表。
 
 ### xpkg build
 
-Using `crossplane xpkg build` provides automation and simplification to build 
-Crossplane packages.  
+被引用的 "crossplane xpkg build "提供了构建 crossplane 软件包的自动化和简化。
 
-The Crossplane CLI combines a directory of YAML files and packages them as 
-an [OCI container image](https://opencontainers.org/).  
+crossplane CLI 将 YAML 文件目录组合在一起，并将其打包为 [OCI 容器镜像](https://opencontainers.org/)。
 
-The CLI applies the required annotations and values to meet the 
-[Crossplane XPKG specification](https://github.com/crossplane/crossplane/blob/master/contributing/specifications/xpkg.md).
+CLI 应用所需的 Annotations 和 Values，以满足 [crossplane XPKG 规范](https://github.com/crossplane/crossplane/blob/master/contributing/specifications/xpkg.md)。
 
-The `crossplane` CLI supports building 
-[configuration]({{< ref "../concepts/packages" >}}),
-[function]({{<ref "../concepts/composition-functions">}}) and 
-[provider]({{<ref "../concepts/providers" >}}) package types. 
+crossplane "CLI支持构建[配置]({{< ref "../concepts/packages" >}})、[函数]({{<ref "../concepts/composition-functions">}}) 和 [Provider]({{<ref "../concepts/providers" >}}) 包类型。
 
+#### flag
 
-#### Flags
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag                            | Description                    |
+{{< table "table table-sm table-striped">}}| Short flag   | Long flag                            | Description                    |
 | ------------ | -------------                        | ------------------------------ |
 |              | `--embed-runtime-image-name=NAME`    |  The image name and tag of an image to include in the package. Only for provider and function packages. |
 |              | `--embed-runtime-image-tarball=PATH` |  The filename of an image to include in the package. Only for provider and function packages.                              |
 | `-e`         | `--examples-root="./examples"`       |  The path to a directory of examples related to the package.                               |
 |              | `--ignore=PATH,...`                  |  List of files and directories to ignore.                              |
 | `-o`         | `--package-file=PATH`                |  Directory and filename of the created package.                             |
-| `-f`         | `--package-root="."`                 |  Directory to search for YAML files.                              |
-{{< /table >}}
+| `-f`         | `--package-root="."`                 |  Directory to search for YAML files{{< /table >}}
 
-The `crossplane xpkg build` command recursively looks in the directory set by 
-`--package-root` and attempts to combine any files ending in `.yml` or `.yaml` 
-into a package.
+crossplane xpkg build` 命令会递归查找由 `--package-root` 设置的目录，并尝试将任何以 `.yml` 或 `.yaml` 结尾的文件合并为一个软件包。
 
-All YAML files must be valid Kubernetes manifests with `apiVersion`, `kind`, 
-`metadata` and `spec` fields. 
+所有 YAML 文件都必须是有效的 Kubernetes 配置清单，并包含 `apiVersion`、`kind`、`metadata` 和 `spec` 字段。
 
-#### Ignore files
+#### 忽略文件
 
-Use `--ignore` to provide a list of files and directories to ignore.  
+使用 `--ignore` 可以提供要忽略的文件和目录列表。
 
-For example,  
-`crossplane xpkg build --ignore="./test/*,kind-config.yaml"`
+例如，"crossplane xpkg build --ignore="./test/*,kind-config.yaml"`
 
-#### Set the package name
+#### 设置 package 名称
 
-`crossplane` automatically names the new package a combination of the 
-`metadata.name` and a hash of the package contents and saves the contents 
-in the same location as `--package-root`. Define a specific location and 
-filename with `--package-file` or `-o`.  
+`crossplane` 会自动以 `metadata.name` 和软件包内容哈希值的组合为新软件包命名，并将内容保存在与 `--package-root` 相同的位置。 使用 `--package-file` 或 `-o` 定义特定位置和文件名。
 
-For example,  
-`crossplane xpkg build -o /home/crossplane/example.xpkg`.
+例如，"crossplane xpkg build -o /home/crossplane/example.xpkg`"。
 
+#### 包括实例
 
-#### Include examples
+包含 YAML 文件，演示如何通过 `--examples-root` 使用 packages。
 
-Include YAML files demonstrating how to use the package with `--examples-root`. 
+[upbound市场](https://marketplace.upbound.io/) 使用被引用为"--examples-root "的文件作为已发布软件包的文档。
 
-[Upbound Marketplace](https://marketplace.upbound.io/) uses files included with 
-`--examples-root` as documentation for published packages.
+#### 包括运行时镜像
 
-#### Include a runtime image
+函数和 Providers 需要描述其依赖关系和设置的 YAML 文件，以及运行时的容器镜像。
 
-Functions and Providers require YAML files describing their dependencies and 
-settings as well as a container image for their runtime.
+使用 `--embed-runtime-image-name`可运行指定镜像，并将镜像包含在函数或 Providers package 内。
 
-Using `--embed-runtime-image-name` runs a specified image and 
-includes the image inside the function or provider package.
+{{<hint "note" >}}使用 `--embed-runtime-image-name` 引用的镜像必须在本地 Docker 缓存中。
 
-{{<hint "note" >}}
-Images referenced with `--embed-runtime-image-name` must be in the local Docker 
-cache.  
+使用 `docker pull` 下载丢失的镜像。{{< /hint >}}
 
-Use `docker pull` to download a missing image.
-{{< /hint >}}
-
-The `--embed-runtime-image-tarball` flag includes a local OCI image tarball 
-inside the function or provider package.
-
+embed-runtime-image-tarball "标志将本地 OCI 镜像压缩包包含在函数或 Providers 包内。
 
 ### xpkg install
 
-Download and install packages into Crossplane with  `crossplane xpkg install`.
+使用 `crossplane xpkg install` 将软件包下载并安装到 crossplane 中。
 
-By default the `crossplane xpkg install` command uses the Kubernetes 
-configuration defined in `~/.kube/config`.  
+默认情况下，"crossplane xpkg install "命令被引用在"~/.kube/config "中定义的 Kubernetes 配置。
 
-Define a custom Kubernetes configuration file location with the environmental 
-variable `KUBECONFIG`.
+使用环境变量 "KUBECONFIG "定义自定义 Kubernetes 配置文件位置。
 
-Specify the package kind, package file and optionally a name to give the package 
-inside Crossplane.
+指定软件包类型、软件包文件，还可选择在 crossplane 中为软件包命名。
 
-`crossplane xpkg install <package-kind> <registry URL package name and tag> [<optional-name>]`
+`crossplane xpkg install<package-kind> <registry URL package name and tag> [<optional-name>]`
 
-The `<package-kind>` is either a `configuration`, `function` or `provider`.
+<package-kind> 可以是配置、功能或 Provider。
 
-For example, to install version 0.42.0 of the 
-[AWS S3 provider](https://marketplace.upbound.io/providers/upbound/provider-aws-s3/v0.42.0):
+例如，要安装 0.42.0 版的 [AWS S3 Provider](https://marketplace.upbound.io/providers/upbound/provider-aws-s3/v0.42.0): 
 
 `crossplane xpkg install provider xpkg.upbound.io/upbound/provider-aws-s3:v0.42.0`
 
-#### Flags
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag                                        | Description                                                                                     |
+#### flag
+
+{{< table "table table-sm table-striped">}}<number of seconds>| Short flag   | Long flag                                        | Description                                                                                     |
 | ------------ | -------------                                    | ------------------------------                                                                  |
 |              | `--runtime-config=<runtime config name>`         | Install the package with a runtime configuration.                                               |
 | `-m`         | `--manual-activation`                            | Set the `revisionActiviationPolicy` to `Manual`.                                                |
 |              | `--package-pull-secrets=<list of secrets>`       | A comma-separated list of Kubernetes secrets to use for authenticating to the package registry. |
 | `-r`         | `--revision-history-limit=<number of revisions>` | Set the `revisionHistoryLimit`. Defaults to `1`.                                                |
-| `-w`         | `--wait=<number of seconds>`                     | Number of seconds to wait for a package to install.                                             |
+| `
 
 {{< /table >}}
 
-#### Wait for package install
+#### 等待软件包安装
 
-When installing a package the `crossplane xpkg install` command doesn't wait for
-the package to download and install. View any download or installation problems 
-by inspecting the `configuration` with `kubectl describe configuration`.
+安装软件包时，"crossplane xpkg install "命令不会等待软件包下载和安装。 使用 "kubectl describe configuration "检查 "配置"，查看是否存在下载或安装问题。
 
-Use `--wait` to have the `crossplane xpkg install` command to wait for a 
-package to have the condition `HEALTHY` before continuing. The command 
-returns an error if the `wait` time expires before the package is `HEALTHY`.
+使用 `--wait`，可以让 `crossplane xpkg install` 命令等待软件包达到 `HEALTHY` 条件后再继续。 如果在软件包达到 `HEALTHY` 条件之前 `wait` 时间已过，命令将返回错误。
 
-#### Require manual package activation
+#### 需要手动激活 package
 
-Set the package to require 
-[manual activation]({{<ref "../concepts/packages#revision-activation-policy" >}}), 
-preventing an automatic upgrade of a package with `--manual-activation`
+将软件包设置为 require [manual activation]({{<ref "../concepts/packages#revision-activation-policy" >}})，防止自动升级带有 `--manual-activation` 的软件包
 
-#### Authenticate to a private registry
+#### 对私人注册表进行身份验证
 
-To authenticate to a private package registry use `--package-pull-secrets` and 
-provide a list of Kubernetes Secret objects. 
+要对私有软件包注册表进行身份验证，请引用 `--package-pull-secrets`，并提供 Kubernetes Secret 对象列表。
 
-{{<hint "important" >}}
-The secrets must be in the same namespace as the Crossplane pod. 
-{{< /hint >}}
+{{<hint "important" >}}secrets 必须与 crossplane pod 位于同一个 namespace 中。{{< /hint >}}
 
-#### Customize the number of stored package versions
+#### 自定义存储软件包版本的数量
 
-By default Crossplane only stores a single inactive package in the local package
-cache. 
+默认情况下，crossplane 只在本地软件包缓存中存储单个非活动软件包。
 
-Store more inactive copies of a package with `--revision-history-limit`. 
+使用 `--revision-history-limit` 存储更多软件包的非活动副本。
 
-Read more about 
-[package revisions]({{< ref "../concepts/packages#configuration-revisions" >}}) 
-in the package documentation. 
+有关 [packages revisions]({{< ref "../concepts/packages#configuration-revisions" >}}) 在 packages 文档中。
 
-### xpkg login
+### xpkg 登录
 
-Use `xpkg login` to authenticate to `xpkg.upbound.io`, the 
-[Upbound Marketplace](https://marketplace.upbound.io/) container registry.
+使用 `xpkg login` 对 [upbound Marketplace](https://marketplace.upbound.io/) 容器注册表 `xpkg.upbound.io` 进行身份验证。
 
-[Register with the Upbound Marketplace](https://accounts.upbound.io/register) 
-to push packages and create private repositories. 
+[在 upbound Marketplace 注册](https://accounts.upbound.io/register) 来推送软件包和创建私有软件仓库。
 
-#### Flags
+#### flag
 
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag                            | Description                    |
-| ------------ | -------------                        | ------------------------------ |
-| `-u` | `--username=<username>`    | Username to use for authentication. | 
-| `-p` | `--password=<password>`    | Password to use for authentication. | 
-| `-t` | `--token=<token string>`   | User token string to use for authentication. | 
-| `-a` | `--account=<organization>` | Specify an Upbound organization during authentication. |
-{{< /table >}}
+{{< table "table table-sm table-striped">}}| 短标志 | 长标志 | 说明 | | ------------ | ------------- | ------------------------------ | | `-u` | `-用户名=<username>| | 验证时要使用的用户名。 | | `-p` | `-密码=<password>| | 验证时要使用的密码。 | | `-t` | `-令牌=<token string>| | 验证时要使用的用户令牌字符串。 | | `-a` | `-账户=<organization>| | 验证时指定一个 upbound 组织。{{< /table >}}
 
+#### 验证选项
 
-#### Authentication options
+crossplane xpkg login` 命令可以被引用用户名和密码或 upbound API 令牌。
 
-The `crossplane xpkg login` command can use a username and password or Upbound API token.
+默认情况下，"crossplane xpkg login "不带参数，会提示输入用户名和密码。
 
-By default, `crossplane xpkg login` without arguments, prompts for a username
-and password. 
+使用`--username`和`--password`标志提供用户名和密码，或设置环境变量`UP_USER`以获得用户名，或设置`UP_PASSWORD`以获得密码。
 
-Provide a username and password with the `--username` and `--password` flags or
-set the environmental variable `UP_USER` for a username or `UP_PASSWORD` for the
-password. 
+通过 `--token` 或 `UP_TOKEN` 环境变量，使用 upbound 用户令牌代替用户名和密码。
 
-Use an Upbound user token instead of a username and password with `--token` or 
-the `UP_TOKEN` environmental variable. 
+{{< hint "important" >}}-token "或 "UP_TOKEN "环境变量优先于用户名和密码。{{< /hint >}}
 
-{{< hint "important" >}}
-The `--token` or `UP_TOKEN` environmental variables take precedence over a 
-username and password.
-{{< /hint >}}
+使用 `-` 作为 `--password` 或 `--token` 的输入，会从 stdin 读取输入。 例如，"crossplane xpkg login --password -`"。
 
-Using `-` as the input for `--password` or `--token` reads the input from stdin.  
-For example, `crossplane xpkg login --password -`.
+登录后，crossplane CLI 会在 `.crossplane/config.json` 中创建一个 `profile` 来缓存非特权账户信息。
 
-After logging in the Crossplane CLI creates a `profile` in 
-`.crossplane/config.json` to cache unprivileged account information. 
+{{<hint "note" >}}config.json` 文件中的 `session` 字段是会话 cookie 标识符。
 
-{{<hint "note" >}}
-The `session` field of `config.json` file is a session cookie identifier. 
+session "值不被引用用于身份验证。 这不是一个 "令牌"。{{< /hint >}}
 
-The `session` value isn't used for authentication. This isn't a `token`.
-{{< /hint >}}
+#### 与注册的 upbound 组织进行身份验证
 
-#### Authenticate with a registered Upbound organization
+使用"--账户 "选项，连同用户名和密码或令牌，向 upbound Marketplace 中的注册组织进行身份验证。
 
-Authenticate to a registered organization in the Upbound Marketplace with the 
-`--account` option, along with the username and password or token. 
+例如，`crossplane xpkg login --account=Upbound --username=my-user --password -`。
 
-For example, 
-`crossplane xpkg login --account=Upbound --username=my-user --password -`.
+### xpkg 注销
 
-### xpkg logout
+使用 `crossplane xpkg logout` 使当前的 `crossplane xpkg login` 会话失效。
 
-Use `crossplane xpkg logout` to invalidate the current `crossplane xpkg login` 
-session.
-
-{{< hint "note" >}}
-Using `crossplane xpkg logout` removes the `session` from the 
-`~/.crossplane/config.json` file, but doesn't delete the configuration file.
-{{< /hint >}}
+{{< hint "note" >}}被引用 `crossplane xpkg logout` 会删除 `~/.crossplane/config.json` 文件中的 `session` ，但不会删除配置文件。{{< /hint >}}
 
 ### xpkg push
 
-Push a Crossplane package file to a package registry. 
+将 crossplane 软件包文件推送到软件包注册表。
 
-The Crossplane CLI pushes images to the 
-[Upbound Marketplace](https://marketplace.upbound.io/) at `xpkg.upbound.io` by 
-default.
+Crossplane CLI 默认会将镜像推送到位于 `xpkg.upbound.io` 的 [Upbound Marketplace](https://marketplace.upbound.io/)。
 
-{{< hint "note" >}}
-Pushing a package may require authentication with 
-[`crossplane xpkg login`](#xpkg-login)
-{{< /hint >}}
+{{< hint "note" >}}推送软件包可能需要使用 [`crossplane xpkg login`](#xpkg-login) 进行身份验证{{< /hint >}}
 
-Specify the organization, package name and tag with  
-`crossplane xpkg push <package>`
+用 `crossplane xpkg push<package>` 指定组织、软件包名称和标签
 
-By default the command looks in the current directory for a single `.xpkg` file 
-to push. 
+默认情况下，该命令会在当前目录下查找要推送的单个 `.xpkg` 文件。
 
-To push multiple files or to specify a specific `.xpkg` file use the `-f` flag.
+要推送多个文件或指定特定的 `.xpkg` 文件，请使用 `-f` flag。
 
-For example, to push a local package named `my-package` to 
-`crossplane-docs/my-package:v0.14.0` use:
+例如，要将名为 "my-package "的本地软件包推送到 "crossplane-docs/my-package:v0.14.0"，请使用
 
-`crossplane xpkg push -f my-package.xpkg crossplane-docs/my-package:v0.14.0`
+crossplane xpkg push -f my-package.xpkg crossplane-docs/my-package:v0.14.0
 
-To push to another package registry, like [DockerHub](https://hub.docker.com/) 
-provide the full URL along with the package name. 
+要推送到其他软件包注册表，如 [DockerHub](https://hub.docker.com/)，请提供完整的 URL 和软件包名称。
 
-For example, to push a local package named `my-package` to 
-DockerHub organization `crossplane-docs/my-package:v0.14.0` use:
-`crossplane xpkg push -f my-package.xpkg index.docker.io/crossplane-docs/my-package:v0.14.0`.
+例如，要将名为 "my-package "的本地包推送到 DockerHub 组织 "crossplane-docs/my-package:v0.14.0"，请使用: "crossplane xpkg push -f my-package.xpkg index.docker.io/crossplane-docs/my-package:v0.14.0`.
 
+#### flag
 
-#### Flags
+{{< table "table table-sm table-striped">}}| 短 flag | 长 flag | 说明 | | ------------ | ------------- | ------------------------------ | | `-f` | `--package-files=PATH` | 用逗号分隔的要推送的 xpkg 文件列表。{{< /table >}}
 
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag              | Description                                   |
-| ------------ | -------------          | ------------------------------                |
-| `-f`         | `--package-files=PATH` | A comma-separated list of xpkg files to push. |
-{{< /table >}}
+### xpkg更新
 
-### xpkg update
+crossplane xpkg update "命令下载并更新现有软件包。
 
-The `crossplane xpkg update` command downloads and updates an existing package.
+默认情况下，"crossplane xpkg update "命令被引用"~/.kube/config "中定义的 Kubernetes 配置。
 
-By default the `crossplane xpkg update` command uses the Kubernetes 
-configuration defined in `~/.kube/config`.  
+使用环境变量 "KUBECONFIG "定义自定义 Kubernetes 配置文件位置。
 
-Define a custom Kubernetes configuration file location with the environmental 
-variable `KUBECONFIG`.
+指定软件包种类、软件包文件，还可指定已安装在 crossplane 中的软件包名称。
 
-Specify the package kind, package file and optionally the name of the package 
-already installed in Crossplane.
+`crossplane xpkg update<package-kind> <registry package name and tag> [<optional-name>]`
 
-`crossplane xpkg update <package-kind> <registry package name and tag> [<optional-name>]`
+软件包文件必须是 [Upbound Marketplace](https://marketplace.upbound.io/) 上 `xpkg.upbound.io` 注册表中的组织、镜像和标签。
 
-The package file must be an organization, image and tag on the `xpkg.upbound.io`
-registry on [Upbound Marketplace](https://marketplace.upbound.io/).
+例如，要更新到版本 0.42.0 的 [AWS S3 Provider](https://marketplace.upbound.io/providers/upbound/provider-aws-s3/v0.42.0): 
 
-For example, to update to version 0.42.0 of the 
-[AWS S3 provider](https://marketplace.upbound.io/providers/upbound/provider-aws-s3/v0.42.0):
-
-`crossplane xpkg update provider xpkg.upbound.io/upbound/provider-aws-s3:v0.42.0`
-
+crossplane xpkg 更新 Provider xpkg.upbound.io/upbound/provider-aws-s3:v0.42.0
 
 ## beta
 
-Crossplane `beta` commands are experimental. These commands may change the 
-flags, options or outputs in future releases. 
+crossplane `beta`命令是试验性的。 这些命令可能会在未来的发布版本中改变 flag、选项或输出。
 
-Crossplane maintainers may promote or remove commands under `beta` in future 
-releases.
+crossplane 维护者可能会在未来发布的版本中推广或删除 `beta` 下的相应命令。
 
-### beta render 
+#### 测试版渲染
 
-The `crossplane beta render` command previews the output of a 
-[composite resource]({{<ref "../concepts/composite-resources">}}) after applying 
-any [composition functions]({{<ref "../concepts/composition-functions">}}).
+crossplane beta render "命令预览[合成资源]({{<ref "../concepts/composite-resources">}}) 应用任何 [合成函数]({{<ref "../concepts/composition-functions">}}).
 
-{{< hint "important" >}}
-The `crossplane beta render` command doesn't apply 
-[patch and transform composition patches]({{<ref "../concepts/patch-and-transform">}}).
+{{< hint "important" >}}crossplane beta render "命令不应用[补丁和变换构成补丁]({{<ref "../concepts/patch-and-transform">}}).
 
-The command only supports function "patch and transforms."
-{{< /hint >}}
+该命令仅支持 "修补和变换 "功能。{{< /hint >}}
 
-The `crossplane beta render` command connects to the locally running Docker 
-Engine to pull and run composition functions. 
+`crossplane beta render` 命令会连接到本地运行的 Docker 引擎，拉取并运行 Composition 功能。
 
-{{<hint "important">}} 
-Running `crossplane beta render` requires [Docker](https://www.docker.com/).
-{{< /hint >}}
+{{<hint "important">}}运行 `crossplane beta render` 需要 [Docker](https://www.docker.com/)。{{< /hint >}}
 
-Provide a composite resource, composition and composition function YAML 
-definition with the command to render the output locally. 
+Provider 一个复合资源、Composition 和 Composition 函数 YAML 定义，并附带在本地渲染 Output 的命令。
 
-For example, 
-`crossplane beta render xr.yaml composition.yaml function.yaml`
+例如，"crossplane beta render XR.yaml Composition.yaml function.yaml
 
-The output includes the original composite resource followed by the generated 
-managed resources. 
+输出包括原始 Composition 资源和生成的 managed 资源。
 
 {{<expand "An example render output" >}}
+
 ```yaml
 ---
 apiVersion: nopexample.org/v1
@@ -378,54 +271,32 @@ spec:
   forProvider:
     region: us-east-2
 ```
+
 {{< /expand >}}
 
-#### Flags
+#### flag
 
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag                             | Description                                           |
-| ------------ | -------------                         | ------------------------------                        |
-|              | `--context-files=<key>=<file>,<key>=<file>`    | A comma separated list of files to load for function "contexts." |
-|              | `--context-values=<key>=<value>,<key>=<value>` | A comma separated list of key-value pairs to load for function "contexts."                                                    |
-| `-r`         | `--include-function-results`          | Include the "results" or events from the function.   |
-| `-o`         | `--observed-resources=<directory or file>`               | Provide artificial managed resource data to the function.                                                    |
-|              | `--timeout=`                          | Amount of time to wait for a function to finish.                    |
-{{< /table >}}
+{{< table "table table-sm table-striped">}}<directory or file>| 短标志 | 长标志 | 说明 | | ------------ | ------------- | ------------------------------ | | | `--context-files=<key>=<file>,<key>=<file>| 为函数 "上下文 "加载的以逗号分隔的文件列表。" | | | `--context-values=<key>=<value>,<key>=<value>| 为函数 "上下文 "加载的以逗号分隔的键值对列表。" | | `-r` | `--include-function-results` | 包括函数的 "结果 "或事件。{{< /table >}}
 
-The `crossplane beta render` command relies on standard 
-[Docker environmental variables](https://docs.docker.com/engine/reference/commandline/cli/#environment-variables) 
-to connect to the local Docker engine and run composition functions. 
+crossplane beta render` 命令依靠标准的 [Docker 环境变量](https://docs.docker.com/engine/reference/commandline/cli/#environment-variables) 连接到本地 Docker 引擎并运行 Composition 功能。
 
+#### 提供功能上下文
 
-#### Provide function context
+`--context-files` 和 `--context-values` 标志可以为函数的 `context` 提供数据。 上下文是 JSON 格式的数据。
 
-The `--context-files` and `--context-values` flags can provide data 
-to a function's `context`.  
-The context is JSON formatted data.
+#### 包括函数结果
 
-#### Include function results
+如果函数会产生带有状态的 Kubernetes 事件，请使用 `--include-function-results`，将它们与托管资源输出一起打印出来。
 
-If a function produces Kubernetes events with statuses use the 
-`--include-function-results` to print them along with the managed resource 
-outputs. 
+#### 模拟受管资源
 
-#### Mock managed resources
+用 `--observed-resources`提供代表托管资源的模拟或人工数据。 crossplane beta render`命令会将所提供的输入视为 Crossplane 集群中的资源。
 
-Provide mocked, or artificial data representing a managed resource with 
-`--observed-resources`. The `crossplane beta render` command treats the 
-provided inputs as if they were resources in a Crossplane cluster. 
+函数在运行过程中可以引用和操作包含的资源。
 
-A function can reference and manipulate the included resource as part of 
-running the function.
+观察到的资源 "可以是包含多个资源的单个 YAML 文件，也可以是代表多个资源的 YAML 文件目录。
 
-The `observed-resources` may be a single YAML file with multiple resources or a 
-directory of YAML files representing multiple resources.
-
-Inside the YAML file include an 
-{{<hover label="apiVersion" line="1">}}apiVersion{{</hover>}},
-{{<hover label="apiVersion" line="2">}}kind{{</hover>}},
-{{<hover label="apiVersion" line="3">}}metadata{{</hover>}} and
-{{<hover label="apiVersion" line="7">}}spec{{</hover>}}.
+在 YAML 文件中包含一个{{<hover label="apiVersion" line="1">}}apiVersion{{</hover>}},{{<hover label="apiVersion" line="2">}}类型{{</hover>}},{{<hover label="apiVersion" line="3">}}元数据{{</hover>}}和{{<hover label="apiVersion" line="7">}}规格{{</hover>}}.
 
 ```yaml {label="or"}
 apiVersion: example.org/v1alpha1
@@ -438,191 +309,166 @@ spec:
   coolerField: "I'm cooler!"
 ```
 
-The schema of the resource isn't validated and may contain any data.
+资源模式未经验证，可能包含任何数据。
 
+###β 痕量
 
-### beta trace
+使用 `crossplane beta trace` 命令可显示 crossplane 对象的可视化关系。 `trace` 命令支持 claims、composition 或 managed resources。
 
-Use the `crossplane beta trace` command to display a visual relationship of
-Crossplane objects. The `trace` command supports claims, compositions or
-managed resources. 
+该命令需要一个资源类型和一个资源名称。
 
-The command requires a resource type and a resource name.  
+` crossplane beta trace<resource kind> <resource name>`
 
-`crossplane beta trace <resource kind> <resource name>`
+例如，要查看类型为 `example.crossplane.io` 的名为 `my-claim` 的资源:  `crossplane beta trace example.crossplane.io my-claim`
 
-For example to view a resource named `my-claim` of type `example.crossplane.io`:  
-`crossplane beta trace example.crossplane.io my-claim`
+该命令还接受 Kubernetes CLI 风格的 `<kind>/<name>` 输入。例如，`crossplane beta trace example.crossplane.io/my-claim`
 
-The command also accepts Kubernetes CLI style `<kind>/<name>` input.  
-For example,  
-`crossplane beta trace example.crossplane.io/my-claim`
+默认情况下，"crossplane beta trace "命令被引用在"~/.kube/config "中定义的 Kubernetes 配置。
 
-By default the `crossplane beta trace` command uses the Kubernetes 
-configuration defined in `~/.kube/config`.  
+使用环境变量 "KUBECONFIG "定义自定义 Kubernetes 配置文件位置。
 
-Define a custom Kubernetes configuration file location with the environmental 
-variable `KUBECONFIG`.
+#### flag
 
-#### Flags
 {{< table "table table-sm table-striped">}}
+
 <!-- vale Crossplane.Spelling = NO -->
+
 <!-- vale flags `dot` as an error but only the trailing tick. -->
-| Short flag   | Long flag                   | Description                                                                        |
-| ------------ | -------------               | ------------------------------                                                     |
-| `-n`         | `--namespace`               | The namespace of the resource.                                                     |
-| `-o`         | `--output=`                 | Change the graph output with `wide`, `json`, or `dot` for a [Graphviz dot](https://graphviz.org/docs/layouts/dot/) output. |
-| `-s`         | `--show-connection-secrets` | Print any connection secret names. Doesn't print the secret values.                |
+
+| 短标志 | 长标志 | 说明 | | ------------ | ------------- | ------------------------------ | | `-n` | `--namespace` | 资源的命名空间。 | | `-o` | `--output=` | 使用 `wide`、`json` 或 `dot` 更改图形输出，以获得 [Graphviz dot](https://graphviz.org/docs/layouts/dot/) 输出。 | | `-s` | `--show-connection-secrets` | 打印任何连接秘密名称。 不打印秘密值。
+
 <!-- vale Crossplane.Spelling = YES -->
+
 {{< /table >}}
 
-#### Output options
+#### 输出选项
 
-By default `crossplane beta trace` prints directly to the terminal, limiting the
-"Ready" condition and "Status" messages to 64 characters.
+默认情况下，"crossplane beta trace "直接打印到终端，将 "就绪 "条件和 "状态 "信息限制为 64 个字符。
 
-The following an example output a "cluster" claim from the AWS reference 
-platform, which includes multiple Compositions and composed resources: 
+以下示例输出了 AWS 参考平台的 "集群 "索赔，其中包括多个 Composition 和组成资源: 
 
 ```shell {copy-lines="1"}
 crossplane beta trace cluster.aws.platformref.upbound.io platform-ref-aws
-NAME                                                              SYNCED   READY   STATUS
-Cluster/platform-ref-aws (default)                                True     True    Available
-└─ XCluster/platform-ref-aws-mlnwb                                True     True    Available
-   ├─ XNetwork/platform-ref-aws-mlnwb-6nvkx                       True     True    Available
-   │  ├─ VPC/platform-ref-aws-mlnwb-ckblr                         True     True    Available
-   │  ├─ InternetGateway/platform-ref-aws-mlnwb-r7w47             True     True    Available
-   │  ├─ Subnet/platform-ref-aws-mlnwb-lhr4h                      True     True    Available
-   │  ├─ Subnet/platform-ref-aws-mlnwb-bss4b                      True     True    Available
-   │  ├─ Subnet/platform-ref-aws-mlnwb-fzbxx                      True     True    Available
-   │  ├─ Subnet/platform-ref-aws-mlnwb-vxbf4                      True     True    Available
-   │  ├─ RouteTable/platform-ref-aws-mlnwb-cs9nl                  True     True    Available
-   │  ├─ Route/platform-ref-aws-mlnwb-vpxdg                       True     True    Available
-   │  ├─ MainRouteTableAssociation/platform-ref-aws-mlnwb-sngx5   True     True    Available
-   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-hprsp       True     True    Available
-   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-shb8f       True     True    Available
-   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-hvb2h       True     True    Available
-   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-m58vl       True     True    Available
-   │  ├─ SecurityGroup/platform-ref-aws-mlnwb-xxbl2               True     True    Available
-   │  ├─ SecurityGroupRule/platform-ref-aws-mlnwb-7qt56           True     True    Available
-   │  └─ SecurityGroupRule/platform-ref-aws-mlnwb-szgxp           True     True    Available
-   ├─ XEKS/platform-ref-aws-mlnwb-fqjzz                           True     True    Available
-   │  ├─ Role/platform-ref-aws-mlnwb-gmpqv                        True     True    Available
-   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-t6rct        True     True    Available
-   │  ├─ Cluster/platform-ref-aws-mlnwb-crrt8                     True     True    Available
-   │  ├─ ClusterAuth/platform-ref-aws-mlnwb-dgn6f                 True     True    Available
-   │  ├─ Role/platform-ref-aws-mlnwb-tdnx4                        True     True    Available
-   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-qzljh        True     True    Available
-   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-l64q2        True     True    Available
-   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-xn2px        True     True    Available
-   │  ├─ NodeGroup/platform-ref-aws-mlnwb-4sfss                   True     True    Available
-   │  ├─ OpenIDConnectProvider/platform-ref-aws-mlnwb-h26xx       True     True    Available
+NAME SYNCED READY STATUS
+Cluster/platform-ref-aws (default)                                True True Available
+└─ XCluster/platform-ref-aws-mlnwb True True Available
+   ├─ XNetwork/platform-ref-aws-mlnwb-6nvkx True True Available
+   │  ├─ VPC/platform-ref-aws-mlnwb-ckblr True True Available
+   │  ├─ InternetGateway/platform-ref-aws-mlnwb-r7w47 True True Available
+   │  ├─ Subnet/platform-ref-aws-mlnwb-lhr4h True True Available
+   │  ├─ Subnet/platform-ref-aws-mlnwb-bss4b True True Available
+   │  ├─ Subnet/platform-ref-aws-mlnwb-fzbxx True True Available
+   │  ├─ Subnet/platform-ref-aws-mlnwb-vxbf4 True True Available
+   │  ├─ RouteTable/platform-ref-aws-mlnwb-cs9nl True True Available
+   │  ├─ Route/platform-ref-aws-mlnwb-vpxdg True True Available
+   │  ├─ MainRouteTableAssociation/platform-ref-aws-mlnwb-sngx5 True True Available
+   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-hprsp True True Available
+   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-shb8f True True Available
+   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-hvb2h True True Available
+   │  ├─ RouteTableAssociation/platform-ref-aws-mlnwb-m58vl True True Available
+   │  ├─ SecurityGroup/platform-ref-aws-mlnwb-xxbl2 True True Available
+   │  ├─ SecurityGroupRule/platform-ref-aws-mlnwb-7qt56 True True Available
+   │  └─ SecurityGroupRule/platform-ref-aws-mlnwb-szgxp True True Available
+   ├─ XEKS/platform-ref-aws-mlnwb-fqjzz True True Available
+   │  ├─ Role/platform-ref-aws-mlnwb-gmpqv True True Available
+   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-t6rct True True Available
+   │  ├─ Cluster/platform-ref-aws-mlnwb-crrt8 True True Available
+   │  ├─ ClusterAuth/platform-ref-aws-mlnwb-dgn6f True True Available
+   │  ├─ Role/platform-ref-aws-mlnwb-tdnx4 True True Available
+   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-qzljh True True Available
+   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-l64q2 True True Available
+   │  ├─ RolePolicyAttachment/platform-ref-aws-mlnwb-xn2px True True Available
+   │  ├─ NodeGroup/platform-ref-aws-mlnwb-4sfss True True Available
+   │  ├─ OpenIDConnectProvider/platform-ref-aws-mlnwb-h26xx True True Available
    │  └─ ProviderConfig/platform-ref-aws                          -        -
-   └─ XServices/platform-ref-aws-mlnwb-bgndx                      True     True    Available
-      ├─ Release/platform-ref-aws-mlnwb-bcj7r                     True     True    Available
-      └─ Release/platform-ref-aws-mlnwb-7hfkv                     True     True    Available
+   └─ XServices/platform-ref-aws-mlnwb-bgndx True True Available
+      ├─ Release/platform-ref-aws-mlnwb-bcj7r True True Available
+      └─ Release/platform-ref-aws-mlnwb-7hfkv True True Available
 ```
 
-#### Wide outputs
-Print the entire "Ready" or "Status" message if they're longer than 
-64 characters with `--output=wide`. 
+#### 宽幅输出
 
-For example, the output truncates the "Status" message that's too long. 
+如果 "就绪 "或 "状态 "信息长度超过 64 个字符，则使用 `--output=wide`打印整个信息。
+
+例如，Output 会截断过长的 "状态 "信息。
 
 ```shell {copy-lines="1"
 crossplane trace cluster.aws.platformref.upbound.io platform-ref-aws
-NAME                                                              SYNCED   READY   STATUS
-Cluster/platform-ref-aws (default)                                True     False   Waiting: ...resource claim is waiting for composite resource to become Ready
+NAME SYNCED READY STATUS
+Cluster/platform-ref-aws (default)                                True False Waiting: ...resource claim is waiting for composite resource to become Ready
 ```
 
-Use `--output=wide` to see the full message.
+被引用 `--output=wide` 可查看完整信息。
 
 ```shell {copy-lines="1"
 crossplane trace cluster.aws.platformref.upbound.io platform-ref-aws --output=wide
-NAME                                                              SYNCED   READY   STATUS
-Cluster/platform-ref-aws (default)                                True     False   Waiting: Composite resource claim is waiting for composite resource to become Ready
+NAME SYNCED READY STATUS
+Cluster/platform-ref-aws (default)                                True False Waiting: Composite resource claim is waiting for composite resource to become Ready
 ```
 
-#### Graphviz dot file output
+#### Graphviz dot 文件输出
 
-Use the `--output=dot` to print out a textual 
-[Graphviz dot](https://graphviz.org/docs/layouts/dot/) output. 
+使用 `--output=dot` 可以打印出文本 [Graphviz dot](https://graphviz.org/docs/layouts/dot/)输出。
 
-Save the output and export it or the output directly to Graphviz `dot` to 
-render an image. 
+保存输出并将其导出，或将输出直接导入 Graphviz `dot` 以渲染镜像。
 
-For example, to save the output as a `graph.png` file use 
-`dot -Tpng -o graph.png`.
+例如，要将输出保存为 `graph.png` 文件，请使用 `dot -Tpng -o graph.png`。
 
-`crossplane beta trace cluster.aws.platformref.upbound.io platform-ref-aws -o dot | dot -Tpng -o graph.png`
+`crossplane beta trace集群.aws.platformref.upbound.io platform-ref-aws -o dot | dot -Tpng -o graph.png`
 
-#### Print connection secrets
+#### 打印连接秘密
 
-Use `-s` to print any connection secret names along with the other resources.
+使用 `-s` 可将任何连接 secret 名称与其他资源一起打印出来。
 
-{{<hint "important">}}
-The `crossplane beta trace` command doesn't print secret values.
-{{< /hint >}}
+{{<hint "important">}}crossplane beta trace` 命令不打印 secret 值。{{< /hint >}}
 
-The output includes both the secret name along with the secret's namespace.
+输出结果包括秘密名称和秘密的 namespace。
 
 ```shell
-NAME                                                                        SYNCED   READY   STATUS
-Cluster/platform-ref-aws (default)                                          True     True    Available
-└─ XCluster/platform-ref-aws-mlnwb                                          True     True    Available
-   ├─ XNetwork/platform-ref-aws-mlnwb-6nvkx                                 True     True    Available
-   │  ├─ SecurityGroupRule/platform-ref-aws-mlnwb-szgxp                     True     True    Available
+NAME SYNCED READY STATUS
+Cluster/platform-ref-aws (default)                                          True True Available
+└─ XCluster/platform-ref-aws-mlnwb True True Available
+   ├─ XNetwork/platform-ref-aws-mlnwb-6nvkx True True Available
+   │  ├─ SecurityGroupRule/platform-ref-aws-mlnwb-szgxp True True Available
    │  └─ Secret/3f11c30b-dd94-4f5b-aff7-10fe4318ab1f (upbound-system)       -        -
-   ├─ XEKS/platform-ref-aws-mlnwb-fqjzz                                     True     True    Available
-   │  ├─ OpenIDConnectProvider/platform-ref-aws-mlnwb-h26xx                 True     True    Available
+   ├─ XEKS/platform-ref-aws-mlnwb-fqjzz True True Available
+   │  ├─ OpenIDConnectProvider/platform-ref-aws-mlnwb-h26xx True True Available
    │  └─ Secret/9666eccd-929c-4452-8658-c8c881aee137-eks (upbound-system)   -        -
-   ├─ XServices/platform-ref-aws-mlnwb-bgndx                                True     True    Available
-   │  ├─ Release/platform-ref-aws-mlnwb-7hfkv                               True     True    Available
+   ├─ XServices/platform-ref-aws-mlnwb-bgndx True True Available
+   │  ├─ Release/platform-ref-aws-mlnwb-7hfkv True True Available
    │  └─ Secret/d0955929-892d-40c3-b0e0-a8cabda55895 (upbound-system)       -        -
    └─ Secret/9666eccd-929c-4452-8658-c8c881aee137 (upbound-system)          -        -
 ```
 
 ### beta xpkg init
 
-The `crossplane beta xpkg init` command populates the current directory with 
-files to build a package. 
+`crossplane beta xpkg init` 命令会在当前目录下填充文件，以构建软件包。
 
-Provide a name to use for the package and the package template to start from 
-with the command  
-`crossplane beta xpkg init <name> <template>`
+Provider 被引用的软件包名称和软件包模板应从命令 `crossplane beta xpkg init<name> <template>`开始。
 
-The `<name>` input isn't used. Crossplane reserves the `<name>` for future releases.
+<name>` 输入没有被引用。Crossplane 为将来的发布保留了 `<name>`。
 
-The `<template>` value may be one of four well known templates:
-* `function-template-go` - A template to build Crossplane Go [composition functions]({{<ref "../concepts/composition-functions">}}) from the [crossplane/function-template-go](https://github.com/crossplane/function-template-go) repository.
-* `function-template-python` - A template to build Crossplane Python [composition functions]({{<ref "../concepts/composition-functions">}}) from the [crossplane/function-template-python](https://github.com/crossplane/function-template-go) repository.
-* `provider-template` - A template to build a basic Crossplane provider from the [Crossplane/provider-template](https://github.com/crossplane/provider-template) repository.
-* `provider-template-upjet` - A template for building [Upjet](https://github.com/crossplane/upjet) based Crossplane providers from existing Terraform providers. Copies from the [upbound/upjet-provider-template](https://github.com/upbound/upjet-provider-template) repository.
+<template>` 值可以是四种众所周知的模板之一: 
 
-Instead of a well known template the `<template>` value can be a git repository 
-URL.
+* `function-template-go` - 一个用于构建 crossplane Go [组成函数]({{<ref "../concepts/composition-functions">}}) 的模板来自 [crossplane/function-template-go](https://github.com/crossplane/function-template-go) 资源库。
+* `function-template-python` - 一个模板，用于从 [crossplane/function-template-go]() 资源库中创建 Crossplane Python [组成函数]({{<ref "../concepts/composition-functions">}}) 的模板，来自 [crossplane/function-template-python](https://github.com/crossplane/function-template-go) 资源库。
+* `provider-template` - 从 [crossplane/provider-template](https://github.com/crossplane/provider-template) 资源库中创建基本的 Crossplane 提供程序的模板。
+* `provider-template-upjet` - 用于从现有 Terraform 提供程序构建基于 [Upjet](https://github.com/crossplane/upjet) 的 Crossplane 提供程序的模板。复制自 [upbound/upjet-provider-template](https://github.com/upbound/upjet-provider-template) 资源库。
+
+<template>` 值可以是 git 仓库的 URL，而不是众所周知的模板。
 
 #### NOTES.txt
 
-If the template repository contains a `NOTES.txt` file in its root directory,
-the `crossplane beta xpkg init` command prints the contents of the file to the
-terminal after populating the directory with the template files. This can be
-useful for providing information about the template.
+如果模板库的根目录中包含`NOTES.txt`文件，则`crossplane beta xpkg init`命令会在用模板文件填充目录后将该文件的内容打印到终端。 这对于提供有关模板的信息非常有用。
 
 #### init.sh
 
-If the template repository contains an `init.sh` file in its root directory, the
-`crossplane beta xpkg init` command starts a dialog after populating the
-directory with the template files. The dialog prompts the user if they want
-to view or run the script. Use the initialization script to automatically
-personalize the template.
+如果模板库的根目录中包含`init.sh`文件，则`crossplane beta xpkg init`命令在向目录中填充模板文件后会启动一个对话框。 对话框会提示用户是否要查看或运行脚本。 使用初始化脚本可自动个性化模板。
 
-#### Flags
-{{< table "table table-sm table-striped">}}
-| Short flag   | Long flag               | Description                                                                                      |
-| ------------ | ----------------------- | ------------------------------                                                                   |
-| `-d`         | `--directory`           | The directory to create and load the template files into. Uses the current directory by default. |
-| `-r`         | `--run-init-script`     | Run the init.sh script without prompting, if it exists.                                                        |
+#### flag
+
+{{< table "table table-sm table-striped">}}| 短标志 | 长标志 | 说明 | | ------------ | ----------------------- | ------------------------------ | | `-d` | `--directory` | 创建和加载模板文件的目录。 默认被引用到当前目录。 | | `-r` | `--run-init-script` | 运行 init.sh 脚本，如果存在的话，无需提示。
+
 <!-- vale Crossplane.Spelling = YES -->
-{{< /table >}}
 
+{{< /table >}}

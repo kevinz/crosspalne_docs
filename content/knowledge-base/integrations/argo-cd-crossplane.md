@@ -1,28 +1,22 @@
----  
-title: Configuring Crossplane with Argo CD
+---
+
+title: 使用 Argo CD 配置 crossplane
 weight: 270
----  
 
-[Argo CD](https://argoproj.github.io/cd/) and [Crossplane](https://crossplane.io)
-are a great combination. Argo CD provides GitOps while Crossplane turns any Kubernetes
-cluster into a Universal Control Plane for all of your resources. There are
-configuration details required in order for the two to work together properly.
-This doc will help you understand these requirements. It is recommended to use
-Argo CD version 2.4.8 or later with Crossplane.
- 
-Argo CD synchronizes Kubernetes resource manifests stored in a Git repository
-with those running in a Kubernetes cluster (GitOps). There are different ways to configure 
-how Argo CD tracks resources. With Crossplane, you need to configure Argo CD 
-to use Annotation based resource tracking. See the [Argo CD docs](https://argo-cd.readthedocs.io/en/latest/user-guide/resource_tracking/) for additional detail.
- 
-### Configuring Argo CD with Crossplane
+---
 
-#### Set Resource Tracking Method
+[Argo CD](https://argoproj.github.io/cd/)和[Crossplane](https://crossplane.io)是一个很好的组合。Argo CD 提供 GitOps 功能，而 Crossplane 可将任何 Kubernetes 集群转化为所有资源的通用控制平面（Universal Control Plane）。 要使二者正常协同工作，需要一些配置细节。 本文档将帮助您了解这些要求。 建议将 Argo CD 2.4.8 或更高版本与 Crossplane 结合使用。
 
-In order for Argo CD to correctly track Application resources that contain Crossplane related objects it needs
-to be configured to use the annotation mechanism.
+Argo CD 会将存储在 Git 仓库中的 Kubernetes 资源清单与运行在 Kubernetes 集群（GitOps）中的资源清单同步。 配置 Argo CD 跟踪资源的方式有多种。 使用 crossplane 时，需要将 Argo CD 配置为使用基于 Annotations 的资源跟踪。更多详情请参见 [Argo CD docs](https://argo-cd.readthedocs.io/en/latest/user-guide/resource_tracking/)。
 
-To configure it, edit the `argocd-cm` `ConfigMap` in the `argocd` `Namespace` as such:
+### 使用 crossplane 配置 Argo CD
+
+#### 设置资源跟踪方法
+
+为了使 Argo CD 能够正确跟踪包含 crossplane 相关对象的应用程序资源，需要将其配置为使用 Annotations 机制。
+
+要对其进行配置，请在 `argocd` `Namespace` 中编辑 `argocd-cm``ConfigMap` 如下: 
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -30,19 +24,14 @@ data:
   application.resourceTrackingMethod: annotation
 ```
 
-#### Set Health Status
+#### 设置健康状况
 
-Argo CD has a built-in health assessment for Kubernetes resources. Some checks are supported by the community directly
-in Argo's [repository](https://github.com/argoproj/argo-cd/tree/master/resource_customizations). For example the `Provider`
-from `pkg.crossplane.io` has already been declared which means there no further configuration needed.
+Argo CD 内置了 Kubernetes 资源的健康评估功能。 社区直接在 Argo 的 [repository](https://github.com/argoproj/argo-cd/tree/master/resource_customizations)中支持某些检查。例如，"pkg.crossplane.io "中的 "Provider "已经声明式，这意味着无需进一步配置。
 
-Argo CD also enable customising these checks per instance, and that's the mechanism used to provide support
-of Provider's CRDs.
+Argo CD 还能在每个实例中自定义这些检查，这就是用来为 Provider 的 CRD 提供支持的机制。
 
-To configure it, edit the `argocd-cm` `ConfigMap` in the `argocd` `Namespace`.
-{{<hint "note">}}
-{{<hover label="argocfg" line="22">}} ProviderConfig{{</hover>}} may have no status or a `status.users` field.
-{{</hint>}}
+要对其进行配置，请编辑 `argocd` `Namespace` 中的 `argocd-cm``ConfigMap` 。{{<hint "note">}}{{<hover label="argocfg" line="22">}}提供程序配置{{</hover>}}可能没有状态或`status.users`字段。{{</hint>}}
+
 ```yaml {label="argocfg"}
 apiVersion: v1
 kind: ConfigMap
@@ -174,16 +163,14 @@ data:
         return health_status
 ```
 
-#### Set Resource Exclusion
+#### 设置资源排除
 
-Crossplane providers generates a `ProviderConfigUsage` for each of the managed resource (MR) it handles. This resource
-enable representing the relationship between MR and a ProviderConfig so that the controller can use it as finalizer when a
-ProviderConfig is deleted. End-users of Crossplane are not expected to interact with this resource.
+Crossplane 提供商会为其处理的每个托管资源（MR）生成一个 "ProviderConfigUsage"。 该资源用于表示 MR 与 ProviderConfig 之间的关系，以便控制器在删除 ProviderConfig 时将其用作 Finalizer。 Crossplane 的最终用户不应与该资源交互。
 
-Argo CD UI reactivity can be impacted as the number of resource and types grow. To help keep this number low we
-recommend hiding all `ProviderConfigUsage` resources from Argo CD UI.
+随着资源和类型数量的增加，Argo CD UI 的反应能力也会受到影响。 为减少资源数量，我们建议在 Argo CD UI 中隐藏所有 `ProviderConfigUsage` 资源。
 
-To configure resource exclusion  edit the `argocd-cm` `ConfigMap` in the `argocd` `Namespace` as such:
+要配置资源排除，请按如下方式编辑 `argocd` `Namespace` 中的 `argocd-cm``ConfigMap` : 
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -195,15 +182,12 @@ data:
         - ProviderConfigUsage
 ```
 
-The use of `"*"` as apiGroups will enable the mechanism for all Crossplane Providers.
+使用 `"*"` 作为 apiGroups 将使该机制适用于所有 crossplane Providerers。
 
-#### Increase K8s Client QPS
+#### 提高 k8s 客户端 QPS
 
-As the number of CRDs grow on a control plane it will increase the amount of queries Argo CD Application Controller
-needs to send to the Kubernetes API. If this is the case you can increase the rate limits of the Argo CD Kubernetes client.
+随着控制平面上 CRD 数量的增加，Argo CD 应用程序控制器需要向 Kubernetes API 发送的查询量也会增加。 如果出现这种情况，您可以增加 Argo CD Kubernetes 客户端的速率限制。
 
-Set the environment variable `ARGOCD_K8S_CLIENT_QPS` to `300` for improved compatibility with a large number of CRDs.
+将环境变量 `ARGOCD_K8S_CLIENT_QPS` 设为 `300`，以提高与大量 CRD 的兼容性。
 
-The default value of `ARGOCD_K8S_CLIENT_QPS` is 50, modifying the value will also update `ARGOCD_K8S_CLIENT_BURST` as it
-is default to `ARGOCD_K8S_CLIENT_QPS` x 2.
-
+ARGOCD_K8S_CLIENT_QPS` 的默认值是 50，修改该值也会更新 `ARGOCD_K8S_CLIENT_BURST`，因为它的默认值是 `ARGOCD_K8S_CLIENT_QPS` x 2。

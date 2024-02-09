@@ -1,107 +1,99 @@
 ---
-title: Vault as an External Secret Store
+
+title: 作为外部秘密存储的 Vault
 weight: 230
+
 ---
 
-This guide walks through the steps required to configure Crossplane and
-its Providers to use [Vault] as an [External Secret Store] (`ESS`) with [ESS Plugin Vault].
+本指南介绍了配置 Crossplane 及其 Provider 将 [Vault](https://www.vaultproject.io/) 用作 [外部秘密存储](https://github.com/crossplane/crossplane/blob/master/design/design-doc-external-secret-stores.md) (`ESS`)与 [ESS 插件 Vault](https://github.com/crossplane-contrib/ess-plugin-vault)所需的步骤。
 
-{{<hint "warning" >}}
-External Secret Stores are an alpha feature.
+{{<hint "warning" >}}外部秘密存储是 alpha 功能。
 
-They're not recommended for production use. Crossplane disables External Secret
-Stores by default.
-{{< /hint >}}
+crossplane 默认禁用外部秘密存储。{{< /hint >}}
 
-Crossplane uses sensitive information including Provider credentials, inputs to
-managed resources and connection details.
+crossplane 会使用敏感信息，包括 Provider 凭据、对托管资源的输入和连接详情。
 
-The [Vault credential injection guide]({{<ref "vault-injection" >}}) details
-using Vault and Crossplane for Provider credentials.
+Vault 凭据注入指南]({{<ref "vault-injection" >}}) 详细介绍了如何使用 Vault 和 crossplane 注入 Provider 凭据。
 
-Crossplane doesn't support for using Vault for managed resources input.
-[Crossplane issue #2985](https://github.com/crossplane/crossplane/issues/2985)
-tracks support for this feature.
+Crossplane 不支持将 Vault 用于托管资源输入。[Crossplane issue #2985](https://github.com/crossplane/crossplane/issues/2985)跟踪对该功能的支持。
 
-Supporting connection details with Vault requires a Crossplane external secret
-store.
+使用 Vault 支持连接详情需要一个 Crossplane 外部秘密存储。
 
-## Prerequisites
-This guide requires [Helm](https://helm.sh) version 3.11 or later.
+## 先决条件
 
-## Install Vault
+本指南需要 [Helm](https://helm.sh) 3.11 或更高版本。
 
-{{<hint "note" >}}
-Detailed instructions on [installing
-Vault](https://developer.hashicorp.com/vault/docs/platform/k8s/helm)
-are available from the Vault documentation.
-{{< /hint >}}
+## 安装 Vault
 
-### Add the Vault Helm chart
+{{<hint "note" >}}有关 [安装 Vault](https://developer.hashicorp.com/vault/docs/platform/k8s/helm)的详细说明，可查阅 Vault 文档。{{< /hint >}}
 
-Add the Helm repository for `hashicorp`.
+### 添加 Vault Helm 图表
+
+为 `hashicorp` 添加 Helm 资源库。
+
 ```shell
-helm repo add hashicorp https://helm.releases.hashicorp.com --force-update 
+helm repo add hashicorp https://helm.releases.hashicorp.com --force-update
 ```
 
-Install Vault using Helm.
+使用 Helm 安装 Vault。
+
 ```shell
 helm -n vault-system upgrade --install vault hashicorp/vault --create-namespace
 ```
 
-### Unseal Vault
+### 打开 Vault 的封印
 
-If Vault is [sealed](https://developer.hashicorp.com/vault/docs/concepts/seal)
-unseal Vault using the unseal keys.
+如果 Vault 已被 [密封](https://developer.hashicorp.com/vault/docs/concepts/seal)，则使用解封键解封 Vault。
 
-Get the Vault keys.
+获取 Vault 钥匙。
+
 ```shell
 kubectl -n vault-system exec vault-0 -- vault operator init -key-shares=1 -key-threshold=1 -format=json > cluster-keys.json
 VAULT_UNSEAL_KEY=$(cat cluster-keys.json | jq -r ".unseal_keys_b64[]")
 ```
 
-Unseal the vault using the keys.
+用钥匙打开 Vault 的封条。
+
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec vault-0 -- vault operator unseal $VAULT_UNSEAL_KEY
-Key             Value
+Key Value
 ---             -----
-Seal Type       shamir
-Initialized     true
-Sealed          false
-Total Shares    1
-Threshold       1
-Version         1.13.1
-Build Date      2023-03-23T12:51:35Z
-Storage Type    file
-Cluster Name    vault-cluster-df884357
-Cluster ID      b3145d26-2c1a-a7f2-a364-81753033c0d9
-HA Enabled      false
+Seal Type shamir
+Initialized true
+Sealed false
+Total Shares 1
+Threshold 1
+Version 1.13.1
+Build Date 2023-03-23T12:51:35Z
+Storage Type file
+Cluster Name vault-cluster-df884357
+Cluster ID b3145d26-2c1a-a7f2-a364-81753033c0d9
+HA Enabled false
 ```
 
-## Configure Vault Kubernetes authentication
+## 配置 Vault Kubernetes 身份验证
 
-Enable the [Kubernetes auth method] for Vault to authenticate requests based on
-Kubernetes service accounts.
+为 Vault 启用[Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes)，以便根据 Kubernetes 服务账户验证请求。
 
-### Get the Vault root token
+### 获取 Vault 根令牌
 
-The Vault root token is inside the JSON file created when
-[unsealing Vault](#unseal-vault).
+Vault 根令牌位于[解封 Vault](#unseal-vault) 时创建的 JSON 文件内。
 
 ```shell
 cat cluster-keys.json | jq -r ".root_token"
 ```
 
-### Enable Kubernetes authentication
+### 启用 Kubernetes 身份验证
 
-Connect to a shell in the Vault pod.
+连接到 Vault pod 中的外壳。
 
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -it vault-0 -- /bin/sh
 / $
 ```
 
-From the Vault shell, login to Vault using the _root token_.
+从 Vault 外壳，使用 _root 令牌登录 Vault。
+
 ```shell {copy-lines="1"}
 vault login # use the root token from above
 Token (will be hidden):
@@ -109,24 +101,25 @@ Success! You are now authenticated. The token information displayed below
 is already stored in the token helper. You do NOT need to run "vault login"
 again. Future Vault requests will automatically use this token.
 
-Key                  Value
+Key Value
 ---                  -----
-token                hvs.TSN4SssfMBM0HAtwGrxgARgn
-token_accessor       qodxHrINVlRXKyrGeeDkxnih
+token hvs.TSN4SssfMBM0HAtwGrxgARgn
+token_accessor qodxHrINVlRXKyrGeeDkxnih
 token_duration       ∞
-token_renewable      false
+token_renewable false
 token_policies       ["root"]
 identity_policies    []
 policies             ["root"]
 ```
 
-Enable the Kubernetes authentication method in Vault.
+在 Vault 中启用 Kubernetes 身份验证方法。
+
 ```shell {copy-lines="1"}
 vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
 ```
 
-Configure Vault to communicate with Kubernetes and exit the Vault shell
+配置 Vault 与 Kubernetes 通信并退出 Vault shell
 
 ```shell {copy-lines="1-4"}
 vault write auth/kubernetes/config \
@@ -137,32 +130,31 @@ Success! Data written to: auth/kubernetes/config
 / $ exit
 ```
 
-## Configure Vault for Crossplane integration
+## 配置 Vault 以实现 Crossplane 集成
 
-Crossplane relies on the Vault key-value secrets engine to store information and
-Vault requires a permissions policy for the Crossplane service account.
+crossplane 依赖 Vault 键值秘密引擎存储信息，Vault 需要为 crossplane 服务账户设置权限策略。
 
 <!-- vale Crossplane.Spelling = NO -->
+
 <!-- allow "kv" -->
-### Enable the Vault kv secrets engine
+
+### 启用 Vault kv secret 引擎
+
 <!-- vale Crossplane.Spelling = YES -->
 
-Enable the [Vault KV Secrets Engine].
+启用 [Vault KV Secrets Engine]（https://developer.hashicorp.com/vault/docs/secrets/kv）。
 
-{{< hint "important" >}}
-Vault has two versions of the
-[KV Secrets Engine](https://developer.hashicorp.com/vault/docs/secrets/kv).
-This example uses version 2.
-{{</hint >}}
+{{< hint "important" >}}Vault 有两个版本的 [KV Secrets Engine](https://developer.hashicorp.com/vault/docs/secrets/kv)。本例被引用的是版本 2。{{</hint >}}
 
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -it vault-0 -- vault secrets enable -path=secret kv-v2
 Success! Enabled the kv-v2 secrets engine at: secret/
 ```
 
-### Create a Vault policy for Crossplane
+### 为 crossplane 创建 Vault 策略
 
-Create the Vault policy to allow Crossplane to read and write data from Vault.
+创建 Vault 策略，允许 crossplane 从 Vault 读写数据。
+
 ```shell {copy-lines="1-8"}
 kubectl -n vault-system exec -i vault-0 -- vault policy write crossplane - <<EOF
 path "secret/data/*" {
@@ -175,7 +167,8 @@ EOF
 Success! Uploaded policy: crossplane
 ```
 
-Apply the policy to Vault.
+将策略应用到 Vault。
+
 ```shell {copy-lines="1-5"}
 kubectl -n vault-system exec -it vault-0 -- vault write auth/kubernetes/role/crossplane \
     bound_service_account_names="*" \
@@ -185,25 +178,21 @@ kubectl -n vault-system exec -it vault-0 -- vault write auth/kubernetes/role/cro
 Success! Data written to: auth/kubernetes/role/crossplane
 ```
 
-## Install Crossplane
+## 安装 crossplane
 
-{{<hint "important" >}}
-Crossplane v1.12 introduced the plugin support. Make sure your version of Crossplane supports plugins.
-{{< /hint >}}
+{{<hint "important" >}}Crossplane v1.12 引入了插件支持，请确保您的 Crossplane 版本支持插件。{{< /hint >}}
 
-Install the Crossplane with the External Secrets Stores feature enabled.
+在启用外部存储功能的情况下安装 crossplane。
 
 ```shell 
 helm upgrade --install crossplane crossplane-stable/crossplane --namespace crossplane-system --create-namespace --set args='{--enable-external-secret-stores}'
 ```
 
-## Install the Crossplane Vault plugin
+## 安装 Crossplane Vault 插件
 
-The Crossplane Vault plugin isn't part of the default Crossplane install.
-The plugin installs as a unique Pod that uses the [Vault Agent Sidecar
-Injection] to connect the Vault secret store to Crossplane.
+Crossplane Vault 插件不是 Crossplane 默认安装的一部分。 该插件以独特 Pod 的形式安装，使用 [Vault Agent Sidecar Injection](https://www.vaultproject.io/docs/platform/k8s/injector) 将 Vault 秘密存储连接到 Crossplane。
 
-First, configure annotations for the Vault plugin pod.
+首先，为 Vault 插件 pod 配置 Annotations。
 
 ```yaml
 cat > values.yaml <<EOF
@@ -214,30 +203,24 @@ podAnnotations:
   vault.hashicorp.com/agent-run-as-user: "65532"
 EOF
 ```
-Next, install the Crossplane ESS Plugin pod to the `crossplane-system` namespace
-and apply the Vault annotations.
+
+接下来，将 Crossplane ESS Plugin pod 安装到 `crossplane-system` 名称空间，并应用 Vault 注释。
 
 ```shell
 helm upgrade --install ess-plugin-vault oci://xpkg.upbound.io/crossplane-contrib/ess-plugin-vault --namespace crossplane-system -f values.yaml
 ```
 
-## Configure Crossplane
+## 配置 crossplane
 
-Using the Vault plugin requires configuration to connect to the Vault
-service. The plugin also requires Providers to enable external secret stores.
+使用 Vault 插件需要配置才能连接到 Vault 服务。 该插件还需要 Provider 启用外部存储。
 
-With the plugin and providers configured, Crossplane requires two `StoreConfig`
-objects to describe how Crossplane and the Providers communicate with vault.
+配置好插件和 Provider 后，Crossplane 需要两个 `StoreConfig` 对象来描述 Crossplane 和 Provider 如何与 Vault 通信。
 
-### Enable external secret stores in the Provider
+### 在 Provider 中启用外部秘密存储
 
-{{<hint "note">}}
-This example uses Provider GCP, but the
-{{<hover label="ControllerConfig" line="2">}}ControllerConfig{{</hover>}} is the
-same for all Providers.
-{{</hint >}}
+{{<hint "note">}}本例被引用的是 Provider GCP，但{{<hover label="ControllerConfig" line="2">}}控制器配置{{</hover>}}对所有 Provider 都一样。{{</hint >}}
 
-Create a `ControllerConfig` object to enable external secret stores.
+创建一个 `ControllerConfig` 对象，以启用外部秘密存储。
 
 ```yaml {label="ControllerConfig"}
 echo "apiVersion: pkg.crossplane.io/v1alpha1
@@ -249,7 +232,8 @@ spec:
     - --enable-external-secret-stores" | kubectl apply -f -
 ```
 
-Install the Provider and apply the ControllerConfig.
+安装 Provider 并应用 ControllerConfig。
+
 ```yaml
 echo "apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -261,9 +245,9 @@ spec:
     name: vault-config" | kubectl apply -f -
 ```
 
-### Connect the Crossplane plugin to Vault
-Create a {{<hover label="VaultConfig" line="2">}}VaultConfig{{</hover>}}
-resource for the plugin to connect to the Vault service:
+###将 crossplane 插件连接到 Vault
+
+创建一个 {{<hover label="VaultConfig" line="2">}}VaultConfig{{</hover>}}资源，以便插件连接到 Vault 服务: 
 
 ```yaml {label="VaultConfig"}
 echo "apiVersion: secrets.crossplane.io/v1alpha1
@@ -282,15 +266,11 @@ spec:
         path: /vault/secrets/token" | kubectl apply -f -
 ```
 
-### Create a Crossplane StoreConfig
+### 创建一个 crossplane StoreConfig
 
-Create a {{<hover label="xp-storeconfig" line="2">}}StoreConfig{{</hover >}}
-object from the
-{{<hover label="xp-storeconfig" line="1">}}secrets.crossplane.io{{</hover >}}
-group. Crossplane uses the StoreConfig to connect to the Vault plugin service.
+创建一个 {{<hover label="xp-storeconfig" line="2">}}存储配置{{</hover >}}对象创建一个{{<hover label="xp-storeconfig" line="1">}}secrets.crossplane.io 中创建一个 StoreConfig 对象。{{</hover >}}crossplane 使用 StoreConfig 连接到 Vault 插件服务。
 
-The {{<hover label="xp-storeconfig" line="10">}}configRef{{</hover >}} connects
-the StoreConfig to the specific Vault plugin configuration.
+配置 {{<hover label="xp-storeconfig" line="10">}}配置参考{{</hover >}}将 StoreConfig 连接到特定的 Vault 插件配置。
 
 ```yaml {label="xp-storeconfig"}
 echo "apiVersion: secrets.crossplane.io/v1alpha1
@@ -308,16 +288,11 @@ spec:
       name: vault-internal" | kubectl apply -f -
 ```
 
+### 创建 Provider StoreConfig
 
-### Create a Provider StoreConfig
-Create a {{<hover label="gcp-storeconfig" line="2">}}StoreConfig{{</hover >}}
-object from the Provider's API group,
-{{<hover label="gcp-storeconfig" line="1">}}gcp.crossplane.io{{</hover >}}.
-The Provider uses this StoreConfig to communicate with Vault for
-Managed Resources.
+创建一个 {{<hover label="gcp-storeconfig" line="2">}}存储配置{{</hover >}}对象、{{<hover label="gcp-storeconfig" line="1">}}提供程序使用该 StoreConfig 与 Vault 进行通信。{{</hover >}}Provider 使用该 StoreConfig 与 Vault 通信，以获取托管资源。
 
-The {{<hover label="gcp-storeconfig" line="10">}}configRef{{</hover >}} connects
-the StoreConfig to the specific Vault plugin configuration.
+配置 {{<hover label="gcp-storeconfig" line="10">}}配置参考{{</hover >}}将 StoreConfig 连接到特定的 Vault 插件配置。
 
 ```yaml {label="gcp-storeconfig"}
 echo "apiVersion: gcp.crossplane.io/v1alpha1
@@ -335,19 +310,19 @@ spec:
       name: vault-internal" | kubectl apply -f -
 ```
 
-## Create Provider resources
+## 创建 Provider 资源
 
-Check that Crossplane installed the Provider and the Provider is healthy.
+检查 crossplane 是否安装了 Provider，Provider 是否健康。
 
 ```shell {copy-lines="1"}
 kubectl get providers
-NAME           INSTALLED   HEALTHY   PACKAGE                                                                     AGE
-provider-gcp   True        True      xpkg.upbound.io/crossplane-contrib/provider-gcp:v0.23.0-rc.0.19.ge9b75ee5   10m
+NAME INSTALLED HEALTHY PACKAGE AGE
+provider-gcp True True xpkg.upbound.io/crossplane-contrib/provider-gcp:v0.23.0-rc.0.19.ge9b75ee5 10m
 ```
 
-### Create a CompositeResourceDefinition
+### 创建复合资源定义
 
-Create a `CompositeResourceDefinition` to define a custom API endpoint.
+创建一个 `CompositeResourceDefinition` 来定义自定义 API 端点。
 
 ```yaml
 echo "apiVersion: apiextensions.crossplane.io/v1
@@ -389,14 +364,11 @@ spec:
               - parameters" | kubectl apply -f -
 ```
 
-### Create a Composition
-Create a `Composition` to create a Service Account and Service Account Key
-inside GCP.
+#### 创建一个构图
 
-Creating a Service Account Key generates
-{{<hover label="comp" line="39" >}}connectionDetails{{</hover>}} that the
-Provider stores in Vault using the
-{{<hover label="comp" line="31">}}publishConnectionDetailsTo{{</hover>}} details.
+创建一个 "Composition"，以便在 GCP 内创建服务账户和服务账户密钥。
+
+创建服务帐户密钥{{<hover label="comp" line="39" >}}连接详情{{</hover>}}并存储在 Vault 中，Provider 会使用被引用的{{<hover label="comp" line="31">}}发布连接详情到{{</hover>}}详细信息。
 
 ```yaml {label="comp"}
 echo "apiVersion: apiextensions.crossplane.io/v1
@@ -442,13 +414,11 @@ spec:
         - fromConnectionSecretKey: publicKeyType" | kubectl apply -f -
 ```
 
-### Create a Claim
-Now create a `Claim` to have Crossplane create the GCP resources and associated
-secrets.
+### 创建索赔
 
-Like the Composition, the Claim uses
-{{<hover label="claim" line="12">}}publishConnectionDetailsTo{{</hover>}} to
-connect to Vault and store the secrets.
+现在创建一个 "声称"，让 crossplane 创建 GCP 资源和相关秘密。
+
+与 Composition 一样，Claim 也被引用为{{<hover label="claim" line="12">}}发布连接详情到{{</hover>}}连接到 Vault 并存储秘密。
 
 ```yaml {label="claim"}
 echo "apiVersion: ess.example.org/v1alpha1
@@ -472,36 +442,38 @@ spec:
       name: vault" | kubectl apply -f -
 ```
 
-## Verify the resources
+## 验证资源
 
-Verify all resources are `READY` and `SYNCED`:
+验证所有资源是否 "READY "和 "SYNCED": 
 
 ```shell {copy-lines="1"}
 kubectl get managed
-NAME                                                      READY   SYNCED   DISPLAYNAME                     EMAIL                                                            DISABLED
-serviceaccount.iam.gcp.crossplane.io/my-ess-zvmkz-vhklg   True    True     a service account to test ess   my-ess-zvmkz-vhklg@testingforbugbounty.iam.gserviceaccount.com
+NAME READY SYNCED DISPLAYNAME EMAIL DISABLED
+serviceaccount.iam.gcp.crossplane.io/my-ess-zvmkz-vhklg True True a service account to test ess my-ess-zvmkz-vhklg@testingforbugbounty.iam.gserviceaccount.com
 
-NAME                                                         READY   SYNCED   KEY_ID                                     CREATED_AT             EXPIRES_AT
-serviceaccountkey.iam.gcp.crossplane.io/my-ess-zvmkz-bq8pz   True    True     5cda49b7c32393254b5abb121b4adc07e140502c   2022-03-23T10:54:50Z
+NAME READY SYNCED KEY_ID CREATED_AT EXPIRES_AT
+serviceaccountkey.iam.gcp.crossplane.io/my-ess-zvmkz-bq8pz True True 5cda49b7c32393254b5abb121b4adc07e140502c 2022-03-23T10:54:50Z
 ```
 
-View the claims
+查看索赔
+
 ```shell {copy-lines="1"}
 kubectl -n default get claim
-NAME     READY   CONNECTION-SECRET   AGE
-my-ess   True                        19s
+NAME READY CONNECTION-SECRET AGE
+my-ess True 19s
 ```
 
-View the composite resources.
+查看 Composition 资源。
+
 ```shell {copy-lines="1"}
 kubectl get composite
-NAME           READY   COMPOSITION                    AGE
-my-ess-zvmkz   True    essinstances.ess.example.org   32s
+NAME READY COMPOSITION AGE
+my-ess-zvmkz True essinstances.ess.example.org 32s
 ```
 
-## Verify Vault secrets
+## 验证 Vault 秘密
 
-Look inside Vault to view the secrets from the managed resources.
+查看 Vault 内部，查看来自管理资源的秘密。
 
 ```shell {copy-lines="1",label="vault-key"}
 kubectl -n vault-system exec -i vault-0 -- vault kv list /secret/default
@@ -510,12 +482,10 @@ Keys
 ess-claim-conn
 ```
 
-The key {{<hover label="vault-key" line="4">}}ess-claim-conn{{</hover>}}
-is the name of the Claim's
-{{<hover label="claim" line="12">}}publishConnectionDetailsTo{{</hover>}}
-configuration.
+关键字 {{<hover label="vault-key" line="4">}}ess-claim-conn{{</hover>}}是索赔的{{<hover label="claim" line="12">}}publishConnectionDetailsTo{{</hover>}}配置的名称。
 
-Check connection secrets in the "crossplane-system" Vault scope.
+检查 "crossplane-system "Vault 范围内的连接秘密。
+
 ```shell {copy-lines="1",label="scope-key"}
 kubectl -n vault-system exec -i vault-0 -- vault kv list /secret/crossplane-system
 Keys
@@ -524,34 +494,27 @@ d2408335-eb88-4146-927b-8025f405da86
 ess-mr-conn
 ```
 
-The key
-{{<hover label="scope-key"line="4">}}d2408335-eb88-4146-927b-8025f405da86{{</hover>}}
-comes from
+钥匙{{<hover label="scope-key"line="4">}}d2408335-eb88-4146-927b-8025f405da86{{</hover>}}来自
 
 <!-- ## WHERE DOES IT COME FROM? -->
 
-and the key
-{{<hover label="scope-key"line="5">}}ess-mr-conn{{</hover>}}
-comes from the Composition's
-{{<hover label="comp" line="31">}}publishConnectionDetailsTo{{</hover>}}
-configuration.
+和钥匙{{<hover label="scope-key"line="5">}}本质-先生-康{{</hover>}}来自 Composition 的{{<hover label="comp" line="31">}}publishConnectionDetailsTo{{</hover>}}配置。
 
+检查 claims 的连接秘密 `ess-claim-conn` 的内容，查看管理资源创建的密钥。
 
-Check contents of Claim's connection secret `ess-claim-conn` to see the key
-created by the managed resource.
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -i vault-0 -- vault kv get /secret/default/ess-claim-conn
 ======= Metadata =======
-Key                Value
+Key Value
 ---                -----
-created_time       2022-03-18T21:24:07.2085726Z
-custom_metadata    map[environment:development secret.crossplane.io/ner-uid:881cd9a0-6cc6-418f-8e1d-b36062c1e108 team:backend]
-deletion_time      n/a
-destroyed          false
-version            1
+created_time 2022-03-18T21:24:07.2085726Z
+custom_metadata map[environment:development secret.crossplane.io/ner-uid:881cd9a0-6cc6-418f-8e1d-b36062c1e108 team:backend]
+deletion_time n/a
+destroyed false
+version 1
 
 ======== Data ========
-Key              Value
+Key Value
 ---              -----
 publicKey        -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzsEYCokmYEsZJCc9QN/8
@@ -562,25 +525,24 @@ l9CIo4VrWIT8THFN2NnjTrGq9+0TzXY0bV674bjJkfBC6v6yXs5HTetG+Uekq/xf
 FCjrrDi1+2UR9Mu2WTuvl8qn50be+mbwdJO5wE32jewxdYrVVmj19+PkaEeAwGTc
 vwIDAQAB
 -----END PUBLIC KEY-----
-publicKeyType    TYPE_RAW_PUBLIC_KEY
+publicKeyType TYPE_RAW_PUBLIC_KEY
 ```
 
-Check contents of managed resource connection secret `ess-mr-conn`. The public
-key is identical to the public key in the Claim since the Claim is using this
-managed resource.
+检查托管资源连接秘密 `ess-mr-conn` 的内容。 公钥与 claim 中的公钥相同，因为 claim 正在引用此托管资源。
+
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -i vault-0 -- vault kv get /secret/crossplane-system/ess-mr-conn
 ======= Metadata =======
-Key                Value
+Key Value
 ---                -----
-created_time       2022-03-18T21:21:07.9298076Z
-custom_metadata    map[environment:development secret.crossplane.io/ner-uid:4cd973f8-76fc-45d6-ad45-0b27b5e9252a team:backend]
-deletion_time      n/a
-destroyed          false
-version            2
+created_time 2022-03-18T21:21:07.9298076Z
+custom_metadata map[environment:development secret.crossplane.io/ner-uid:4cd973f8-76fc-45d6-ad45-0b27b5e9252a team:backend]
+deletion_time n/a
+destroyed false
+version 2
 
 ========= Data =========
-Key               Value
+Key Value
 ---               -----
 privateKey        {
   "type": "service_account",
@@ -594,7 +556,7 @@ privateKey        {
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ess-test-sa%40REDACTED.iam.gserviceaccount.com"
 }
-privateKeyType    TYPE_GOOGLE_CREDENTIALS_FILE
+privateKeyType TYPE_GOOGLE_CREDENTIALS_FILE
 publicKey         -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzsEYCokmYEsZJCc9QN/8
 Fm1M/kTPp7Gat/MXLTP3zFyCTBFVNLN79MbAKdinWi6ePXEb75vzB79IdZcWj8lo
@@ -604,24 +566,15 @@ l9CIo4VrWIT8THFN2NnjTrGq9+0TzXY0bV674bjJkfBC6v6yXs5HTetG+Uekq/xf
 FCjrrDi1+2UR9Mu2WTuvl8qn50be+mbwdJO5wE32jewxdYrVVmj19+PkaEeAwGTc
 vwIDAQAB
 -----END PUBLIC KEY-----
-publicKeyType     TYPE_RAW_PUBLIC_KEY
+publicKeyType TYPE_RAW_PUBLIC_KEY
 ```
 
-### Remove the resources
+#### 删除资源
 
-Deleting the Claim removes the managed resources and associated keys from Vault.
+删除索赔会从 Vault 中删除受管资源和相关密钥。
 
 ```shell
 kubectl delete claim my-ess
 ```
 
 <!-- named links -->
-
-[Vault]: https://www.vaultproject.io/
-[External Secret Store]: https://github.com/crossplane/crossplane/blob/master/design/design-doc-external-secret-stores.md
-[this issue]: https://github.com/crossplane/crossplane/issues/2985
-[Kubernetes Auth Method]: https://www.vaultproject.io/docs/auth/kubernetes
-[Unseal]: https://www.vaultproject.io/docs/concepts/seal
-[Vault KV Secrets Engine]: https://developer.hashicorp.com/vault/docs/secrets/kv
-[Vault Agent Sidecar Injection]: https://www.vaultproject.io/docs/platform/k8s/injector
-[ESS Plugin Vault]: https://github.com/crossplane-contrib/ess-plugin-vault

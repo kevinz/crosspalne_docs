@@ -1,7 +1,9 @@
 ---
-title: Upgrade Crossplane
+
+title: 升级版 crossplane
 weight: 200
-draft: true
+吃水: 真
+
 ---
 
-Install, Uninstall, Upgrade
+安装、卸载、升级

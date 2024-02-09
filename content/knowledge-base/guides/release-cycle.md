@@ -1,100 +1,60 @@
 ---
-title: Release Cycle
+
+title: 发布周期
 weight: 308
+
 ---
 
-Starting with the v1.10.0 release, Crossplane is released on a quarterly (13
-week) cadence. A cycle is comprised of three general stages:
+从v1.10.0版本开始，crossplane以每季度（13周）为周期进行发布。 一个周期包括三个一般阶段: 
 
-- Weeks 1—11: [Active Development]
-- Week 12: [Feature Freeze]
-- Week 13: [Code Freeze]
+* 第 1-11 周: [主动开发](#active-development)
+* 第 12 周: [功能冻结](#feature-freeze)
+* 第 13 周: [代码冻结](#代码冻结)
 
-This results in four releases per year, with the most recent three releases
-being maintained at any given time. When a new release is cut, the fourth most
-recent release reaches end of life (EOL). Users can expect any given release to
-be maintained for nine months.
+因此，每年有四个发布版本，在任何时候都会维护最近的三个发布版本。 当一个新的发布版本被砍掉时，最近的第四个发布版本就到了生命周期的终点（EOL）。 用户可以预期任何给定的发布版本都会维护九个月。
 
-### Definition of maintenance
+### 维护的定义
 
-The Crossplane community defines maintenance in that relevant bug fixes that are
-merged to the main development branch will be eligible to be back-ported to the
-release branch of any currently maintained version, and patch releases will be
-cut appropriately. It's also possible that a fix may be merged directly to the
-release branch if no longer applicable on the main development branch.
-Maintenance doesn't indicate any SLA on response time for user support in the
-form of Slack messages or issues, but problems will be addressed on a best
-effort basis by maintainers and contributors for currently maintained releases.
+crossplane 社区对维护的定义是，合并到主开发分支的相关错误修复将有资格反向移植到任何当前维护版本的发布分支，补丁发布也将进行适当的删减。 如果修复在主开发分支不再适用，也有可能直接合并到发布分支。 维护并不表示对以 Slack 消息或问题形式提供的用户支持的响应时间有任何 SLA，但对于当前维护的发布版本，维护者和贡献者将尽最大努力解决问题。
 
-### Patch releases
+### 补丁发布
 
-_This policy is subject to change in the future._
+本政策今后可能会有变动。
 
-Patch releases are cut for currently maintained minor versions on an as-needed
-basis. Any critical back-ported fixes will be included in a patch release as
-soon as possible after merge.
+补丁发布会根据需要对当前维护的次要版本进行裁剪。 任何关键的回传修复都会在合并后尽快纳入补丁发布。
 
-### Pre-releases
+#### 预发布
 
-_This policy is subject to change in the future._
+本政策今后可能会有变动。
 
-Alpha, Beta, and RC releases are cut for an upcoming release on an as-needed
-basis. As a policy, at least one pre-release will be cut prior to any minor
-release. Pre-releases won't be made on release branches.
+Alpha 版、Beta 版和 RC 版会根据需要为即将发布的版本剪切。 作为一项政策，在发布任何次要版本之前，至少会剪切一个预发布版本。 预发布版本不会在发布分支上发布。
 
-### Provider releases
+### 发布 Provider
 
-The Crossplane release cycle isn't required to be adhered to by any other
-Crossplane projects, but a similar cadence is encouraged. Maintainers listed in
-each repository's `OWNERS.md` file are responsible for determining and
-publishing the release cycle for their project.
+Crossplane 发布周期并不要求任何其他 Crossplane 项目遵循，但我们鼓励采用类似的发布周期。 在每个版本库的 `OWNERS.md` 文件中列出的维护者负责确定并发布其项目的发布周期。
 
-## Release stages
+## 发布阶段
 
-The following stages are the main milestones in a Crossplane release.
+以下阶段是 crossplane 发布的主要里程碑。
 
-### Active development
+### 积极开发
 
-During active development, any code that meets the requisite criteria (i.e.
-passing appropriate tests, approved by a maintainer, etc.) will be merged into
-the main development branch. At present, there is no requirement to formally
-submit an enhancement proposal prior to the start of the release cycle, but
-contributors are encouraged to open an issue and gather feedback before starting
-work on a major implementation (see [CONTRIBUTING.md] for more information).
+在积极开发过程中，任何符合必要条件（即通过适当测试、获得维护者批准等）的代码都将被合并到主开发分支。 目前，没有要求在发布周期开始前正式提交增强建议，但我们鼓励贡献者在开始主要实现工作之前，先打开一个问题并收集反馈（更多信息请参阅 [CONTRIBUTING.md](https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md)）。
 
-### Feature freeze
+### 功能冻结
 
-During feature freeze, no new functionality should be merged into the main
-development branch. Bug fixes, documentation changes, and non-critical changes
-may be made. In the case that a new feature is deemed absolutely necessary for a
-release, the Crossplane maintainers will weigh the impact of the change and make
-a decision on whether it should be included. 
+在功能冻结期间，不得将任何新功能合并到主开发分支中。 可以进行错误修复、文档修改和非关键修改。 如果认为某项新功能对于发布绝对必要，则 crossplane 维护者将权衡该修改的影响，并决定是否将其纳入。
 
-### Code freeze
+### 代码冻结
 
-During code freeze, there should be no changes merged to the main development
-branch with the following exceptions:
-- Fixes to a failing test that's deemed to be incorrectly testing
-  functionality.
-- Documentation only changes. It's possible that a documentation freeze will be
-  implemented in the future, but it's not currently enforced.
-- Fixes to a critical bug that wasn't previously identified. Merging a bug fix
-  during code freeze requires application for and approval of an exception by
-  Crossplane maintainers. This process is currently informal, but may be
-  formalized in the future.
+代码冻结期间，除以下例外情况外，不得将任何更改合并到主开发分支: 
 
-## Release dates
+* 修复被视为错误测试功能的失败测试。
+* 仅更改文档。将来可能会实施文档冻结，但目前并未强制执行。
+* 修复之前未发现的关键错误。在代码冻结期间合并错误修复，需要向 crossplane 维护者申请例外并获得批准。这一流程目前是非正式的，但将来可能会正式化。
 
-Crossplane releases once a quarter (every 13 weeks). Typically, the release
-happens on the Tuesday of the last week of the quarter, as shown on the
-[community calendar][community calendar]. Keep in mind that the specific date is
-**approximate**. A lot of factors can alter the date slightly, such as code
-reviews, testing, and bug fixing to ensure a quality release.
+## 发布日期
+
+crossplane 每季度发布一次（每 13 周发布一次）。通常情况下，发布时间为该季度最后一周的周二，如[社区日历](https://calendar.google.com/calendar/embed?src=c_2cdn0hs9e2m05rrv1233cjoj1k%40group.calendar.google.com)所示。请注意，具体日期只是***近似值。很多因素都会稍微改变日期，例如代码审查、测试和错误修复，以确保发布质量。
 
 <!-- Named links -->
-
-[Active Development]: #active-development
-[Feature Freeze]: #feature-freeze
-[Code Freeze]: #code-freeze
-[CONTRIBUTING.md]: https://github.com/crossplane/crossplane/blob/master/CONTRIBUTING.md
-[community calendar]: https://calendar.google.com/calendar/embed?src=c_2cdn0hs9e2m05rrv1233cjoj1k%40group.calendar.google.com

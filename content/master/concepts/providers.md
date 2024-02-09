@@ -1,54 +1,39 @@
 ---
+
 title: Providers
 weight: 5
-description: "Providers connect Crossplane to external APIs"
+description: "Providers（提供者）将 crossplane 连接到外部 API"
+
 ---
 
-Providers enable Crossplane to provision infrastructure on an
-external service. Providers create new Kubernetes APIs and map them to external
-APIs.
+Providers 支持 crossplane 在外部服务上配置基础设施。 Providers 创建新的 Kubernetes API 并将其映射到外部 API。
 
-Providers are responsible for all aspects of connecting to non-Kubernetes
-resources. This includes authentication, making external API calls and
-providing
-[Kubernetes Controller](https://kubernetes.io/docs/concepts/architecture/controller/)
-logic for any external resources.
+Provider 负责连接到非 Kubernetes 资源的所有方面。 这包括身份验证、进行外部 API 调用以及为任何外部资源提供 [Kubernetes Controller](https://kubernetes.io/docs/concepts/architecture/controller/) 逻辑。
 
-Examples of providers include:
+Providers 的例子包括
 
 * [Provider AWS](https://github.com/upbound/provider-aws)
-* [Provider Azure](https://github.com/upbound/provider-azure)
-* [Provider GCP](https://github.com/upbound/provider-gcp)
-* [Provider Kubernetes](https://github.com/crossplane-contrib/provider-kubernetes)
+* [提供商 Azure](https://github.com/upbound/provider-azure)
+* [提供商 GCP](https://github.com/upbound/provider-gcp)
+* [提供商 Kubernetes](https://github.com/crossplane-contrib/provider-kubernetes)
 
-{{< hint "tip" >}}
-Find more providers in the [Upbound Marketplace](https://marketplace.upbound.io).
-{{< /hint >}}
+{{< hint "tip" >}}在 [Upbound Marketplace](https://marketplace.upbound.io) 中查找更多 Provider。{{< /hint >}}
 
 <!-- vale write-good.Passive = NO -->
+
 <!-- "are Managed" isn't passive in this context -->
-Providers define every external resource they can create in Kubernetes as a
-Kubernetes API endpoint.  
-These endpoints are
-[_Managed Resources_]({{<ref "managed-resources" >}}).
+
+Provider 会把他们能在 Kubernetes 中创建的每个外部资源定义为 Kubernetes API 端点。 这些端点是 [_Managed Resources_]({{<ref "managed-resources" >}}).
+
 <!-- vale write-good.Passive = YES -->
 
+## 安装一个 Provider
 
-## Install a Provider
+安装一个 Provider 会创建代表 Provider API 的新 Kubernetes 资源。 安装一个 Provider 还会创建一个 Provider pod，负责将 Provider 的 API 调节到 Kubernetes 集群中。 Provider 会持续观察所需托管资源的状态，并创建任何缺失的外部资源。
 
-Installing a provider creates new Kubernetes resources representing the 
-Provider's APIs. Installing a provider also creates a Provider pod that's 
-responsible for reconciling the Provider's APIs into the Kubernetes cluster. 
-Providers constantly watch the state of the desired managed resources and create 
-any external resources that are missing.
+使用crossplane安装 Provider{{<hover label="install" line="2">}}Provider{{</hover >}}对象，设置{{<hover label="install" line="6">}}spec.packages{{</hover >}}值为 Provider 软件包的位置。
 
-Install a Provider with a Crossplane
-{{<hover label="install" line="2">}}Provider{{</hover >}} object setting the
-{{<hover label="install" line="6">}}spec.package{{</hover >}} value to the
-location of the provider package.
-
-For example, to install the
-[AWS Community Provider](https://github.com/crossplane-contrib/provider-aws),
+例如，安装 [AWS Community Provider](https://github.com/crossplane-contrib/provider-aws)、
 
 ```yaml {label="install"}
 apiVersion: pkg.crossplane.io/v1
@@ -59,24 +44,15 @@ spec:
   package: xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0
 ```
 
-By default, the Provider pod installs in the same namespace as Crossplane
-(`crossplane-system`).
+默认情况下，Provider pod 会安装在与 crossplane (`crossplane-system`) 相同的命名空间中。
 
-{{<hint "note" >}}
-Providers are part of the 
-{{<hover label="install" line="1">}}pkg.crossplane.io{{</hover>}} group.  
+{{<hint "note" >}}Providers 是{{<hover label="install" line="1">}}pkg.crossplane.io{{</hover>}}组的一部分。
 
-The {{<hover label="meta-pkg" line="1">}}meta.pkg.crossplane.io{{</hover>}}
-group is for creating Provider packages. 
+.meta.pkg.crossplane.io。 {{<hover label="meta-pkg" line="1">}}meta.pkg.crossplane.io{{</hover>}}组用于创建 Provider 软件包。
 
-Instructions on building Providers are outside of the scope of this
-document.  
-Read the Crossplane contributing 
-[Provider Development Guide](https://github.com/crossplane/crossplane/blob/master/contributing/guide-provider-development.md)
-for more information.
+有关构建 Provider 的说明不在本文档的范围之内。 请阅读跨plane 贡献的 [Provider 开发指南](https://github.com/crossplane/crossplane/blob/master/contributing/guide-provider-development.md) 了解更多信息。
 
-For information on the specification of Provider packages read the 
-[Crossplane Provider Package specification](https://github.com/crossplane/crossplane/blob/master/contributing/specifications/xpkg.md#provider-package-requirements).
+有关 Provider 程序包规范的信息，请阅读 [Crossplane Provider Package specification](https://github.com/crossplane/crossplane/blob/master/contributing/specifications/xpkg.md#provider-package-requirements)。
 
 ```yaml {label="meta-pkg"}
 apiVersion: meta.pkg.crossplane.io/v1
@@ -86,18 +62,16 @@ metadata:
 spec:
 # Removed for brevity
 ```
+
 {{</hint >}}
 
-### Install with Helm
+### 用 Helm 安装
 
-Crossplane supports installing Providers during an initial Crossplane
-installation with the Crossplane Helm chart.
+Crossplane 支持在初始安装 Crossplane 时使用 Crossplane Helm chart 安装 Providers。
 
-Use the
-{{<hover label="helm" line="5" >}}--set provider.packages{{</hover >}}
-argument with `helm install`.
+被引用{{<hover label="helm" line="5" >}}--set provider.packages{{</hover >}}参数与 `helm install` 一起使用。
 
-For example, to install the AWS Community Provider,
+例如，安装 AWS Community Provider、
 
 ```shell {label="helm"}
 helm install crossplane \
@@ -107,25 +81,15 @@ crossplane-stable/crossplane \
 --set provider.packages='{xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0}'
 ```
 
-### Install offline
+#### 离线安装
 
-Crossplane installs packages from a local package cache. By
-default the Crossplane package cache is an 
-[emptyDir volume](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir). 
+crossplane 从本地软件包缓存中安装软件包。默认情况下，crossplane 软件包缓存是一个 [emptyDir volume](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir)。
 
-Configure Crossplane to use a 
-[PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
-to use a storage location containing the Provider image. Read more about
-configuring the Crossplane Pod settings in the 
-[Crossplane install documentation]({{<ref "../software/install#customize-the-crossplane-helm-chart">}}).
+配置 Crossplane，使其被引用[PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)，以使用包含 Provider 镜像的存储位置。阅读[Crossplane 安装文档]( ) 中有关配置 Crossplane Pod 设置的更多信息。{{<ref "../software/install#customize-the-crossplane-helm-chart">}}).
 
-Provide the name of the Provider's `.xpkg` file and set 
-{{<hover label="offline" line="7">}}packagePullPolicy: Never{{</hover>}}.
+提供 Provider 的`.xpkg`文件名并设置{{<hover label="offline" line="7">}}packagePullPolicy: Never{{</hover>}}.
 
-For example, to install a locally stored version of Provider AWS set the 
-{{<hover label="offline" line="6">}}package{{</hover>}} to the local filename
-and set the Provider's 
-{{<hover label="offline" line="7">}}packagePullPolicy: Never{{</hover>}}.
+例如，要安装本地存储的 Provider AWS 版本，请将{{<hover label="offline" line="6">}}package{{</hover>}}为本地文件名，并将 Provider 的{{<hover label="offline" line="7">}}packagePullPolicy: Never{{</hover>}}.
 
 ```yaml {label="offline"}
 apiVersion: pkg.crossplane.io/v1
@@ -137,37 +101,25 @@ spec:
   packagePullPolicy: Never
 ```
 
-### Installation options
+#### 安装选项
 
-Providers support multiple configuration options to change installation related
-settings. 
+Providers 支持多种配置选项，可更改与安装相关的设置。
 
-#### Provider pull policy
+#### 提供商拉动政策
 
-Use a {{<hover label="pullpolicy" line="6">}}packagePullPolicy{{</hover>}} to
-define when Crossplane should download the Provider package to the local
-Crossplane package cache.
+被引用 {{<hover label="pullpolicy" line="6">}}软件包拉取策略{{</hover>}}来定义 Crossplane 应何时将 Provider 软件包下载到本地 Crossplane 软件包缓存。
 
-The `packagePullPolicy` options are: 
-* `IfNotPresent` - (**default**) Only download the package if it isn't in the cache.
-* `Always` - Check for new packages every minute and download any matching
-  package that isn't in the cache.
-* `Never` - Never download the package. Packages are only installed from the
-  local package cache. 
+packagePullPolicy` 选项包括
 
-{{<hint "tip" >}}
-The Crossplane 
-{{<hover label="pullpolicy" line="6">}}packagePullPolicy{{</hover>}} works
-like the Kubernetes container image 
-[image pull policy](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy).  
+* `IfNotPresent` - （**默认**）只下载不在缓存中的软件包。
+* `Always` - 每分钟检查新软件包，并下载缓存中没有的匹配软件包。
+* Never` - 永远不下载软件包。只从本地软件包缓存中安装软件包。
 
-Crossplane supports the use of tags and package digest hashes like
-Kubernetes images. 
-{{< /hint >}}
+{{<hint "tip" >}}crossplane{{<hover label="pullpolicy" line="6">}}拉取策略{{</hover>}}的工作原理与 Kubernetes 容器镜像 [image pull policy](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)类似。
 
-For example, to `Always` download a given Provider package use the 
-{{<hover label="pullpolicy" line="6">}}packagePullPolicy: Always{{</hover>}}
-configuration. 
+crossplane 支持像 Kubernetes 镜像一样使用标签和包摘要散列。{{< /hint >}}
+
+例如，要 "始终 "下载给定的 Provider 软件包，可使用{{<hover label="pullpolicy" line="6">}}packagePullPolicy: Always{{</hover>}}配置。
 
 ```yaml {label="pullpolicy",copy-lines="6"}
 apiVersion: pkg.crossplane.io/v1
@@ -179,24 +131,20 @@ spec:
 # Removed for brevity
 ```
 
-#### Revision activation policy
+#### 修订激活政策
 
-The `Active` package revision
-is the package controller actively reconciling resources. 
+主动 "软件包 Revisions 是主动调节资源的软件包控制器。
 
-By default Crossplane sets the most recently installed package revision as 
-`Active`.
+默认情况下，Crossplane 会将最近安装的软件包修订版设置为 "激活"。
 
-Control the Provider upgrade behavior with a
-{{<hover label="revision" line="6">}}revisionActivationPolicy{{</hover>}}.
+通过一个{{<hover label="revision" line="6">}}修订激活策略{{</hover>}}.
 
-The {{<hover label="revision" line="6">}}revisionActivationPolicy{{</hover>}} 
-options are:
-* `Automatic` - (**default**) Automatically activate the last installed Provider.
-* `Manual` - Don't automatically activate a Provider.
+修订激活策略 {{<hover label="revision" line="6">}}修订激活策略{{</hover>}}选项有
 
-For example, to change the upgrade behavior to require manual upgrades, set 
-{{<hover label="revision" line="6">}}revisionActivationPolicy: Manual{{</hover>}}.
+* `Automatic` - （**默认**）自动激活最后安装的 Provider。
+* `Manual` - 不自动激活 Provider。
+
+例如，要将升级行为改为要求手动升级，可设置{{<hover label="revision" line="6">}}revisionActivationPolicy: Manual{{</hover>}}.
 
 ```yaml {label="revision"}
 apiVersion: pkg.crossplane.io/v1
@@ -208,29 +156,19 @@ spec:
 # Removed for brevity
 ```
 
-#### Package revision history limit
+#### 包修订历史限制
 
-When Crossplane installs a different version of the same Provider package 
-Crossplane creates a new _revision_. 
+当 Crossplane 安装同一 Provider 软件包的不同版本时，Crossplane 会创建一个新的 _revision_。
 
-By default Crossplane maintains one _Inactive_ revision. 
+默认情况下，crossplane 维护一个 _Inactive_ Revisions。
 
-{{<hint "note" >}}
-Read the [Provider upgrade](#upgrade-a-provider) section for
-more information on the use of package revisions.
-{{< /hint >}}
+{{<hint "note" >}}请阅读[Provider upgrade](#upgrade-a-provider)部分，了解更多关于使用软件包修订的信息。{{< /hint >}}
 
-Change the number of revisions Crossplane maintains with a Provider Package 
-{{<hover label="revHistoryLimit" line="6">}}revisionHistoryLimit{{</hover>}}. 
+更改 Crossplane 通过 Provider 包维护的修订次数{{<hover label="revHistoryLimit" line="6">}}修订历史限制{{</hover>}}.
 
-The {{<hover label="revHistoryLimit" line="6">}}revisionHistoryLimit{{</hover>}}
-field is an integer.  
-The default value is `1`.  
-Disable storing revisions by setting 
-{{<hover label="revHistoryLimit" line="6">}}revisionHistoryLimit{{</hover>}} to `0`.
+修订历史限制 {{<hover label="revHistoryLimit" line="6">}}修订历史限制{{</hover>}}字段是一个整数，默认值为 "1"。 通过设置{{<hover label="revHistoryLimit" line="6">}}修订历史限制{{</hover>}}设置为`0`。
 
-For example, to change the default setting and store 10 revisions use 
-{{<hover label="revHistoryLimit" line="6">}}revisionHistoryLimit: 10{{</hover>}}.
+例如，要更改默认设置并存储 10 个修订版本，请使用{{<hover label="revHistoryLimit" line="6">}}revisionHistoryLimit: 10{{</hover>}}.
 
 ```yaml {label="revHistoryLimit"}
 apiVersion: pkg.crossplane.io/v1
@@ -242,26 +180,17 @@ spec:
 # Removed for brevity
 ```
 
-#### Install a provider from a private registry
+#### 从私人注册表安装 Provider
 
-Like Kubernetes uses `imagePullSecrets` to 
-[install images from private registries](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/), 
-Crossplane uses `packagePullSecrets` to install Provider packages from a private
-registry. 
+就像 Kubernetes 使用 `imagePullSecrets` 来 [从私有 registry 安装镜像](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)，Crossplane 也使用 `packagePullSecrets` 来从私有 registry 安装 Provider 软件包。
 
-Use {{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}} to provide a
-Kubernetes secret to use for authentication when downloading a Provider package. 
+被引用 {{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}来提供一个 Kubernetes secret，以便在下载 Provider 软件包时用于身份验证。
 
-{{<hint "important" >}}
-The Kubernetes secret must be in the same namespace as Crossplane.
-{{</hint >}}
+{{<hint "important" >}}Kubernetes secret 必须与 crossplane 位于同一命名空间。{{</hint >}}
 
-The {{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}} is a list of
-secrets.
+包 {{<hover label="pps" line="6">}}是一个秘密列表。{{</hover>}}是一个秘密列表。
 
-For example, to use the secret named
-{{<hover label="pps" line="6">}}example-secret{{</hover>}} configure a 
-{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
+例如，要使用名为{{<hover label="pps" line="6">}}example-secret 的秘密{{</hover>}}配置一个{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
 
 ```yaml {label="pps"}
 apiVersion: pkg.crossplane.io/v1
@@ -274,21 +203,15 @@ spec:
 # Removed for brevity
 ```
 
-{{<hint "note" >}}
-Configured `packagePullSecrets` aren't passed to any Provider package
-dependencies. 
-{{< /hint >}}
+{{<hint "note" >}}配置的 `packagePullSecrets` 不会传递给任何 Provider 软件包依赖项。{{< /hint >}}
 
-#### Ignore dependencies
+#### 忽略依赖关系
 
-By default Crossplane installs any [dependencies](#manage-dependencies) listed
-in a Provider package. 
+默认情况下，Crossplane 会安装 Provider 软件包中列出的任何 [依赖项](#manage-dependencies)。
 
-Crossplane can ignore a Provider package's dependencies with 
-{{<hover label="pkgDep" line="6" >}}skipDependencyResolution{{</hover>}}.
+crossplane 可以通过以下方式忽略 Provider 软件包的依赖关系{{<hover label="pkgDep" line="6" >}}skipDependencyResolution{{</hover>}}.
 
-For example, to disable dependency resolution configure 
-{{<hover label="pkgDep" line="6" >}}skipDependencyResolution: true{{</hover>}}.
+例如，要禁用依赖关系解析，请配置{{<hover label="pkgDep" line="6" >}}skipDependencyResolution: true{{</hover>}}.
 
 ```yaml {label="pkgDep"}
 apiVersion: pkg.crossplane.io/v1
@@ -300,18 +223,13 @@ spec:
 # Removed for brevity
 ```
 
-#### Ignore Crossplane version requirements
+#### 忽略 crossplane 版本要求
 
-A Provider package may require a specific or minimum Crossplane version before
-installing. By default, Crossplane doesn't install a Provider if the Crossplane
-version doesn't meet the required version. 
+在安装之前，Provider 软件包可能需要特定或最低 Crossplane 版本。 默认情况下，如果 Crossplane 版本不符合要求，Crossplane 不会安装 Provider。
 
-Crossplane can ignore the required version with 
-{{<hover label="xpVer" line="6">}}ignoreCrossplaneConstraints{{</hover>}}.
+crossplane 可以使用{{<hover label="xpVer" line="6">}}忽略 CrossplaneConstraints{{</hover>}}.
 
-For example, to install a Provider package into an unsupported Crossplane
-version, configure 
-{{<hover label="xpVer" line="6">}}ignoreCrossplaneConstraints: true{{</hover>}}.
+例如，要将 Provider 软件包安装到不支持的 crossplane 版本中，请配置{{<hover label="xpVer" line="6">}}ignoreCrossplaneConstraints: true{{</hover>}}.
 
 ```yaml {label="xpVer"}
 apiVersion: pkg.crossplane.io/v1
@@ -323,25 +241,21 @@ spec:
 # Removed for brevity
 ```
 
-### Manage dependencies
+#### 管理依赖关系
 
-Providers packages may include dependencies on other packages including
-Configurations or other Providers. 
+Providers 软件包可能依赖于其他软件包，包括配置或其他 Providers。
 
-If Crossplane can't meet the dependencies of a Provider package the Provider
-reports `HEALTHY` as `False`. 
+如果 Crossplane 无法满足 Provider 软件包的依赖关系，Provider 会将 "HEALTHY "报告为 "False"。
 
-For example, this installation of the Upbound AWS reference platform is
-`HEALTHY: False`.
+例如，upbound AWS 参考平台的此安装为 `HEALTHY: false`。
 
 ```shell {copy-lines="1"}
 kubectl get providers
-NAME              INSTALLED   HEALTHY   PACKAGE                                           AGE
-provider-aws-s3   True        False     xpkg.upbound.io/upbound/provider-aws-s3:v0.41.0   12s
+NAME INSTALLED HEALTHY PACKAGE AGE
+provider-aws-s3 True False xpkg.upbound.io/upbound/provider-aws-s3:v0.41.0 12s
 ```
 
-To see more information on why the Provider isn't `HEALTHY` use 
-{{<hover label="depend" line="1">}}kubectl describe providerrevisions{{</hover>}}.
+要查看有关 Provider 为何不是 "HEALTHY "的更多信息，请使用{{<hover label="depend" line="1">}}kubectl describe providerrevisions{{</hover>}}.
 
 ```yaml {copy-lines="1",label="depend"}
 kubectl describe providerrevisions
@@ -361,105 +275,79 @@ Status:
   Controller Ref:
     Name:
 Events:
-  Type     Reason             Age                From                                         Message
+  Type Reason Age From Message
   ----     ------             ----               ----                                         -------
-  Warning  LintPackage        41s (x3 over 47s)  packages/providerrevision.pkg.crossplane.io  incompatible Crossplane version: package is not compatible with Crossplane version (v1.10.0)
+  Warning LintPackage 41s (x3 over 47s)  packages/providerrevision.pkg.crossplane.io incompatible Crossplane version: package is not compatible with Crossplane version (v1.10.0)
 ```
 
-The {{<hover label="depend" line="17">}}Events{{</hover>}} show a 
-{{<hover label="depend" line="20">}}Warning{{</hover>}} with a message that the
-current version of Crossplane doesn't meet the Configuration package 
-requirements.
+活动 {{<hover label="depend" line="17">}}活动{{</hover>}}显示{{<hover label="depend" line="20">}}警告{{</hover>}}并提示当前版本的 crossplane 不符合配置包要求。
 
-## Upgrade a Provider
+## 升级一个提供商
 
-To upgrade an existing Provider edit the installed Provider Package by either
-applying a new Provider manifest or with `kubectl edit providers`.
+要升级现有的 Provider，可通过应用新的 Provider 配置清单或使用 `kubectl edit providers` 编辑已安装的 Provider 包。
 
-Update the version number in the Provider's `spec.package` and apply the change.
-Crossplane installs the new image and creates a new `ProviderRevision`.
+更新 Provider 的 `spec.package` 中的版本号并应用更改。 crossplane 安装新镜像并创建新的 `ProviderRevision` 。
 
-The `ProviderRevision` allows Crossplane to store deprecated Provider CRDs
-without removing them until you decide.
+ProviderRevision "允许 crossplane 存储已废弃的 Provider CRD，在您决定之前不会删除它们。
 
-View the `ProviderRevisions` with 
-{{<hover label="getPR" line="1">}}kubectl get providerrevisions{{</hover>}}
+使用以下方法查看 `ProviderRevisions{{<hover label="getPR" line="1">}}kubectl get providerrevisions{{</hover>}}
 
 ```shell {label="getPR",copy-lines="1"}
 kubectl get providerrevisions
-NAME                                       HEALTHY   REVISION   IMAGE                                                    STATE      DEP-FOUND   DEP-INSTALLED   AGE
-provider-aws-s3-dbc7f981d81f               True      1          xpkg.upbound.io/upbound/provider-aws-s3:v0.37.0          Active     1           1               10d
-provider-nop-552a394a8acc                  True      2          xpkg.upbound.io/crossplane-contrib/provider-nop:v0.3.0   Active                                 11d
-provider-nop-7e62d2a1a709                  True      1          xpkg.upbound.io/crossplane-contrib/provider-nop:v0.2.0   Inactive                               13d
-upbound-provider-family-aws-710d8cfe9f53   True      1          xpkg.upbound.io/upbound/provider-family-aws:v0.40.0      Active                                 10d
+NAME HEALTHY REVISION IMAGE STATE DEP-FOUND DEP-INSTALLED AGE
+provider-aws-s3-dbc7f981d81f True 1 xpkg.upbound.io/upbound/provider-aws-s3:v0.37.0 Active 1 1 10d
+provider-nop-552a394a8acc True 2 xpkg.upbound.io/crossplane-contrib/provider-nop:v0.3.0 Active 11d
+provider-nop-7e62d2a1a709 True 1 xpkg.upbound.io/crossplane-contrib/provider-nop:v0.2.0 Inactive 13d
+upbound-provider-family-aws-710d8cfe9f53 True 1 xpkg.upbound.io/upbound/provider-family-aws:v0.40.0 Active 10d
 ```
 
-By default Crossplane keeps a single 
-{{<hover label="getPR" line="5">}}Inactive{{</hover>}} Provider.
+默认情况下，crossplane 只保留一个{{<hover label="getPR" line="5">}}非活动{{</hover>}}Provider.
 
-Read the [revision history limit](#package-revision-history-limit) section to
-change the default value. 
+请阅读 [revision history limit](#package-revision-history-limit) 部分以更改默认值。
 
-Only a single revision of a Provider is 
-{{<hover label="getPR" line="4">}}Active{{</hover>}} at a time.
+一个 Provider 只能有一个修订版本{{<hover label="getPR" line="4">}}活动{{</hover>}}在同一时间内
 
-## Remove a Provider
+## 删除一个提供商
 
-Remove a Provider by deleting the Provider object with 
-`kubectl delete provider`.
+使用 `kubectl delete provider` 删除 Provider 对象，从而移除 Provider。
 
-{{< hint "warning" >}}
-Removing a Provider without first removing the Provider's managed resources
-may abandon the resources. The external resources aren't deleted.
+{{< hint "warning" >}}删除 Provider 而不先删除 Provider 的托管资源可能会放弃资源。 外部资源不会被删除。
 
-If you remove the Provider first, you must manually delete external resources
-through your cloud provider. Managed resources must be manually deleted by
-removing their finalizers.
+如果先删除 Provider，则必须通过云提供商手动删除外部资源。 必须通过移除其 Finalizer 手动删除托管资源。
 
-For more information on deleting abandoned resources read the [Crossplane troubleshooting guide]({{<ref "/knowledge-base/guides/troubleshoot#deleting-when-a-resource-hangs" >}}).
-{{< /hint >}}
+有关删除废弃资源的更多信息，请阅读[crossplane 故障排除指南]({{<ref "/knowledge-base/guides/troubleshoot#deleting-when-a-resource-hangs" >}}).{{< /hint >}}
 
-## Verify a Provider
+## 验证一个提供商
 
-Providers install their own APIs representing the managed resources they support.
-Providers may also create Deployments, Service Accounts or RBAC configuration.
+Providers 安装自己的 API，代表其支持的托管资源。 Providers 还可以创建部署、服务账户或 RBAC 配置。
 
-View the status of a Provider with
+使用以下功能查看 Provider 的状态
 
-`kubectl get providers`
+`kubectl get Provider` 获取 Provider
 
-During the install a Provider report `INSTALLED` as `True` and `HEALTHY` as
-`Unknown`.
+在安装过程中，Provider 将 `INSTALLED` 报告为 `True`，将 `HEALTHY` 报告为 `Unknown`。
 
 ```shell {copy-lines="1"}
 kubectl get providers
-NAME                              INSTALLED   HEALTHY   PACKAGE                                                   AGE
-crossplane-contrib-provider-aws   True        Unknown   xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0   63s
+NAME INSTALLED HEALTHY PACKAGE AGE
+crossplane-contrib-provider-aws True Unknown xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0 63s
 ```
 
-After the Provider install completes and it's ready for use the `HEALTHY` status
-reports `True`.
+Provider 安装完成并准备就绪后，"HEALTHY "状态会被引用为 "True"。
 
 ```shell {copy-lines="1"}
 kubectl get providers
-NAME                              INSTALLED   HEALTHY   PACKAGE                                                   AGE
-crossplane-contrib-provider-aws   True        True      xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0   88s
+NAME INSTALLED HEALTHY PACKAGE AGE
+crossplane-contrib-provider-aws True True xpkg.upbound.io/crossplane-contrib/provider-aws:v0.39.0 88s
 ```
 
-{{<hint "important" >}}
-Some Providers install hundreds of Kubernetes Custom Resource Definitions (`CRDs`).
-This can create significant strain on undersized API Servers, impacting Provider
-install times.
+{{<hint "important" >}}有些 Providers 会安装数百个 Kubernetes 自定义资源定义 (`CRD`)。 这可能会对规模不足的 API 服务器造成巨大压力，影响 Providers 的安装时间。
 
-The Crossplane community has more
-[details on scaling CRDs](https://github.com/crossplane/crossplane/blob/master/design/one-pager-crd-scaling.md).
-{{< /hint >}}
+crossplane 社区有更多 [关于缩放 CRD 的详细信息](https://github.com/crossplane/crossplane/blob/master/design/one-pager-crd-scaling.md)。{{< /hint >}}
 
-### Provider conditions
+### 提供者条件
 
-Crossplane uses a standard set of `Conditions` for Providers.  
-View the conditions of a provider under their `Status` with
-`kubectl describe provider`.
+crossplane 为 Provider 引用了一套标准的 "条件"。 使用 "kubectl describe provider "可查看 Provider 的 "Status "下的条件。
 
 ```yaml
 kubectl describe provider
@@ -478,25 +366,25 @@ Status:
 # Removed for brevity
 ```
 
-#### Types
+#### 类型
 
-Provider `Conditions` support two `Types`:
+Provider 的 "条件 "支持两种 "类型": 
 
-* `Type: Installed` - the Provider package installed but isn't ready for use.
-* `Type: Healthy` - The Provider package is ready to use.
+* 类型: 已安装` - Provider 软件包已安装，但尚未准备好使用。
+* 类型: Healthy` - Provider 软件包已可使用。
 
-#### Reasons
+#### 原因
 
-Each `Reason` relates to a specific `Type` and `Status`. Crossplane uses the
-following `Reasons` for Provider `Conditions`.
+每个 "原因 "都与特定的 "类型 "和 "状态 "有关。 Crossplane 为 Provider "条件 "引用了以下 "原因"。
 
 <!-- vale Google.Headings = NO -->
+
 ##### InactivePackageRevision
 
-`Reason: InactivePackageRevision` indicates the Provider Package is using an
-inactive Provider Package Revision.
+Reason: InactivePackageRevision"（原因: 非活动包修订版）表示该提供商包正在引用一个非活动的提供商包修订版。
 
 <!-- vale Google.Headings = YES -->
+
 ```yaml
 Type: Installed
 Status: False
@@ -504,16 +392,16 @@ Reason: InactivePackageRevision
 ```
 
 <!-- vale Google.Headings = NO -->
+
 ##### ActivePackageRevision
+
 <!-- vale Google.Headings = YES -->
-The Provider Package is the current Package Revision, but Crossplane hasn't
-finished installing the Package Revision yet.
 
-{{< hint "tip" >}}
-Providers stuck in this state are because of a problem with Package Revisions.
+Provider 软件包是当前的软件包修订版，但 crossplane 尚未完成软件包修订版的安装。
 
-Use `kubectl describe providerrevisions` for more details.
-{{< /hint >}}
+{{< hint "tip" >}}陷入这种状态的提供商是因为数据包修订（Package Revisions）出了问题。
+
+更多详情请被引用 `kubectl describe providerrevisions`。{{< /hint >}}
 
 ```yaml
 Type: Installed
@@ -522,15 +410,15 @@ Reason: ActivePackageRevision
 ```
 
 <!-- vale Google.Headings = NO -->
+
 ##### HealthyPackageRevision
 
-The Provider is fully installed and ready to use.
+Provider 已完全安装完毕，随时可以使用。
 
-{{<hint "tip" >}}
-`Reason: HealthyPackageRevision` is the normal state of a working Provider.
-{{< /hint >}}
+{{<hint "tip" >}}原因: HealthyPackageRevision "是工作中的 Provider 的正常状态。{{< /hint >}}
 
 <!-- vale Google.Headings = YES -->
+
 ```yaml
 Type: Healthy
 Status: True
@@ -538,33 +426,30 @@ Reason: HealthyPackageRevision
 ```
 
 <!-- vale Google.Headings = NO -->
+
 ##### UnhealthyPackageRevision
+
 <!-- vale Google.Headings = YES -->
 
-There was an error installing the Provider Package Revision, preventing
-Crossplane from installing the Provider Package.
+安装 Provider 软件包修订版时出现错误，导致 crossplane 无法安装 Provider 软件包。
 
-{{<hint "tip" >}}
-Use `kubectl describe providerrevisions` for more details on why the Package
-Revision failed.
-{{< /hint >}}
+{{<hint "tip" >}}使用 `kubectl describe providerrevisions` 获取更多有关包修订失败原因的详细信息。{{< /hint >}}
 
 ```yaml
 Type: Healthy
 Status: False
 Reason: UnhealthyPackageRevision
 ```
+
 <!-- vale Google.Headings = NO -->
+
 ##### UnknownPackageRevisionHealth
+
 <!-- vale Google.Headings = YES -->
 
-The status of the Provider Package Revision is `Unknown`. The Provider Package
-Revision may be installing or has an issue.
+Provider 包修订版的状态是 "未知"。 Provider 包修订版可能正在安装或有问题。
 
-{{<hint "tip" >}}
-Use `kubectl describe providerrevisions` for more details on why the Package
-Revision failed.
-{{< /hint >}}
+{{<hint "tip" >}}使用 `kubectl describe providerrevisions` 获取更多有关包修订失败原因的详细信息。{{< /hint >}}
 
 ```yaml
 Type: Healthy
@@ -572,79 +457,55 @@ Status: Unknown
 Reason: UnknownPackageRevisionHealth
 ```
 
-## Configure a Provider
+## 配置 Provider
 
-Providers have two different types of configurations:
+Providers 有两种不同类型的配置: 
 
-* _Controller configurations_ that change the settings of the Provider pod
-  running inside the Kubernetes cluster. For example, setting a `toleration` on
-  the Provider pod.
+* 控制器配置_可更改在 Kubernetes 集群内运行的 Provider pod 的设置。
+的设置。例如，在
+例如，在 Provider pod 上设置 "toleration"。
+* 提供程序配置_可更改与外部提供程序通信时被引用的设置。
+与外部提供程序通信时使用的设置。例如，云提供商身份验证。
 
-* _Provider configurations_ that change settings used when communicating with
-  an external provider. For example, cloud provider authentication.
+{{<hint "important" >}}将 `ControllerConfig` 对象应用到 Provider。
 
-{{<hint "important" >}}
-Apply `ControllerConfig` objects to Providers.  
+将 `ProviderConfig` 对象应用到 managed 资源。{{< /hint >}}
 
-Apply `ProviderConfig` objects to managed resources.
-{{< /hint >}}
-
-### Controller configuration
+### 控制器配置
 
 {{< hint "important" >}}
+
 <!-- vale write-good.Passive = NO -->
+
 <!-- vale gitlab.FutureTense = NO -->
-The `ControllerConfig` type was deprecated in v1.11 and will be removed in
-a future release.
+
+在 v1.11 中，"ControllerConfig "类型已被弃用，并将在以后的发布中移除。
+
 <!-- vale write-good.Passive = YES -->
+
 <!-- vale gitlab.FutureTense = YES -->
 
-[`DeploymentRuntimeConfig`]({{<ref "#runtime-configuration" >}}) is the
-replacement for Controller configuration and is available in v1.14+.
-{{< /hint >}}
+[部署运行时配置]({{<ref "#runtime-configuration" >}}) 可替代控制器配置，在 v1.14+ 中可用。{{< /hint >}}
 
-Applying a Crossplane `ControllerConfig` to a Provider changes the settings of
-the Provider's pod. The
-[Crossplane ControllerConfig schema](https://doc.crds.dev/github.com/crossplane/crossplane/pkg.crossplane.io/ControllerConfig/v1alpha1)
-defines the supported set of ControllerConfig settings.
+对 Provider 应用 crossplane `ControllerConfig` 会更改 Provider pod 的设置。[Crossplane ControllerConfig schema](https://doc.crds.dev/github.com/crossplane/crossplane/pkg.crossplane.io/ControllerConfig/v1alpha1) 定义了受支持的 ControllerConfig 设置集。
 
-The most common use case for ControllerConfigs are providing `args` to a
-Provider's pod enabling optional services. For example, enabling
-[external secret stores](https://docs.crossplane.io/knowledge-base/integrations/vault-as-secret-store/#enable-external-secret-stores-in-the-provider)
-for a Provider.
+ControllerConfigs 最常见的用例是为 Provider 的 pod 启用可选服务提供 "参数"。 例如，为 Provider 启用[外部存储](https://docs.crossplane.io/knowledge-base/integrations/vault-as-secret-store/#enable-external-secret-stores-in-the-provider)。
 
-Each Provider determines their supported set of `args`.
+每个 Provider 都会确定其支持的 "参数 "集。
 
-### Runtime configuration
+### 运行时配置
 
-{{<hint "important" >}}
-`DeploymentRuntimeConfigs` is a beta feature. 
+{{<hint "important" >}}DeploymentRuntimeConfigs "是测试版功能。
 
-It's on by default, and you can disable it by passing
-`--enable-deployment-runtime-configs=false` to the Crossplane deployment.
-{{< /hint >}}
+默认情况下它是开启的，你可以通过在 crossplane 部署中传递 `--enable-deployment-runtime-configs=false`来禁用它。{{< /hint >}}
 
-Runtime configuration is a generalized mechanism for configuring the runtime for
-Crossplane packages with a runtime, namely `Providers` and `Functions`. It
-replaces the deprecated `ControllerConfig` type and is available in v1.14+.
+运行时配置是一种通用机制，用于配置具有运行时的 crossplane 包（即 `Provider` 和 `Functions`）的运行时。 它取代了已废弃的 `ControllerConfig` 类型，在 v1.14+ 中可用。
 
-With its default configuration, Crossplane uses Kubernetes Deployments to
-deploy runtime for packages, more specifically, a controller for a `Provider`
-or a gRPC server for a `Function`. It's possible to configure the runtime
-manifest by applying a `DeploymentRuntimeConfig` and referencing it in the
-`Provider` or `Function` object.
+在默认配置下，crossplane 使用 Kubernetes 部署来为软件包部署运行时，更具体地说，是为 "Provider "部署控制器，或为 "Function "部署 gRPC 服务器。 可以通过被引用 "DeploymentRuntimeConfig "并在 "Provider "或 "Function "对象中引用它来配置运行时清单。
 
-{{<hint "note" >}}
-Different from `ControllerConfig`, `DeploymentRuntimeConfig` embed the whole
-Kubernetes Deployment spec, which allows for more flexibility in configuring
-the runtime. Refer to the [design document](https://github.com/crossplane/crossplane/blob/2c5e7f07ba9e3d83d1c85169bbde685de8514ab8/design/one-pager-package-runtime-config.md)
-for more details.
-{{< /hint >}}
+{{<hint "note" >}}与 `ControllerConfig` 不同，`DeploymentRuntimeConfig` 嵌入了整个 Kubernetes 部署规范，可以更灵活地配置运行时。详情请参考[设计文档](https://github.com/crossplane/crossplane/blob/2c5e7f07ba9e3d83d1c85169bbde685de8514ab8/design/one-pager-package-runtime-config.md)。{{< /hint >}}
 
-
-As an example, to enable the external secret stores alpha feature for a `Provider`
-by adding the `--enable-external-secret-stores` argument to the controller,
-one can apply the following:
+举例来说，如果要通过在控制器中添加 `--enable-external-secret-stores`参数来启用 `Provider` 的外部秘密存储 alpha 功能，可以应用下面的方法: 
 
 ```yaml
 apiVersion: pkg.crossplane.io/v1
@@ -672,35 +533,35 @@ spec:
                 - --enable-external-secret-stores
 ```
 
-Please note that the packages manager uses  `package-runtime` as the name of
-the runtime container. When you use a different container name, the package
-manager introduces it as a sidecar container instead of modifying the
-package runtime container.
+请注意，软件包管理器使用 `package-runtime` 作为运行时容器的名称。 当你使用不同的容器名称时，软件包管理器会将其作为侧载容器引入，而不是修改软件包运行时容器。
 
 <!-- vale write-good.Passive = NO -->
-The package manager is opinionated about some fields to ensure
-<!-- vale write-good.Passive = YES -->
-the runtime is working and overlay them on top of the values
-in the runtime configuration. For example, it defaults the replica count
-to 1 if not set and overrides the label selectors to make sure the Deployment
-and Service match. It also injects any necessary environment variables,
-ports as well as volumes and volume mounts.
 
-The `Provider` or `Functions`'s `spec.runtimeConfigRef.name` field defaults
-to value `default`, which means Crossplane uses the default runtime configuration
-if not specified. Crossplane ensures there is always a default runtime
+packages 管理器对某些字段有意见，以确保
+
+<!-- vale write-good.Passive = YES -->
+
+例如，如果未设置复制计数，它会将其默认为 1，并覆盖标签选择器，以确保部署和服务相匹配。 它还会注入任何必要的环境变量、端口以及卷和卷挂载。
+
+Provider "或 "Functions "的 "spec.runtimeConfigRef.name "字段默认值为 "default"，这意味着如果未指定，Crossplane 将使用默认运行时配置。 Crossplane 可确保始终有一个默认运行时配置。
+
 <!-- vale gitlab.FutureTense = NO -->
-configuration in the cluster, but won't change it if it already exists. This
+
+但如果配置已经存在，则不会更改。
+
 <!-- vale gitlab.FutureTense = YES -->
-allows users to customize the default runtime configuration to their needs.
+
+允许用户根据自己的需要定制默认运行时配置。
 
 {{<hint "tip" >}}
+
 <!-- vale gitlab.SubstitutionWarning = NO -->
-Since `DeploymentRuntimeConfig` uses the same schema as Kubernetes `Deployment`
+
+由于 `DeploymentRuntimeConfig` 与 Kubernetes `Deployment` 使用相同的模式
+
 <!-- vale gitlab.SubstitutionWarning = YES -->
-spec, you may need to pass empty values to bypass the schema validation.
-For example, if you just want to change the `replicas` field, you would
-need to pass the following:
+
+例如，如果只想更改 `replicas` 字段，则需要传递以下内容: 
 
 ```yaml
 apiVersion: pkg.crossplane.io/v1beta1
@@ -717,51 +578,48 @@ spec:
 
 {{< /hint >}}
 
-#### Configuring runtime deployment spec
+#### 配置运行时部署规范
 
-Using the Deployment spec provided in the `DeploymentRuntimeConfig` as a base,
-the package manager builds the Deployment spec for the package runtime with
-the following rules:
-- Injects the package runtime container as the first container in the
-  `containers` array, with name `package-runtime`.
-- If not provided, defaults with the following:
-  - `spec.replicas` as 1.
-  - Image pull policy as `IfNotPresent`.
-  - Pod Security Context as:
-    ```yaml
-    runAsNonRoot: true
-    runAsUser: 2000
-    runAsGroup: 2000
-    ```
-  - Security Context for the runtime container as:
-    ```yaml
-    allowPrivilegeEscalation: false
-    privileged: false
-    runAsGroup: 2000
-    runAsNonRoot: true
-    runAsUser: 2000
-    ```
-- Applies the following:
-  - **Sets** `metadata.namespace` as Crossplane namespace.
-  - **Sets** `metadata.ownerReferences` such that the deployment owned by the package revision.
-  - **Sets** `spec.selectors` using generated labels.
-  - **Sets** `spec.serviceAccount` with the created **Service Account**.
-  - **Adds** pull secrets provided in the Package spec as image pull secrets, `spec.packagePullSecrets`.
-  - **Sets** the **Image Pull Policy** with the value provided in the Package spec, `spec.packagePullPolicy`.
-  - **Adds** necessary **Ports** to the runtime container.
-  - **Adds** necessary **Environments** to the runtime container.
-  - Mounts TLS secrets by **adding** necessary **Volumes**, **Volume Mounts** and **Environments** to the runtime container.
+软件包管理器会以 `DeploymentRuntimeConfig` 中提供的部署规范为基础，按照以下规则为软件包运行时构建部署规范: 
 
-#### Configuring metadata of runtime resources
+* 注入软件包运行时容器，作为 `containers` 数组中的第一个容器，名称为 `package-runtime`。
+* 如果未 Provider，则默认使用以下内容: 
+    - `spec.replicas` 为 1。
+    - 镜像拉取策略为 `IfNotPresent`。
+    - Pod 安全上下文为
+        yaml
+        runAsNonRoot: true
+        runAsUser: 2000
+        runAsGroup: 2000
+        ```
+    - 运行时容器的安全上下文为
+        ```yaml
+        allowPrivilegeEscalation: false
+        privileged: false
+        runAsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 2000
+        ```
+* 应用以下内容: 
+    - **设置*** `metadata.namespace` 为 crossplane 名称空间。
+    - **Sets** `metadata.ownerReferences` such that the deployment owned by the packages revision.
+    - **设置*** `spec.selectors` 使用生成的标签。
+    - **使用创建的**服务账户**设置**`spec.serviceAccount`。
+    - **添加**Package 规范中提供的拉取秘密作为镜像拉取秘密，即 `spec.packagePullSecrets`。
+    - **使用软件包规格中提供的值设置**镜像拉取策略**，`spec.packagePullPolicy`。
+    - **向运行时容器添加**必要的**端口。
+    - **将必要的**端口**添加到运行时容器。
+    - 通过在运行时容器中添加***必要的**卷**、**卷挂载**和**环境**来挂载 TLS secrets。
 
-`DeploymentRuntimeConfig` also enables configuring the following metadata of
-Runtime resources, namely `Deployment`, `ServiceAccount` and `Service`:
-- name
-- labels
-- annotations
+#### 配置运行时资源的元数据
 
-The following example shows how to configure the name of the ServiceAccount
-and the labels of the Deployment:
+DeploymentRuntimeConfig "还能配置运行时资源的以下元数据，即 "部署"、"服务帐户 "和 "服务": 
+
+* 名称
+* 标签
+* Annotations
+
+下面的示例显示了如何配置服务帐户的名称和部署的标签: 
 
 ```yaml
 apiVersion: pkg.crossplane.io/v1beta1
@@ -778,25 +636,18 @@ spec:
       name: my-service-account
 ```
 
-### Provider configuration
+### Provider 配置
 
-The `ProviderConfig` determines settings the Provider uses communicating to the
-external provider. Each Provider determines available settings of their
-`ProviderConfig`.
+ProviderConfig "决定了 Provider 与外部提供程序通信时使用的设置。 每个提供程序都决定了其 "ProviderConfig "的可用设置。
 
 <!-- vale write-good.Weasel = NO -->
+
 <!-- allow "usually" -->
-Provider authentication is usually configured with a `ProviderConfig`. For
-example, to use basic key-pair authentication with Provider AWS a
-{{<hover label="providerconfig" line="2" >}}ProviderConfig{{</hover >}}
-{{<hover label="providerconfig" line="5" >}}spec{{</hover >}}
-defines the
-{{<hover label="providerconfig" line="6" >}}credentials{{</hover >}} and that
-the Provider pod should look in the Kubernetes
-{{<hover label="providerconfig" line="7" >}}Secrets{{</hover >}} objects and use
-the key named
-{{<hover label="providerconfig" line="10" >}}aws-creds{{</hover >}}.
+
+Provider 身份验证通常使用 "ProviderConfig "进行配置。 例如，要在 Provider AWS 中使用基本密钥对身份验证，就需要使用一个{{<hover label="providerconfig" line="2" >}}提供商配置{{</hover >}}{{<hover label="providerconfig" line="5" >}}规格{{</hover >}}定义了{{<hover label="providerconfig" line="6" >}}凭据{{</hover >}}以及 Provider pod 应在 Kubernetes{{<hover label="providerconfig" line="7" >}}Secrets{{</hover >}}对象中，并使用名为{{<hover label="providerconfig" line="10" >}}aws-creds{{</hover >}}.
+
 <!-- vale write-good.Weasel = YES -->
+
 ```yaml {label="providerconfig"}
 apiVersion: aws.crossplane.io/v1beta1
 kind: ProviderConfig
@@ -811,27 +662,21 @@ spec:
       key: creds
 ```
 
-{{< hint "important" >}}
-Authentication configuration may be different across Providers.
+{{< hint "important" >}}不同 Provider 的身份验证配置可能不同。
 
-Read the documentation on a specific Provider for instructions on configuring
-authentication for that Provider.
-{{< /hint >}}
+请阅读特定 Provider 的文档，了解为该 Provider 配置身份验证的说明。{{< /hint >}}
 
 <!-- vale write-good.TooWordy = NO -->
+
 <!-- allow multiple -->
-ProviderConfig objects apply to individual Managed Resources. A single
-Provider can authenticate with multiple users or accounts through
-ProviderConfigs.
+
+ProviderConfig 对象适用于单个托管资源。 单个 Provider 可以通过 ProviderConfigs 验证多个用户或账户。
+
 <!-- vale write-good.TooWordy = YES -->
 
-Each account's credentials tie to a unique ProviderConfig. When creating a
-managed resource, attach the desired ProviderConfig.
+每个账户的凭据都与唯一的 ProviderConfig 相关联。 创建托管资源时，附加所需的 ProviderConfig。
 
-For example, two AWS ProviderConfigs, named
-{{<hover label="user" line="4">}}user-keys{{</hover >}} and
-{{<hover label="admin" line="4">}}admin-keys{{</hover >}}
-use different Kubernetes secrets.
+例如，两个名为{{<hover label="user" line="4">}}用户密钥{{</hover >}}和{{<hover label="admin" line="4">}}admin-keys{{</hover >}}被引用了不同的 Kubernetes secrets。
 
 ```yaml {label="user"}
 apiVersion: aws.crossplane.io/v1beta1
@@ -861,11 +706,9 @@ spec:
       key: admin-secret-key
 ```
 
-Apply the ProviderConfig when creating a managed resource.
+创建托管资源时应用 ProviderConfig。
 
-This creates an AWS {{<hover label="user-bucket" line="2" >}}Bucket{{< /hover >}}
-resource using the
-{{<hover label="user-bucket" line="9" >}}user-keys{{< /hover >}} ProviderConfig.
+这会创建一个 AWS {{<hover label="user-bucket" line="2" >}}桶{{< /hover >}}资源。{{<hover label="user-bucket" line="9" >}}用户密钥{{< /hover >}}ProviderConfig.
 
 ```yaml {label="user-bucket"}
 apiVersion: s3.aws.upbound.io/v1beta1
@@ -879,9 +722,7 @@ spec:
     name: user-keys
 ```
 
-This creates a second {{<hover label="admin-bucket" line="2" >}}Bucket{{< /hover >}}
-resource using the
-{{<hover label="admin-bucket" line="9" >}}admin-keys{{< /hover >}} ProviderConfig.
+这会创建第二个 {{<hover label="admin-bucket" line="2" >}}桶{{< /hover >}}资源，使用被引用的{{<hover label="admin-bucket" line="9" >}}admin-keys{{< /hover >}}ProviderConfig.
 
 ```yaml {label="admin-bucket"}
 apiVersion: s3.aws.upbound.io/v1beta1

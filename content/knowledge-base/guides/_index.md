@@ -1,12 +1,11 @@
 ---
-title: Configuration Guides
+
+title: 配置指南
 weight: 10
-description: Guides on using, operating and configuring Crossplane
+description: 被引用、操作和配置 crossplane 的指南
+
 ---
 
-Crossplane Configuration Guides cover topics about using, operating and
-configuring Crossplane.  
+Crossplane 配置指南》涵盖有关被引用、操作和配置 Crossplane 的主题。
 
-These guides cover specific administrative tasks,
-complex scenarios or more in-depth examples of Crossplane components.
-
+这些指南涵盖具体的管理任务、复杂的场景或更深入的 crossplane 组件示例。

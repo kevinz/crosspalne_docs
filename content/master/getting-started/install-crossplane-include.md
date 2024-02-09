@@ -1,22 +1,21 @@
 ---
+
 tocHidden: true
 searchExclude: true
+
 ---
 
-## Install Crossplane
+## 安装 crossplane
 
-Crossplane installs into an existing Kubernetes cluster. 
+crossplane 可安装到现有的 Kubernetes 集群中。
 
-{{< hint type="tip" >}}
-If you don't have a Kubernetes cluster create one locally with [Kind](https://kind.sigs.k8s.io/).
-{{< /hint >}}
+{{< hint type="tip" >}}如果没有 Kubernetes 集群，请使用 [Kind](https://kind.sigs.k8s.io/)在本地创建一个。{{< /hint >}}
 
+### 安装 crossplane helm 图表
 
-### Install the Crossplane Helm chart
+Helm 使 crossplane 能够通过 _Helm Chart_ 安装其所有 Kubernetes 组件。
 
-Helm enables Crossplane to install all its Kubernetes components through a _Helm Chart_.
-
-Enable the Crossplane Helm Chart repository:
+启用 crossplane 舵图资源库: 
 
 ```shell
 helm repo add \
@@ -24,7 +23,7 @@ crossplane-stable https://charts.crossplane.io/stable
 helm repo update
 ```
 
-Run the Helm dry-run to see all the Crossplane components Helm installs.
+运行 Helm 模拟运行，查看 Helm 安装的所有 crossplane 组件。
 
 ```shell
 helm install crossplane \
@@ -33,7 +32,9 @@ crossplane-stable/crossplane \
 --namespace crossplane-system \
 --create-namespace
 ```
+
 {{<expand "View the Helm dry-run" >}}
+
 ```shell
 helm install crossplane \
 crossplane-stable/crossplane \
@@ -1168,9 +1169,10 @@ Chart Application Version: 1.14.4
 
 Kube Version: v1.27.3
 ```
+
 {{< /expand >}}
 
-Install the Crossplane components using `helm install`.
+使用 `helm install` 安装 crossplane 组件。
 
 ```shell
 helm install crossplane \
@@ -1179,33 +1181,32 @@ crossplane-stable/crossplane \
 --create-namespace
 ```
 
-Verify Crossplane installed with `kubectl get pods`.
+使用 `kubectl get pods` 验证是否已安装 crossplane。
 
 ```shell {copy-lines="1"}
 kubectl get pods -n crossplane-system
-NAME                                      READY   STATUS    RESTARTS   AGE
-crossplane-d4cd8d784-ldcgb                1/1     Running   0          54s
-crossplane-rbac-manager-84769b574-6mw6f   1/1     Running   0          54s
+NAME READY STATUS RESTARTS AGE
+crossplane-d4cd8d784-ldcgb 1/1 Running 0 54s
+crossplane-rbac-manager-84769b574-6mw6f 1/1 Running 0 54s
 ```
 
-Installing Crossplane creates new Kubernetes API end-points.  
-Look at the new API end-points with `kubectl api-resources  | grep crossplane`.
+安装 crossplane 会创建新的 Kubernetes API 端点。 使用 `kubectl api-resources | grep crossplane` 查看新的 API 端点。
 
 ```shell  {label="grep",copy-lines="1"}
 kubectl api-resources  | grep crossplane
-compositeresourcedefinitions      xrd,xrds     apiextensions.crossplane.io/v1         false        CompositeResourceDefinition
-compositionrevisions              comprev      apiextensions.crossplane.io/v1         false        CompositionRevision
-compositions                      comp         apiextensions.crossplane.io/v1         false        Composition
-environmentconfigs                envcfg       apiextensions.crossplane.io/v1alpha1   false        EnvironmentConfig
-usages                                         apiextensions.crossplane.io/v1alpha1   false        Usage
-configurationrevisions                         pkg.crossplane.io/v1                   false        ConfigurationRevision
-configurations                                 pkg.crossplane.io/v1                   false        Configuration
-controllerconfigs                              pkg.crossplane.io/v1alpha1             false        ControllerConfig
-deploymentruntimeconfigs                       pkg.crossplane.io/v1beta1              false        DeploymentRuntimeConfig
-functionrevisions                              pkg.crossplane.io/v1beta1              false        FunctionRevision
-functions                                      pkg.crossplane.io/v1beta1              false        Function
-locks                                          pkg.crossplane.io/v1beta1              false        Lock
-providerrevisions                              pkg.crossplane.io/v1                   false        ProviderRevision
-providers                                      pkg.crossplane.io/v1                   false        Provider
-storeconfigs                                   secrets.crossplane.io/v1alpha1         false        StoreConfig
+compositeresourcedefinitions xrd,xrds apiextensions.crossplane.io/v1 false CompositeResourceDefinition
+compositionrevisions comprev apiextensions.crossplane.io/v1 false CompositionRevision
+compositions comp apiextensions.crossplane.io/v1 false Composition
+environmentconfigs envcfg apiextensions.crossplane.io/v1alpha1 false EnvironmentConfig
+usages apiextensions.crossplane.io/v1alpha1 false Usage
+configurationrevisions pkg.crossplane.io/v1 false ConfigurationRevision
+configurations pkg.crossplane.io/v1 false Configuration
+controllerconfigs pkg.crossplane.io/v1alpha1 false ControllerConfig
+deploymentruntimeconfigs pkg.crossplane.io/v1beta1 false DeploymentRuntimeConfig
+functionrevisions pkg.crossplane.io/v1beta1 false FunctionRevision
+functions pkg.crossplane.io/v1beta1 false Function
+locks pkg.crossplane.io/v1beta1 false Lock
+providerrevisions pkg.crossplane.io/v1 false ProviderRevision
+providers pkg.crossplane.io/v1 false Provider
+storeconfigs secrets.crossplane.io/v1alpha1 false StoreConfig
 ```

@@ -1,32 +1,32 @@
 ---
-title: Knowledge Base
+
+title: 知识库知识库
 weight: -1
-cascade:
+cascade: 
     version: "0"
     docs: false
-    product: "Knowledge Base"
+    product: "知识库"
+
 ---
 
 {{< img src="media/banner.png" alt="Crossplane Popsicle Truck" eager=true >}}
+
 <br />
 
-The Crossplane Knowledge Base is a collection of documents covering recommended
-practices, third-party integrations and Crossplane-related how-tos. 
+Crossplane 知识库是一个文档集，涵盖推荐实践、第三方集成和与 Crossplane 相关的操作方法。
 
-## Topics
-* [Configuration Guides]({{<ref "guides" >}}) covers topics related to operating
-  and using Crossplane.
-* [Integrations]({{<ref "integrations" >}}) are topics using Crossplane with
-  third-party tools like [Vault](https://www.vaultproject.io/).
+## 主题
 
-## Contribute an article
-Contributions to the Knowledge Base are always welcome. Knowledge Base articles
-cover topics in detail or describe using Crossplane with third-party software.
+* [配置指南]({{<ref "guides" >}}) 涵盖与操作和使用 crossplane 相关的主题。
+* [集成]({{<ref "integrations" >}}) 是将 Crossplane 与第三方工具（如 [Vault](https://www.vaultproject.io/)）一起使用的主题。
 
-Some examples of Knowledge Base articles could include:
-* Troubleshooting Crossplane providers
-* Migrating to Crossplane (from another tool)
-* Using Crossplane with [ArgoCD]({{< ref "integrations/argo-cd-crossplane" >}})
+## 投稿
 
-Find more information in the Crossplane 
-[documentation contributor's guide]({{< ref "/contribute" >}}).
+欢迎向知识库投稿，知识库文章将详细介绍相关主题，或介绍如何将 crossplane 与第三方软件一起使用。
+
+知识库文章的例子包括
+
+* Crossplane Providers 故障排除
+* 从其他工具迁移到 crossplane
+* 将 crossplane 与 [ArgoCD]({{< ref "integrations/argo-cd-crossplane" >}})
+

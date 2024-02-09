@@ -1,35 +1,23 @@
 ---
-title: Write a Composition Function in Go
-state: beta
+
+title: 用 Go 编写一个 Composition 函数
+状态: beta
 alphaVersion: "1.11"
 betaVersion: "1.14"
 weight: 80
-description: "Composition functions allow you to template resources using Go"
+description: "通过 Composition 函数，您可以使用 Go 将资源模板化"
+
 ---
 
-Composition functions (or just functions, for short) are custom programs that
-template Crossplane resources. Crossplane calls composition functions to
-determine what resources it should create when you create a composite resource
-(XR). Read the
-[concepts](https://docs.crossplane.io/latest/concepts/composition-functions)
-page to learn more about composition functions.
+Composition 函数（简称函数）是模板化 Crossplane 资源的自定义程序。 当你创建复合资源 (XR) 时，Crossplane 会调用 Composition 函数来决定它应该创建哪些资源。阅读 [concepts](https://docs.crossplane.io/latest/concepts/composition-functions) 页面了解更多有关 Composition 函数的信息。
 
-You can write a function to template resources using a general purpose
-programming language. Using a general purpose programming language allows a
-function to use advanced logic to template resources, like loops and
-conditionals. This guide explains how to write a composition function in
-[Go](https://go.dev).
+您可以使用通用编程语言为模板资源编写函数。 使用通用编程语言可以让函数对模板资源使用高级逻辑，如循环和条件。 本指南介绍如何使用 [Go](https://go.dev)编写 Composition 函数。
 
-{{< hint "important" >}}
-It helps to be familiar with
-[how composition functions work](https://docs.crossplane.io/latest/concepts/composition-functions#how-composition-functions-work)
-before following this guide.
-{{< /hint >}}
+{{< hint "important" >}}在阅读本指南之前，最好先熟悉一下 [Composition 功能的工作原理](https://docs.crossplane.io/latest/concepts/composition-functions#how-composition-functions-work)。{{< /hint >}}
 
-## Understand the steps
+## 了解步骤
 
-This guide covers writing a composition function for an
-{{<hover label="xr" line="2">}}XBuckets{{</hover>}} composite resource (XR).
+本指南介绍为{{<hover label="xr" line="2">}}XBuckets{{</hover>}}Composition 资源 (XR) 的合成函数。
 
 ```yaml {label="xr"}
 apiVersion: example.crossplane.io/v1
@@ -45,547 +33,503 @@ spec:
 ```
 
 <!-- vale gitlab.FutureTense = NO -->
+
 <!--
 This section is setting the stage for future sections. It doesn't make sense to
 refer to the function in the present tense, because it doesn't exist yet.
 -->
-An `XBuckets` XR has a region and an array of bucket names. The function will
-create an Amazon Web Services (AWS) S3 bucket for each entry in the names array.
+
+一个 `XBuckets` XR 有一个区域和一个桶名数组。 该函数将为名称数组中的每个条目创建一个亚马逊网络服务（AWS）S3 桶。
+
 <!-- vale gitlab.FutureTense = YES -->
 
-To write a function in Go:
+用 Go 编写函数
 
-1. [Install the tools you need to write the function](#install-the-tools-you-need-to-write-the-function)
-1. [Initialize the function from a template](#initialize-the-function-from-a-template)
-1. [Edit the template to add the function's logic](#edit-the-template-to-add-the-functions-logic)
-1. [Test the function end-to-end](#test-the-function-end-to-end)
-1. [Build and push the function to a package repository](#build-and-push-the-function-to-a-package-registry)
+1.[安装编写函数所需的工具](#install-the-tools-you-need-to-write-the-function)
+2.[从模板初始化函数](#initialize-the-function-from-a-template)
+3.[编辑模板，添加函数逻辑](#edit-the-template-to-add-the-functions-logic)
+4.[测试端到端函数](#test-the-function-end-to-end)
+5.[构建函数并将其推送到软件包注册库](#build-and-push-the-function-to-a-package-registry)
 
-This guide covers each of these steps in detail.
+本指南将详细介绍每个步骤。
 
-## Install the tools you need to write the function
+## 安装编写函数所需的工具
 
-To write a function in Go you need:
+用 Go 编写函数需要
 
-* [Go](https://go.dev/dl/) v1.21 or newer. The guide uses Go v1.21.
-* [Docker Engine](https://docs.docker.com/engine/). This guide uses Engine v24.
-* The [Crossplane CLI](https://docs.crossplane.io/latest/cli) v1.14 or newer. This guide uses Crossplane
-  CLI v1.14.
+* [Go](https://go.dev/dl/) v1.21 或更新版本。本指南被引用 Go v1.21。
+* [Docker Engine](https://docs.docker.com/engine/).本指南被引用 Engine v24。
+* Crossplane CLI](https://docs.crossplane.io/latest/cli) v1.14 或更新版本。本指南被引用 Crossplane CLI v1.14。
 
-{{<hint "note">}}
-You don't need access to a Kubernetes cluster or a Crossplane control plane to
-build or test a composition function.
-{{</hint>}}
+{{<hint "note">}}你不需要访问 Kubernetes 集群或 crossplane 控制平面，就能构建或测试 Composition 功能。{{</hint>}}
 
-## Initialize the function from a template
+## 从模板初始化函数
 
-Use the `crossplane beta xpkg init` command to initialize a new function. When
-you run this command it initializes your function using
-[a GitHub repository](https://github.com/crossplane/function-template-go)
-as a template.
+使用 "crossplane beta xpkg init "命令初始化一个新函数。运行该命令时，它会以[一个 GitHub 仓库](https://github.com/crossplane/function-template-go)为模板初始化你的函数。
 
 ```shell {copy-lines=1}
 crossplane beta xpkg init function-xbuckets function-template-go -d function-xbuckets 
 Initialized package "function-xbuckets" in directory "/home/negz/control/negz/function-xbuckets" from https://github.com/crossplane/function-template-go/tree/91a1a5eed21964ff98966d72cc6db6f089ad63f4 (main)
 ```
 
-The `crossplane beta init xpkg` command creates a directory named
-`function-xbuckets`. When you run the command the new directory should look like
-this:
+使用 `crossplane beta init xpkg` 命令会创建一个名为 `function-xbuckets` 的目录。 运行该命令后，新目录应如下所示: 
 
 ```shell {copy-lines=1}
 ls function-xbuckets
-Dockerfile  fn.go  fn_test.go  go.mod  go.sum  input/  LICENSE  main.go  package/  README.md  renovate.json
+Dockerfile fn.go fn_test.go go.mod go.sum input/  LICENSE main.go package/  README.md renovate.json
 ```
 
-The `fn.go` file is where you add the function's code. It's useful to know about
-some other files in the template:
+fn.go "文件是添加函数代码的地方，了解模板中的其他一些文件非常有用: 
 
-* `main.go` runs the function. You don't need to edit `main.go`.
-* `Dockerfile` builds the function runtime. You don't need to edit `Dockerfile`.
-* The `input` directory defines the function's input type.
-* The `package` directory contains metadata used to build the function package.
+* `main.go` 运行函数。你不需要编辑 `main.go`。
+* `Dockerfile` 运行函数。不需要编辑 `Dockerfile`。
+* `input` 目录定义了函数的输入类型。
+* package 目录包含被引用用于构建函数包的元数据。
 
 {{<hint "tip">}}
+
 <!-- vale gitlab.FutureTense = NO -->
+
 <!--
 This tip talks about future plans for Crossplane.
 -->
-In v1.14 of the Crossplane CLI `crossplane beta xpkg init` just clones a
-template GitHub repository. A future CLI release will automate tasks like
-replacing the template name with the new function's name. See Crossplane issue
-[#4941](https://github.com/crossplane/crossplane/issues/4941) for details.
+
+在 Crossplane CLI v1.14 中，"crossplane beta xpkg init "只是克隆了一个模板 GitHub 仓库。 未来的 CLI 发布将自动执行用新函数名称替换模板名称等任务。 详情请参见 Crossplane 问题 [#4941](https://github.com/crossplane/crossplane/issues/4941)。
+
 <!-- vale gitlab.FutureTense = YES -->
+
 {{</hint>}}
 
-You must make some changes before you start adding code:
+在开始添加代码之前，您必须进行一些更改: 
 
-* Edit `package/crossplane.yaml` to change the package's name.
-* Edit `go.mod` to change the Go module's name.
+* 编辑 `package/crossplane.yaml` 更改 packages 的名称。
+* 编辑 `go.mod` 更改 Go 模块的名称。
 
-Name your package `function-xbuckets`.
+将软件包命名为 `function-xbuckets`.
 
-The name of your module depends on where you want to keep your function code. If
-you push Go code to GitHub, you can use your GitHub username. For example
-`module github.com/negz/function-xbuckets`.
+模块的名称取决于你想把函数代码保存在哪里。 如果你把 Go 代码推送到 GitHub，可以使用你的 GitHub 用户名。 例如 `module github.com/negz/function-xbuckets`。
 
-The function in this guide doesn't use an input type. For this function you
-should delete the `input` and `package/input` directories.
+本指南中的函数不引用输入类型。 对于该函数，应删除 `input` 和 `package/input` 目录。
 
-The `input` directory defines a Go struct that a function can use to take input,
-using the `input` field from a Composition. The
-[composition functions](https://docs.crossplane.io/latest/concepts/composition-functions)
-documentation explains how to pass an input to a composition function.
+`input` 目录定义了一个 Go 结构，函数可以使用该结构从 Composition 中获取输入。[Composition functions](https://docs.crossplane.io/latest/concepts/composition-functions) 文档解释了如何将输入传递给 Composition 函数。
 
-The `package/input` directory contains an OpenAPI schema generated from the
-structs in the `input` directory.
+package/input "目录包含由 "input "目录中的结构生成的 OpenAPI 模式。
 
-{{<hint "tip">}}
-If you're writing a function that uses an input, edit the input to meet your
-function's requirements.
+{{<hint "tip">}}如果您正在编写一个被引用的函数，请对输入进行编辑，以满足您的函数要求。
 
-Change the input's kind and API group. Don't use `Input` and
-`template.fn.crossplane.io`. Instead use something meaningful to your function.
+更改输入的种类和 API group。 不要使用 "Input "和 "template.fn.crossplane.io"，而应使用对函数有意义的名称。
 
-When you edit files under the `input` directory you must update some generated
-files by running `go generate`. See `input/generate.go` for details.
+当你编辑 `input` 目录下的文件时，你必须通过运行 `go generate` 来更新一些已生成的文件。 详见 `input/generate.go`。
 
 ```shell
 go generate ./...
 ```
+
 {{</hint>}}
 
-## Edit the template to add the function's logic
+## 编辑模板，添加函数逻辑
 
-You add your function's logic to the
-{{<hover label="hello-world" line="1">}}RunFunction{{</hover>}}
-method in `fn.go`. When you first open the file it contains a "hello world"
-function.
+您可以在{{<hover label="hello-world" line="1">}}运行函数{{</hover>}}方法中添加您的函数逻辑。 首次打开文件时，文件中包含一个 "hello world "函数。
 
 ```go {label="hello-world"}
 func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequest) (*fnv1beta1.RunFunctionResponse, error) {
-	f.log.Info("Running Function", "tag", req.GetMeta().GetTag())
+    f.log.Info("Running Function", "tag", req.GetMeta().GetTag())
 
-	rsp := response.To(req, response.DefaultTTL)
+    rsp := response.To(req, response.DefaultTTL)
 
-	in := &v1beta1.Input{}
-	if err := request.GetInput(req, in); err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
-		return rsp, nil
-	}
+    in := &v1beta1.Input{}
+    if err := request.GetInput(req, in); err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot get Function input from %T", req))
+    	return rsp, nil
+    }
 
-	response.Normalf(rsp, "I was run with input %q", in.Example)
-	return rsp, nil
+    response.Normalf(rsp, "I was run with input %q", in.Example)
+    return rsp, nil
 }
 ```
 
-All Go composition functions have a `RunFunction` method. Crossplane passes
-everything the function needs to run in a
-{{<hover label="hello-world" line="1">}}RunFunctionRequest{{</hover>}} struct.
+所有 Go Composition 函数都有一个 "RunFunction "方法。 crossplane 会在一个{{<hover label="hello-world" line="1">}}RunFunctionRequest{{</hover>}}结构。
 
-The function tells Crossplane what resources it should compose by returning a
-{{<hover label="hello-world" line="13">}}RunFunctionResponse{{</hover>}} struct.
+该函数通过返回一个{{<hover label="hello-world" line="13">}}RunFunctionResponse{{</hover>}}结构。
 
-{{<hint "tip">}}
-Crossplane generates the `RunFunctionRequest` and `RunFunctionResponse` structs
-using [Protocol Buffers](http://protobuf.dev). You can find detailed schemas for
-`RunFunctionRequest` and `RunFunctionResponse` in the
-[Buf Schema Registry](https://buf.build/crossplane/crossplane/docs/main:apiextensions.fn.proto.v1beta1).
-{{</hint>}}
+{{<hint "tip">}}crossplane 使用 [Protocol Buffers](http://protobuf.dev) 生成 `RunFunctionRequest` 和 `RunFunctionResponse` 结构。您可以在 [Buf Schema Registry](https://buf.build/crossplane/crossplane/docs/main:apiextensions.fn.proto.v1beta1) 中找到 `RunFunctionRequest` 和 `RunFunctionResponse` 的详细模式。{{</hint>}}
 
-Edit the `RunFunction` method to replace it with this code.
+编辑 `RunFunction` 方法，将其替换为以下代码。
 
 ```go {hl_lines="4-56"}
 func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequest) (*fnv1beta1.RunFunctionResponse, error) {
-	rsp := response.To(req, response.DefaultTTL)
+    rsp := response.To(req, response.DefaultTTL)
 
-	xr, err := request.GetObservedCompositeResource(req)
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot get observed composite resource from %T", req))
-		return rsp, nil
-	}
+    xr, err := request.GetObservedCompositeResource(req)
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot get observed composite resource from %T", req))
+    	return rsp, nil
+    }
 
-	region, err := xr.Resource.GetString("spec.region")
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.region field of %s", xr.Resource.GetKind()))
-		return rsp, nil
-	}
+    region, err := xr.Resource.GetString("spec.region")
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.region field of %s", xr.Resource.GetKind()))
+    	return rsp, nil
+    }
 
-	names, err := xr.Resource.GetStringArray("spec.names")
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.names field of %s", xr.Resource.GetKind()))
-		return rsp, nil
-	}
+    names, err := xr.Resource.GetStringArray("spec.names")
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.names field of %s", xr.Resource.GetKind()))
+    	return rsp, nil
+    }
 
-	desired, err := request.GetDesiredComposedResources(req)
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot get desired resources from %T", req))
-		return rsp, nil
-	}
+    desired, err := request.GetDesiredComposedResources(req)
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot get desired resources from %T", req))
+    	return rsp, nil
+    }
 
-	_ = v1beta1.AddToScheme(composed.Scheme)
+    _ = v1beta1.AddToScheme(composed.Scheme)
 
-	for _, name := range names {
-		b := &v1beta1.Bucket{
-			ObjectMeta: metav1.ObjectMeta{
-				Annotations: map[string]string{
-					"crossplane.io/external-name": name,
-				},
-			},
-			Spec: v1beta1.BucketSpec{
-				ForProvider: v1beta1.BucketParameters{
-					Region: ptr.To[string](region),
-				},
-			},
-		}
+    for _, name := range names {
+    	b := &v1beta1.Bucket{
+    		ObjectMeta: metav1.ObjectMeta{
+    			Annotations: map[string]string{
+    				"crossplane.io/external-name": name,
+    			},
+    		},
+    		Spec: v1beta1.BucketSpec{
+    			ForProvider: v1beta1.BucketParameters{
+    				Region: ptr.To[string](region),
+    			},
+    		},
+    	}
 
-		cd, err := composed.From(b)
-		if err != nil {
-			response.Fatal(rsp, errors.Wrapf(err, "cannot convert %T to %T", b, &composed.Unstructured{}))
-			return rsp, nil
-		}
+    	cd, err := composed.From(b)
+    	if err != nil {
+    		response.Fatal(rsp, errors.Wrapf(err, "cannot convert %T to %T", b, &composed.Unstructured{}))
+    		return rsp, nil
+    	}
 
-		desired[resource.Name("xbuckets-"+name)] = &resource.DesiredComposed{Resource: cd}
-	}
+    	desired[resource.Name("xbuckets-"+name)] = &resource.DesiredComposed{Resource: cd}
+    }
 
-	if err := response.SetDesiredComposedResources(rsp, desired); err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot set desired composed resources in %T", rsp))
-		return rsp, nil
-	}
+    if err := response.SetDesiredComposedResources(rsp, desired); err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot set desired composed resources in %T", rsp))
+    	return rsp, nil
+    }
 
-	return rsp, nil
+    return rsp, nil
 }
 ```
 
-Expand the below block to view the full `fn.go`, including imports and
-commentary explaining the function's logic.
+展开下面的代码块以查看完整的 `fn.go`，包括导入和解释函数逻辑的注释。
 
 {{<expand "The full fn.go file" >}}
+
 ```go
 package main
 
 import (
-	"context"
+    "context"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/utils/ptr"
 
-	"github.com/upbound/provider-aws/apis/s3/v1beta1"
+    "github.com/upbound/provider-aws/apis/s3/v1beta1"
 
-	"github.com/crossplane/function-sdk-go/errors"
-	"github.com/crossplane/function-sdk-go/logging"
-	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
-	"github.com/crossplane/function-sdk-go/request"
-	"github.com/crossplane/function-sdk-go/resource"
-	"github.com/crossplane/function-sdk-go/resource/composed"
-	"github.com/crossplane/function-sdk-go/response"
+    "github.com/crossplane/function-sdk-go/errors"
+    "github.com/crossplane/function-sdk-go/logging"
+    fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
+    "github.com/crossplane/function-sdk-go/request"
+    "github.com/crossplane/function-sdk-go/resource"
+    "github.com/crossplane/function-sdk-go/resource/composed"
+    "github.com/crossplane/function-sdk-go/response"
 )
 
 // Function returns whatever response you ask it to.
 type Function struct {
-	fnv1beta1.UnimplementedFunctionRunnerServiceServer
+    fnv1beta1.UnimplementedFunctionRunnerServiceServer
 
-	log logging.Logger
+    log logging.Logger
 }
 
 // RunFunction observes an XBuckets composite resource (XR). It adds an S3
 // bucket to the desired state for every entry in the XR's spec.names array.
 func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequest) (*fnv1beta1.RunFunctionResponse, error) {
-	f.log.Info("Running Function", "tag", req.GetMeta().GetTag())
+    f.log.Info("Running Function", "tag", req.GetMeta().GetTag())
 
-	// Create a response to the request. This copies the desired state and
-	// pipeline context from the request to the response.
-	rsp := response.To(req, response.DefaultTTL)
+    // Create a response to the request. This copies the desired state and
+    // pipeline context from the request to the response.
+    rsp := response.To(req, response.DefaultTTL)
 
-	// Read the observed XR from the request. Most functions use the observed XR
-	// to add desired managed resources.
-	xr, err := request.GetObservedCompositeResource(req)
-	if err != nil {
-		// If the function can't read the XR, the request is malformed. This
-		// should never happen. The function returns a fatal result. This tells
-		// Crossplane to stop running functions and return an error.
-		response.Fatal(rsp, errors.Wrapf(err, "cannot get observed composite resource from %T", req))
-		return rsp, nil
-	}
+    // Read the observed XR from the request. Most functions use the observed XR
+    // to add desired managed resources.
+    xr, err := request.GetObservedCompositeResource(req)
+    if err != nil {
+    	// If the function can't read the XR, the request is malformed. This
+    	// should never happen. The function returns a fatal result. This tells
+    	// Crossplane to stop running functions and return an error.
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot get observed composite resource from %T", req))
+    	return rsp, nil
+    }
 
-	// Create an updated logger with useful information about the XR.
-	log := f.log.WithValues(
-		"xr-version", xr.Resource.GetAPIVersion(),
-		"xr-kind", xr.Resource.GetKind(),
-		"xr-name", xr.Resource.GetName(),
-	)
+    // Create an updated logger with useful information about the XR.
+    log := f.log.WithValues(
+    	"xr-version", xr.Resource.GetAPIVersion(),
+    	"xr-kind", xr.Resource.GetKind(),
+    	"xr-name", xr.Resource.GetName(),
+    )
 
-	// Get the region from the XR. The XR has getter methods like GetString,
-	// GetBool, etc. You can use them to get values by their field path.
-	region, err := xr.Resource.GetString("spec.region")
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.region field of %s", xr.Resource.GetKind()))
-		return rsp, nil
-	}
+    // Get the region from the XR. The XR has getter methods like GetString,
+    // GetBool, etc. You can use them to get values by their field path.
+    region, err := xr.Resource.GetString("spec.region")
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.region field of %s", xr.Resource.GetKind()))
+    	return rsp, nil
+    }
 
-	// Get the array of bucket names from the XR.
-	names, err := xr.Resource.GetStringArray("spec.names")
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.names field of %s", xr.Resource.GetKind()))
-		return rsp, nil
-	}
+    // Get the array of bucket names from the XR.
+    names, err := xr.Resource.GetStringArray("spec.names")
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot read spec.names field of %s", xr.Resource.GetKind()))
+    	return rsp, nil
+    }
 
-	// Get all desired composed resources from the request. The function will
-	// update this map of resources, then save it. This get, update, set pattern
-	// ensures the function keeps any resources added by other functions.
-	desired, err := request.GetDesiredComposedResources(req)
-	if err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot get desired resources from %T", req))
-		return rsp, nil
-	}
+    // Get all desired composed resources from the request. The function will
+    // update this map of resources, then save it. This get, update, set pattern
+    // ensures the function keeps any resources added by other functions.
+    desired, err := request.GetDesiredComposedResources(req)
+    if err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot get desired resources from %T", req))
+    	return rsp, nil
+    }
 
-	// Add v1beta1 types (including Bucket) to the composed resource scheme.
-	// composed.From uses this to automatically set apiVersion and kind.
-	_ = v1beta1.AddToScheme(composed.Scheme)
+    // Add v1beta1 types (including Bucket) to the composed resource scheme.
+    // composed.From uses this to automatically set apiVersion and kind.
+    _ = v1beta1.AddToScheme(composed.Scheme)
 
-	// Add a desired S3 bucket for each name.
-	for _, name := range names {
-		// One advantage of writing a function in Go is strong typing. The
-		// function can import and use managed resource types from the provider.
-		b := &v1beta1.Bucket{
-			ObjectMeta: metav1.ObjectMeta{
-				// Set the external name annotation to the desired bucket name.
-				// This controls what the bucket will be named in AWS.
-				Annotations: map[string]string{
-					"crossplane.io/external-name": name,
-				},
-			},
-			Spec: v1beta1.BucketSpec{
-				ForProvider: v1beta1.BucketParameters{
-					// Set the bucket's region to the value read from the XR.
-					Region: ptr.To[string](region),
-				},
-			},
-		}
+    // Add a desired S3 bucket for each name.
+    for _, name := range names {
+    	// One advantage of writing a function in Go is strong typing. The
+    	// function can import and use managed resource types from the provider.
+    	b := &v1beta1.Bucket{
+    		ObjectMeta: metav1.ObjectMeta{
+    			// Set the external name annotation to the desired bucket name.
+    			// This controls what the bucket will be named in AWS.
+    			Annotations: map[string]string{
+    				"crossplane.io/external-name": name,
+    			},
+    		},
+    		Spec: v1beta1.BucketSpec{
+    			ForProvider: v1beta1.BucketParameters{
+    				// Set the bucket's region to the value read from the XR.
+    				Region: ptr.To[string](region),
+    			},
+    		},
+    	}
 
-		// Convert the bucket to the unstructured resource data format the SDK
-		// uses to store desired composed resources.
-		cd, err := composed.From(b)
-		if err != nil {
-			response.Fatal(rsp, errors.Wrapf(err, "cannot convert %T to %T", b, &composed.Unstructured{}))
-			return rsp, nil
-		}
+    	// Convert the bucket to the unstructured resource data format the SDK
+    	// uses to store desired composed resources.
+    	cd, err := composed.From(b)
+    	if err != nil {
+    		response.Fatal(rsp, errors.Wrapf(err, "cannot convert %T to %T", b, &composed.Unstructured{}))
+    		return rsp, nil
+    	}
 
-		// Add the bucket to the map of desired composed resources. It's
-		// important that the function adds the same bucket every time it's
-		// called. It's also important that the bucket is added with the same
-		// resource.Name every time it's called. The function prefixes the name
-		// with "xbuckets-" to avoid collisions with any other composed
-		// resources that might be in the desired resources map.
-		desired[resource.Name("xbuckets-"+name)] = &resource.DesiredComposed{Resource: cd}
-	}
+    	// Add the bucket to the map of desired composed resources. It's
+    	// important that the function adds the same bucket every time it's
+    	// called. It's also important that the bucket is added with the same
+    	// resource.Name every time it's called. The function prefixes the name
+    	// with "xbuckets-" to avoid collisions with any other composed
+    	// resources that might be in the desired resources map.
+    	desired[resource.Name("xbuckets-"+name)] = &resource.DesiredComposed{Resource: cd}
+    }
 
-	// Finally, save the updated desired composed resources to the response.
-	if err := response.SetDesiredComposedResources(rsp, desired); err != nil {
-		response.Fatal(rsp, errors.Wrapf(err, "cannot set desired composed resources in %T", rsp))
-		return rsp, nil
-	}
+    // Finally, save the updated desired composed resources to the response.
+    if err := response.SetDesiredComposedResources(rsp, desired); err != nil {
+    	response.Fatal(rsp, errors.Wrapf(err, "cannot set desired composed resources in %T", rsp))
+    	return rsp, nil
+    }
 
-	// Log what the function did. This will only appear in the function's pod
-	// logs. A function can use response.Normal and response.Warning to emit
-	// Kubernetes events associated with the XR it's operating on.
-	log.Info("Added desired buckets", "region", region, "count", len(names))
+    // Log what the function did. This will only appear in the function's pod
+    // logs. A function can use response.Normal and response.Warning to emit
+    // Kubernetes events associated with the XR it's operating on.
+    log.Info("Added desired buckets", "region", region, "count", len(names))
 
-	return rsp, nil
+    return rsp, nil
 }
 ```
+
 {{</expand>}}
 
-This code:
+此代码
 
-1. Gets the observed composite resource from the `RunFunctionRequest`.
-1. Gets the region and bucket names from the observed composite resource.
-1. Adds one desired S3 bucket for each bucket name.
-1. Returns the desired S3 buckets in a `RunFunctionResponse`.
+1.从 `RunFunctionRequest` 获取观察到的 Composition 资源。
+2.从观察到的 Composition 资源中获取区域和水桶名称。
+3.为每个桶名添加一个所需的 S3 桶。
+4.在 "RunFunctionResponse "中返回所需的 S3 存储桶。
 
-The code uses the `v1beta1.Bucket` type from
-[Upbound's AWS S3 provider](https://github.com/upbound/provider-aws). One
-advantage of writing a function in Go is that you can compose resources using
-the same strongly typed structs Crossplane uses in its providers.
+代码使用了 [Upbound's AWS S3 Provider](https://github.com/upbound/provider-aws) 中的 `v1beta1.Bucket` 类型。用 Go 编写函数的一个好处是，你可以使用 crossplane 在其 Provider 中使用的强类型结构体来组成资源。
 
-You must get the AWS Provider Go module to use this type:
+您必须获取 AWS Provider Go 模块才能使用这种类型: 
 
 ```shell
 go get github.com/upbound/provider-aws@v0.43.0
 ```
 
-Crossplane provides a
-[software development kit](https://github.com/crossplane/function-sdk-go) (SDK)
-for writing composition functions in [Go](https://go.dev). This function uses
-utilities from the SDK. In particular the `request` and `response` packages make
-working with the `RunFunctionRequest` and `RunFunctionResponse` types easier.
+crossplane 提供了一个[软件开发工具包](https://github.com/crossplane/function-sdk-go) (SDK)，用于在[Go](https://go.dev) 中编写组成函数。本函数被引用了 SDK 中的实用工具。特别是 `request` 和 `response` 包，使得使用 `RunFunctionRequest` 和 `RunFunctionResponse` 类型变得更加容易。
 
-{{<hint "tip">}}
-Read the
-[Go package documentation](https://pkg.go.dev/github.com/crossplane/function-sdk-go)
-for the SDK.
-{{</hint>}}
+{{<hint "tip">}}请阅读 SDK 的 [Go package documentation](https://pkg.go.dev/github.com/crossplane/function-sdk-go)。{{</hint>}}
 
-## Test the function end-to-end
+## 测试端到端功能
 
-Test your function by adding unit tests, and by using the `crossplane beta
-render` command.
+通过添加单元测试和被引用 "crossplane beta render "命令来测试你的函数。
 
-Go has rich support for unit testing. When you initialize a function from the
-template it adds some unit tests to `fn_test.go`. These tests follow Go's
-[recommendations](https://github.com/golang/go/wiki/TestComments). They use only
-[`pkg/testing`](https://pkg.go.dev/testing) from the Go standard library and
-[`google/go-cmp`](https://pkg.go.dev/github.com/google/go-cmp/cmp).
+Go 对单元测试有丰富的支持。 当你从模板初始化一个函数时，它会在 `fn_test.go`中添加一些单元测试。这些测试遵循 Go 的 [建议](https://github.com/golang/go/wiki/TestComments)。它们只引用 Go 标准库中的 [`pkg/testing`](https://pkg.go.dev/testing)和 [`google/go-cmp`](https://pkg.go.dev/github.com/google/go-cmp/cmp)。
 
-To add test cases, update the `cases` map in `TestRunFunction`. Expand the below
-block to view the full `fn_test.go` file for the function.
+要添加测试用例，请更新 `TestRunFunction` 中的 `cases` 映射。 展开下面的代码块，查看函数的完整 `fn_test.go` 文件。
 
 {{<expand "The full fn_test.go file" >}}
+
 ```go
 package main
 
 import (
-	"context"
-	"testing"
-	"time"
+    "context"
+    "testing"
+    "time"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"google.golang.org/protobuf/testing/protocmp"
-	"google.golang.org/protobuf/types/known/durationpb"
+    "github.com/google/go-cmp/cmp"
+    "github.com/google/go-cmp/cmp/cmpopts"
+    "google.golang.org/protobuf/testing/protocmp"
+    "google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/crossplane/crossplane-runtime/pkg/logging"
+    "github.com/crossplane/crossplane-runtime/pkg/logging"
 
-	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
-	"github.com/crossplane/function-sdk-go/resource"
+    fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
+    "github.com/crossplane/function-sdk-go/resource"
 )
 
 func TestRunFunction(t *testing.T) {
-	type args struct {
-		ctx context.Context
-		req *fnv1beta1.RunFunctionRequest
-	}
-	type want struct {
-		rsp *fnv1beta1.RunFunctionResponse
-		err error
-	}
+    type args struct {
+    	ctx context.Context
+    	req *fnv1beta1.RunFunctionRequest
+    }
+    type want struct {
+    	rsp *fnv1beta1.RunFunctionResponse
+    	err error
+    }
 
-	cases := map[string]struct {
-		reason string
-		args   args
-		want   want
-	}{
-		"AddTwoBuckets": {
-			reason: "The Function should add two buckets to the desired composed resources",
-			args: args{
-				req: &fnv1beta1.RunFunctionRequest{
-					Observed: &fnv1beta1.State{
-						Composite: &fnv1beta1.Resource{
-							// MustStructJSON is a handy way to provide mock
-							// resources.
-							Resource: resource.MustStructJSON(`{
-								"apiVersion": "example.crossplane.io/v1alpha1",
-								"kind": "XBuckets",
-								"metadata": {
-									"name": "test"
-								},
-								"spec": {
-									"region": "us-east-2",
-									"names": [
-										"test-bucket-a",
-										"test-bucket-b"
-									]
-								}
-							}`),
-						},
-					},
-				},
-			},
-			want: want{
-				rsp: &fnv1beta1.RunFunctionResponse{
-					Meta: &fnv1beta1.ResponseMeta{Ttl: durationpb.New(60 * time.Second)},
-					Desired: &fnv1beta1.State{
-						Resources: map[string]*fnv1beta1.Resource{
-							"xbuckets-test-bucket-a": {Resource: resource.MustStructJSON(`{
-								"apiVersion": "s3.aws.upbound.io/v1beta1",
-								"kind": "Bucket",
-								"metadata": {
-									"annotations": {
-										"crossplane.io/external-name": "test-bucket-a"
-									}
-								},
-								"spec": {
-									"forProvider": {
-										"region": "us-east-2"
-									}
-								}
-							}`)},
-							"xbuckets-test-bucket-b": {Resource: resource.MustStructJSON(`{
-								"apiVersion": "s3.aws.upbound.io/v1beta1",
-								"kind": "Bucket",
-								"metadata": {
-									"annotations": {
-										"crossplane.io/external-name": "test-bucket-b"
-									}
-								},
-								"spec": {
-									"forProvider": {
-										"region": "us-east-2"
-									}
-								}
-							}`)},
-						},
-					},
-				},
-			},
-		},
-	}
+    cases := map[string]struct {
+    	reason string
+    	args args
+    	want want
+    }{
+    	"AddTwoBuckets": {
+    		reason: "The Function should add two buckets to the desired composed resources",
+    		args: args{
+    			req: &fnv1beta1.RunFunctionRequest{
+    				Observed: &fnv1beta1.State{
+    					Composite: &fnv1beta1.Resource{
+    						// MustStructJSON is a handy way to provide mock
+    						// resources.
+    						Resource: resource.MustStructJSON(`{
+    							"apiVersion": "example.crossplane.io/v1alpha1",
+    							"kind": "XBuckets",
+    							"metadata": {
+    								"name": "test"
+    							},
+    							"spec": {
+    								"region": "us-east-2",
+    								"names": [
+    									"test-bucket-a",
+    									"test-bucket-b"
+    								]
+    							}
+    						}`),
+    					},
+    				},
+    			},
+    		},
+    		want: want{
+    			rsp: &fnv1beta1.RunFunctionResponse{
+    				Meta: &fnv1beta1.ResponseMeta{Ttl: durationpb.New(60 * time.Second)},
+    				Desired: &fnv1beta1.State{
+    					Resources: map[string]*fnv1beta1.Resource{
+    						"xbuckets-test-bucket-a": {Resource: resource.MustStructJSON(`{
+    							"apiVersion": "s3.aws.upbound.io/v1beta1",
+    							"kind": "Bucket",
+    							"metadata": {
+    								"annotations": {
+    									"crossplane.io/external-name": "test-bucket-a"
+    								}
+    							},
+    							"spec": {
+    								"forProvider": {
+    									"region": "us-east-2"
+    								}
+    							}
+    						}`)},
+    						"xbuckets-test-bucket-b": {Resource: resource.MustStructJSON(`{
+    							"apiVersion": "s3.aws.upbound.io/v1beta1",
+    							"kind": "Bucket",
+    							"metadata": {
+    								"annotations": {
+    									"crossplane.io/external-name": "test-bucket-b"
+    								}
+    							},
+    							"spec": {
+    								"forProvider": {
+    									"region": "us-east-2"
+    								}
+    							}
+    						}`)},
+    					},
+    				},
+    			},
+    		},
+    	},
+    }
 
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			f := &Function{log: logging.NewNopLogger()}
-			rsp, err := f.RunFunction(tc.args.ctx, tc.args.req)
+    for name, tc := range cases {
+    	t.Run(name, func(t *testing.T) {
+    		f := &Function{log: logging.NewNopLogger()}
+    		rsp, err := f.RunFunction(tc.args.ctx, tc.args.req)
 
-			if diff := cmp.Diff(tc.want.rsp, rsp, protocmp.Transform()); diff != "" {
-				t.Errorf("%s\nf.RunFunction(...): -want rsp, +got rsp:\n%s", tc.reason, diff)
-			}
+    		if diff := cmp.Diff(tc.want.rsp, rsp, protocmp.Transform()); diff != "" {
+    			t.Errorf("%s\nf.RunFunction(...): -want rsp, +got rsp:\n%s", tc.reason, diff)
+    		}
 
-			if diff := cmp.Diff(tc.want.err, err, cmpopts.EquateErrors()); diff != "" {
-				t.Errorf("%s\nf.RunFunction(...): -want err, +got err:\n%s", tc.reason, diff)
-			}
-		})
-	}
+    		if diff := cmp.Diff(tc.want.err, err, cmpopts.EquateErrors()); diff != "" {
+    			t.Errorf("%s\nf.RunFunction(...): -want err, +got err:\n%s", tc.reason, diff)
+    		}
+    	})
+    }
 }
 ```
+
 {{</expand>}}
 
-Run the unit tests using the `go test` command:
+使用 `go test` 命令运行单元测试: 
 
 ```shell
 go test -v -cover .
-=== RUN   TestRunFunction
-=== RUN   TestRunFunction/AddTwoBuckets
+=== RUN TestRunFunction
+=== RUN TestRunFunction/AddTwoBuckets
 --- PASS: TestRunFunction (0.00s)
     --- PASS: TestRunFunction/AddTwoBuckets (0.00s)
 PASS
 coverage: 52.6% of statements
-ok      github.com/negz/function-xbuckets       0.016s  coverage: 52.6% of statements
+ok github.com/negz/function-xbuckets 0.016s coverage: 52.6% of statements
 ```
 
-You can preview the output of a Composition that uses this function using
-the Crossplane CLI. You don't need a Crossplane control plane to do this.
+您可以使用 Crossplane CLI 预览被引用此功能的 Composition 的 Output，不需要使用 Crossplane 控制平面就能完成此操作。
 
-Create a directory under `function-xbuckets` named `example` and create
-Composite Resource, Composition and Function YAML files.
+在 `function-xbuckets` 下创建名为 `example` 的目录，并创建 Composite Resource、Composition 和 Function YAML 文件。
 
-Expand the following block to see example files.
+展开以下区块，查看示例文件。
 
 {{<expand "The xr.yaml, composition.yaml and function.yaml files">}}
 
-You can recreate the output below using by running `crossplane beta render` with
-these files.
+您可以使用这些文件，通过运行 `crossplane beta render` 重现下面的输出结果。
 
-The `xr.yaml` file contains the composite resource to render:
+XR.yaml` 文件包含要渲染的 Composition 资源: 
 
 ```yaml
 apiVersion: example.crossplane.io/v1
@@ -602,8 +546,7 @@ spec:
 
 <br />
 
-The `composition.yaml` file contains the Composition to use to render the
-composite resource:
+composition.yaml` 文件包含用于渲染复合资源的 Composition: 
 
 ```yaml
 apiVersion: apiextensions.crossplane.io/v1
@@ -623,8 +566,7 @@ spec:
 
 <br />
 
-The `functions.yaml` file contains the Functions the Composition references in
-its pipeline steps:
+functions.yaml` 文件包含 Composition 在其 Pipelines 步骤中引用的函数: 
 
 ```yaml
 apiVersion: pkg.crossplane.io/v1beta1
@@ -638,13 +580,10 @@ spec:
   # You can set it to any value.
   package: xpkg.upbound.io/negz/function-xbuckets:v0.1.0
 ```
+
 {{</expand>}}
 
-The Function in `functions.yaml` uses the
-{{<hover label="development" line="6">}}Development{{</hover>}}
-runtime. This tells `crossplane beta render` that your function is running
-locally. It connects to your locally running function instead of using Docker to
-pull and run the function.
+functions.yaml` 中的函数被引用为{{<hover label="development" line="6">}}开发{{</hover>}}运行时。 这会告诉 `crossplane beta render` 您的函数正在本地运行。 它会连接到您本地运行的函数，而不是被引用 Docker 来拉动和运行函数。
 
 ```yaml {label="development"}
 apiVersion: pkg.crossplane.io/v1beta1
@@ -655,35 +594,29 @@ metadata:
     render.crossplane.io/runtime: Development
 ```
 
-Use `go run` to run your function locally.
+使用 `go run` 在本地运行您的函数。
 
 ```shell {label="run"}
 go run . --insecure --debug
 ```
 
-{{<hint "warning">}}
-The {{<hover label="run" line="1">}}insecure{{</hover>}} flag tells the function
-to run without encryption or authentication. Only use it during testing and
-development.
-{{</hint>}}
+{{<hint "warning">}}不安全 {{<hover label="run" line="1">}}不安全{{</hover>}}标志会告诉函数在不进行加密或身份验证的情况下运行。 只能在测试和开发过程中使用。{{</hint>}}
 
-In a separate terminal, run `crossplane beta render`. 
+在另一个终端中，运行 `crossplane beta render`。
 
 ```shell
 crossplane beta render xr.yaml composition.yaml functions.yaml
 ```
 
-This command calls your function. In the terminal where your function is running
-you should now see log output:
+该命令调用你的函数。 在运行函数的终端中，现在应该可以看到 logging 输出: 
 
 ```shell
 go run . --insecure --debug
-2023-10-31T16:17:32.158-0700    INFO    function-xbuckets/fn.go:29      Running Function        {"tag": ""}
-2023-10-31T16:17:32.159-0700    INFO    function-xbuckets/fn.go:125     Added desired buckets   {"xr-version": "example.crossplane.io/v1", "xr-kind": "XBuckets", "xr-name": "example-buckets", "region": "us-east-2", "count": 3}
+2023-10-31T16:17:32.158-0700 INFO function-xbuckets/fn.go:29 Running Function        {"tag": ""}
+2023-10-31T16:17:32.159-0700 INFO function-xbuckets/fn.go:125 Added desired buckets   {"xr-version": "example.crossplane.io/v1", "xr-kind": "XBuckets", "xr-name": "example-buckets", "region": "us-east-2", "count": 3}
 ```
 
-The `crossplane beta render` command prints the desired resources the function
-returns.
+crossplane beta render` 命令会打印函数返回的所需资源。
 
 ```yaml
 ---
@@ -738,29 +671,17 @@ spec:
     region: us-east-2
 ```
 
-{{<hint "tip">}}
-Read the composition functions documentation to learn more about
-[testing composition functions](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions).
-{{</hint>}}
+{{<hint "tip">}}请阅读组成函数文档，了解有关 [测试组成函数](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions) 的更多信息。{{</hint>}}
 
-## Build and push the function to a package registry
+## 构建函数并将其推送至 packages 注册表
 
-You build a function in two stages. First you build the function's runtime. This
-is the Open Container Initiative (OCI) image Crossplane uses to run your
-function. You then embed that runtime in a package, and push it to a package
-registry. The Crossplane CLI uses `xpkg.upbound.io` as its default package
-registry.
+构建函数分为两个阶段: 首先是构建函数的运行时，这是 Crossplane 用来运行函数的开放容器倡议（OCI）镜像。 然后将运行时嵌入软件包，并将其推送到软件包注册中心。 Crossplane CLI 将 `xpkg.upbound.io` 作为默认的软件包注册中心。
 
-A function supports a single platform, like `linux/amd64`, by default. You can
-support multiple platforms by building a runtime and package for each platform,
-then pushing all the packages to a single tag in the registry.
+一个函数默认支持单个平台，如 "linux/amd64"，您可以为每个平台构建运行时和软件包，然后将所有软件包推送到注册表中的单个标签，从而支持多个平台。
 
-Pushing your function to a registry allows you to use your function in a
-Crossplane control plane. See the
-[composition functions documentation](https://docs.crossplane.io/latest/concepts/composition-functions).
-to learn how to use a function in a control plane.
+将您的函数推送到 registry，就可以在 crossplane 控制平面中使用您的函数。请参阅[Composition functions documentation](https://docs.crossplane.io/latest/concepts/composition-functions)。了解如何在控制平面中使用函数。
 
-Use Docker to build a runtime for each platform.
+使用 docker 为每个平台构建运行时。
 
 ```shell {copy-lines="1"}
 docker build . --quiet --platform=linux/amd64 --tag runtime-amd64
@@ -772,25 +693,15 @@ docker build . --quiet --platform=linux/arm64 --tag runtime-arm64
 sha256:cb015ceabf46d2a55ccaeebb11db5659a2fb5e93de36713364efcf6d699069af
 ```
 
-{{<hint "tip">}}
-You can use whatever tag you want. There's no need to push the runtime images to
-a registry. The tag is only used to tell `crossplane xpkg build` what runtime to
-embed.
-{{</hint>}}
+{{<hint "tip">}}您可以使用任何标签，无需将运行时镜像推送到 registry。 标签只是用来告诉 `crossplane xpkg build` 嵌入什么运行时。{{</hint>}}
 
-Use the Crossplane CLI to build a package for each platform. Each package embeds
-a runtime image. 
+使用 Crossplane CLI 为每个平台构建一个软件包。 每个软件包都嵌入了一个运行时镜像。
 
-The {{<hover label="build" line="2">}}--package-root{{</hover>}} flag specifies
-the `package` directory, which contains `crossplane.yaml`. This includes
-metadata about the package.
+......。 {{<hover label="build" line="2">}}--package-root{{</hover>}}flag 指定了包含 `crossplane.yaml` 的 `package` 目录。 其中包括软件包的元数据。
 
-The {{<hover label="build" line="3">}}--embed-runtime-image{{</hover>}} flag
-specifies the runtime image tag built using Docker.
+......。 {{<hover label="build" line="3">}}--嵌入运行时镜像{{</hover>}}flag 指定了被引用 Docker 构建的运行时镜像标签。
 
-The {{<hover label="build" line="4">}}--package-file{{</hover>}} flag specifies
-specifies where to write the package file to disk. Crossplane package files use
-the extension `.xpkg`.
+在 {{<hover label="build" line="4">}}--package-file{{</hover>}}标志指定将软件包文件写入磁盘的位置。 crossplane 软件包文件的扩展名为 `.xpkg`。
 
 ```shell {label="build"}
 crossplane xpkg build \
@@ -806,15 +717,9 @@ crossplane xpkg build \
     --package-file=function-arm64.xpkg
 ```
 
-{{<hint "tip">}}
-Crossplane packages are special OCI images. Read more about packages in the
-[packages documentation](https://docs.crossplane.io/latest/concepts/packages).
-{{</hint>}}
+{{<hint "tip">}}crossplane 软件包是特殊的 OCI 镜像。请在【软件包文档】(https://docs.crossplane.io/latest/concepts/packages) 中阅读有关软件包的更多信息。{{</hint>}}
 
-Push both package files to a registry. Pushing both files to one tag in the
-registry creates a
-[multi-platform](https://docs.docker.com/build/building/multi-platform/)
-package that runs on both `linux/arm64` and `linux/amd64` hosts.
+将两个软件包文件都推送到注册表中。将两个文件都推送到注册表中的一个标签，就能创建一个[多平台](https://docs.docker.com/build/building/multi-platform/) 软件包，在 `linux/arm64` 和 `linux/amd64` 主机上都能运行。
 
 ```shell
 crossplane xpkg push \
@@ -822,17 +727,6 @@ crossplane xpkg push \
   negz/function-xbuckets:v0.1.0
 ```
 
-{{<hint "tip">}}
-If you push the function to a GitHub repository the template automatically sets
-up continuous integration (CI) using
-[GitHub Actions](https://github.com/features/actions). The CI workflow will
-lint, test, and build your function. You can see how the template configures CI
-by reading `.github/workflows/ci.yaml`.
+{{<hint "tip">}}如果您将函数推送到 GitHub 仓库，模板会使用 [GitHub Actions](https://github.com/features/actions) 自动设置持续集成 (CI)。CI 工作流将对您的函数进行校验、测试和构建。您可以通过阅读 `.github/workflows/ci.yaml`，查看模板是如何配置 CI 的。
 
-The CI workflow can automatically push packages to `xpkg.upbound.io`. For this
-to work you must create a repository at https://marketplace.upbound.io. Give the
-CI workflow access to push to the Marketplace by creating an API token and
-[adding it to your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
-Save your API token access ID as a secret named `XPKG_ACCESS_ID` and your API
-token as a secret named `XPKG_TOKEN`.
-{{</hint>}}
+CI 工作流可以自动将软件包推送到 `xpkg.upbound.io`。要做到这一点，您必须在 https://marketplace.upbound.io 创建一个版本库。通过创建一个 API 令牌并[将其添加到您的版本库](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)，赋予 CI 工作流向市场推送的权限。将您的 API 令牌访问 ID 保存为名为 `XPKG_ACCESS_ID` 的秘密，并将您的 API 令牌保存为名为 `XPKG_TOKEN` 的秘密。{{</hint>}}

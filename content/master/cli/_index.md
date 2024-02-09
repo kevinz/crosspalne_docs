@@ -1,64 +1,57 @@
 ---
+
 weight: 400
-title: Crossplane CLI
-description: "Documentation for the Crossplane command-line interface"
+title: crossplane CLI
+description: "Crossplane 命令行界面的文档"
+
 ---
 
-The Crossplane CLI helps simplify some development and administration aspects of
-Crossplane.
+Crossplane CLI 有助于简化 Crossplane 的某些开发和管理环节。
 
-The Crossplane CLI includes:
-* tools to build, install, update and push Crossplane Packages
-* standalone Composition Function testing and rendering without the need to access a Kubernetes cluster running Crossplane
-* troubleshoot Crossplane Compositions, Composite Resources and Managed Resources
+crossplane CLI 包括
 
-## Installing the CLI
+* 构建、安装、更新和推送 crossplane 软件包的工具
+* 独立进行 Composition 功能测试和渲染，无需访问运行 Crossplane 的 Kubernetes 集群
+* 排除 Crossplane Composition、复合资源和托管资源的故障
 
-The Crossplane CLI is a single standalone binary with no external dependencies.
+## 安装 CLI
 
-{{<hint "note" >}}
-Install the Crossplane CLI on a user's computer. 
+crossplane CLI 是一个独立的二进制文件，没有外部依赖性。
 
-Most Crossplane CLI commands are independent of Kubernetes and 
-don't require access to a Crossplane pod.
-{{< /hint >}} 
+{{<hint "note" >}}在用户电脑上安装 crossplane CLI。
 
-To download the latest version for your CPU architecture with the Crossplane
-install script.
+大多数 crossplane CLI 命令都独立于 Kubernetes，不需要访问 crossplane pod。{{< /hint >}}
+
+使用 crossplane 安装脚本下载适用于您 CPU 架构的最新版本。
 
 ```shell
 curl -sL "https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh" | sh
 ```
 
-[The script](https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh)
-detects your CPU architecture and downloads the latest stable release.
+[脚本](https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh) 会检测你的 CPU 架构，并下载最新的稳定版本。
 
 {{<expand "Manually install the Crossplane CLI" >}}
 
-If you don't want to run shell script you can manually download a binary from 
-the Crossplane releases repository at 
-https://releases.crossplane.io/stable/current/bin
+如果不想运行 shell 脚本，可以从 https://releases.crossplane.io/stable/current/bin 的 crossplane 发布库中手动下载二进制文件。
 
 {{<hint "important" >}}
+
 <!-- vale write-good.Passive = NO -->
-The CLI is named `crank` in the release repository. Download this file. 
+
+CLI 在发布库中名为 `crank`。 下载此文件。
+
 <!-- vale write-good.Passive = YES -->
 
-The `crossplane` binary is the Kubernetes Crossplane pod image.
-{{< /hint >}}
+crossplane "二进制文件是 Kubernetes Crossplane pod 镜像。{{< /hint >}}
 
-Move the binary to a location in your `$PATH`, for example `/usr/local/bin`.
-{{< /expand >}}
+将二进制文件移至 `$PATH` 中的某个位置，例如 `/usr/local/bin`。{{< /expand >}}
 
-### Download other CLI versions
+### 下载其他 CLI 版本
 
-Download different Crossplane CLI versions or different release branches with
-the `XP_CHANNEL` and `XP_VERSION` environmental variables. 
+使用 `XP_CHANNEL` 和 `XP_VERSION` 环境变量下载不同的 crossplane CLI 版本或不同的发布分支。
 
-By default the CLI installs from the `XP_CHANNEL` named `stable` and the 
-`XP_VERSION` of `current`, matching the most recent stable release.
+默认情况下，CLI 从名为 `stable` 的 `XP_CHANNEL` 和 `XP_VERSION` 的 `current`安装，以匹配最新的稳定发布版本。
 
-For example, to install CLI version `v1.14.0` add `XP_VERSION=v1.14.0` to the 
-download script curl command:  
+例如，要安装 CLI 版本`v1.14.0`，请在下载脚本 curl 命令中添加`XP_VERSION=v1.14.0`: 
 
 `curl -sL "https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh" | XP_VERSION=v1.14.0 sh`

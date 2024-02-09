@@ -1,60 +1,47 @@
 ---
-title: Composite Resource Definitions
+
+title: Composition 资源定义
 weight: 40
-description: "Composite Resource Definitions or XRDs define custom API schemas"
+description: "复合资源定义或 XRD 定义自定义 API 模式"
+
 ---
 
-Composite resource definitions (`XRDs`) define the schema for a custom API.  
-Users create composite resources (`XRs`) and Claims (`XCs`) using the API
-schema defined by an `XRD`.
-
+Composite resource definitions (`XRD`)定义了自定义 API 的模式。 用户使用由`XRD`定义的 API 模式创建 Composite resources (`XRs`)和 Claims (`XCs`)。
 
 {{< hint "note" >}}
 
-Read the [composite resources]({{<ref "./composite-resources">}}) page for more
-information about composite resources.
+请阅读 [Composition resources]({{<ref "./composite-resources">}}) 页面，了解有关 Composition 资源的更多信息。
 
-Read the [Claims]({{<ref "./claims">}}) page for more
-information about Claims.
-{{</hint >}}
+请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关索赔的信息。{{</hint >}}
 
+{{<expand "Confused about Compositions, XRDs, XRs and Claims?" >}}crossplane 有四个核心组件，用户通常会把它们混为一谈: 
 
-{{<expand "Confused about Compositions, XRDs, XRs and Claims?" >}}
-Crossplane has four core components that users commonly mix up:
+* [Composition]({{<ref "./compositions" >}}) - 用于定义如何创建资源的模板。
+* Composite Resource Definition (`XRD`) - 本页面。自定义 API 规范。
+* [复合资源]({{<ref "./composite-resources">}}) (`XR`) - 通过使用 Composition Resource Definition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
+* [索赔]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
 
-* [Compositions]({{<ref "./compositions" >}}) - A template to define how to create resources.
-* Composite Resource Definition (`XRD`) - This page. A custom API specification. 
-* [Composite Resource]({{<ref "./composite-resources">}}) (`XR`) - Created by
-  using the custom API defined in a Composite Resource Definition. XRs use the
-  Composition template to create new managed resources. 
-* [Claims]({{<ref "./claims" >}}) (`XRC`) - Like a Composite Resource, but
-  with namespace scoping. 
 {{</expand >}}
 
-Crossplane XRDs are like 
-[Kubernetes custom resource definitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/). 
-XRDs require fewer fields and add options related to Crossplane, like Claims and
-connection secrets. 
+Crossplane XRD 类似于[Kubernetes 自定义资源定义](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)。XRD 需要的字段较少，并添加了与 Crossplane 相关的选项，如 claims 和连接秘密。
 
-## Creating a CompositeResourceDefinition
+## 创建复合资源定义
 
-Creating a CompositeResourceDefinition consists of:
-* [Defining a custom API group](#xrd-groups).
-* [Defining a custom API name](#xrd-names).
-* [Defining a custom API schema and version](#xrd-versions).
-  
-Optionally, CompositeResourceDefinitions also support:
-* [Offering a Claim](#enable-claims).
-* [Defining connection secrets](#manage-connection-secrets).
-* [Setting composite resource defaults](#set-composite-resource-defaults).
- 
-Composite resource definitions (`XRDs`) create new API endpoints inside a
-Kubernetes cluster. 
+创建 CompositeResourceDefinition 的步骤包括
 
-Creating a new API requires defining an API 
-{{<hover label="xrd1" line="6">}}group{{</hover>}},
-{{<hover label="xrd1" line="7">}}name{{</hover>}} and
-{{<hover label="xrd1" line="10">}}version{{</hover>}}. 
+* [定义自定义 API 组](#xrd-groups)。
+* [定义自定义 API 名称](#xrd-names)。
+* [定义自定义 API 模式和版本](#xrd-versions)。
+
+CompositeResourceDefinitions 还支持可选项: 
+
+* [提供索赔](#enable-claims)。
+* [定义连接秘密](#manage-connection-secrets)。
+* [设置 Composition 资源默认值](#set-composite-resource-defaults)。
+
+Composition 资源定义（"XRD"）可在 Kubernetes 集群内创建新的 API 端点。
+
+创建新的应用程序接口需要定义一个应用程序接口{{<hover label="xrd1" line="6">}}组{{</hover>}},{{<hover label="xrd1" line="7">}}名称{{</hover>}}和{{<hover label="xrd1" line="10">}}版本{{</hover>}}.
 
 ```yaml {label="xrd1",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -71,71 +58,45 @@ spec:
   # Removed for brevity
 ```
 
-After applying an XRD, Crossplane creates a new Kubernetes custom resource
-definition matching the defined API.
+应用 XRD 后，crossplane 会创建一个新的 Kubernetes 自定义资源定义，以匹配所定义的 API。
 
-For example, the XRD 
-{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover >}} 
-creates a custom resource definition 
-{{<hover label="kubeapi" line="2">}}xmydatabases.example.org{{</hover >}}.  
+例如，XRD{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover >}}创建一个自定义资源定义{{<hover label="kubeapi" line="2">}}xmydatabases.example.org{{</hover >}}.
 
 ```shell {label="kubeapi",copy-lines="3"}
 kubectl api-resources
-NAME                              SHORTNAMES   APIVERSION          NAMESPACED   KIND
-xmydatabases.example.org                       v1alpha1            false        xmydatabases
+NAME SHORTNAMES APIVERSION NAMESPACED KIND
+xmydatabases.example.org v1alpha1 false xmydatabases
 # Removed for brevity
 ```
 
-{{<hint "warning">}}
-You can't change the XRD
-{{<hover label="xrd1" line="6">}}group{{</hover>}} or
-{{<hover label="xrd1" line="7">}}names{{</hover>}}.  
-You must delete and
-recreate the XRD to change the 
-{{<hover label="xrd1" line="6">}}group{{</hover>}} or
-{{<hover label="xrd1" line="7">}}names{{</hover>}}.
-{{</hint >}}
+{{<hint "warning">}}您不能更改 XRD{{<hover label="xrd1" line="6">}}组{{</hover>}}或{{<hover label="xrd1" line="7">}}名称。{{</hover>}}您必须删除并重新创建 XRD 才能更改{{<hover label="xrd1" line="6">}}组{{</hover>}}或{{<hover label="xrd1" line="7">}}名称{{</hover>}}.{{</hint >}}
 
-### XRD groups
+### XRD 组
 
-Groups define a collection of related API endpoints. The `group` can be any
-value, but common convention is to map to a fully qualified domain name.
+groups 定义了相关 API 端点的集合，"group "可以是任何值，但常见的惯例是映射到完全合格的域名。
 
 <!-- vale write-good.Weasel = NO -->
-Many XRDs may use the same `group` to create a logical collection of APIs.  
+
+许多 XRD 可能会被引用相同的 "组 "来创建 API 的逻辑集合。
+
 <!-- vale write-good.Weasel = YES -->
-For example a `database` group may have a `relational` and `nosql` kinds. 
 
-{{<hint "tip" >}}
-Group names are cluster scoped. Choose group names that don't conflict with
-Providers.  
-Avoid Provider names in the group.
-{{< /hint >}}
+例如，"数据库 "组可能有 "关系 "和 "nosql "两种。
 
-### XRD names
+{{<hint "tip" >}}组名称具有集群作用域。 选择不与 Providers 冲突的组名称。 避免在组中使用 Provider 名称。{{< /hint >}}
 
-The `names` field defines how to refer to this specific XRD.  
-The required name fields are: 
+### XRD 名称
 
-* `kind` - the `kind` value to use when calling this API. The kind is
-  [UpperCamelCased](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects).
-  Crossplane recommends starting XRD `kinds` with an `X` to show 
-  it's a custom Crossplane API definition. 
-* `plural` - the plural name used for the API URL. The plural name must be
-  lowercase. 
+名称 "字段定义了如何引用此特定 XRD。 所需的名称字段有
 
-{{<hint "important" >}}
-The XRD 
-{{<hover label="xrdName" line="4">}}metadata.name{{</hover>}} must be 
-{{<hover label="xrdName" line="9">}}plural{{</hover>}} name, `.` (dot character),
-{{<hover label="xrdName" line="6">}}group{{</hover>}}.
+* `kind` - 调用此 API 时被引用的 `kind` 值。种类是 [UpperCamelCased](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects)。crossplane 建议 XRD `kinds` 以 `X` 开头，以显示它是自定义的 crossplane API 定义。
+* `plural` - API URL 被引用的复数名称。复数名称必须小写。
 
-For example, {{<hover label="xrdName"
-line="4">}}xmydatabases.example.org{{</hover>}} matches the {{<hover
-label="xrdName" line="9">}}plural{{</hover>}} name
-{{<hover label="xrdName" line="9">}}xmydatabases{{</hover>}}, `.` 
-{{<hover label="xrdName" line="6">}}group{{</hover>}} name, 
-{{<hover label="xrdName" line="6">}}example.org{{</hover>}}.
+{{<hint "important" >}}XRD{{<hover label="xrdName" line="4">}}元数据名称{{</hover>}}必须是{{<hover label="xrdName" line="9">}}复数{{</hover>}}name, `.`（点字符）、{{<hover label="xrdName" line="6">}}组{{</hover>}}.
+
+例如 {{<hover label="xrdName"
+line="4">}}xmydatabases.example.org{{</hover>}}匹配 {{<hover
+label="xrdName" line="9">}}复数{{</hover>}}名称{{<hover label="xrdName" line="9">}}xmydatabases{{</hover>}}, `.`{{<hover label="xrdName" line="6">}}组{{</hover>}}名称、{{<hover label="xrdName" line="6">}}example.org{{</hover>}}.
 
 ```yaml {label="xrdName",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -149,59 +110,44 @@ spec:
     plural: xmydatabases
     # Removed for brevity
 ```
+
 {{</hint >}}
 
-### XRD versions
+### XRD 版本
 
 <!-- vale gitlab.SentenceLength = NO -->
-The XRD `version` is like the 
-[API versioning used by Kubernetes](https://kubernetes.io/docs/reference/using-api/#api-versioning).
-The version shows how mature or stable the API is and increments when changing,
-adding or removing fields in the API.
+
+XRD `version` 就像[Kubernetes 所引用的 API 版本](https://kubernetes.io/docs/reference/using-api/#api-versioning)。版本显示了 API 的成熟或稳定程度，并在更改、添加或删除 API 中的字段时递增。
+
 <!-- vale gitlab.SentenceLength = YES -->
 
-Crossplane doesn't require specific versions or a specific version naming 
-convention, but following 
-[Kubernetes API versioning guidelines](https://kubernetes.io/docs/reference/using-api/#api-versioning)
-is strongly recommended. 
+crossplane 并不要求特定的版本或特定的版本命名约定，但强烈建议遵循[Kubernetes API 版本指南](https://kubernetes.io/docs/reference/using-api/#api-versioning)。
 
-* `v1alpha1` - A new API that may change at any time.
-* `v1beta1` - An existing API that's considered stable. Breaking changes are
-  strongly discouraged.
-* `v1` - A stable API that doesn't have breaking changes. 
+* `v1alpha1` - 随时可能更改的新 API。
+* `v1beta1` - 稳定的现有 API。不鼓励进行破坏性更改。
+* `v1` - 没有破坏性更改的稳定 API。
 
-#### Define a schema
+#### 定义模式
 
 <!-- vale write-good.Passive = NO -->
+
 <!-- vale write-good.TooWordy = NO -->
-The `schema` defines the names
-of the parameters, the data types of the parameters and which parameters are
-required or optional. 
+
+模式 "定义了参数的名称、参数的数据类型以及哪些参数是必需的，哪些是可选的。
+
 <!-- vale write-good.Passive = YES -->
+
 <!-- vale write-good.TooWordy = YES -->
 
-{{<hint "note" >}}
-All `schemas` follow the Kubernetes custom resource definition 
-[OpenAPIv3 structural schema](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#specifying-a-structural-schema). 
-{{< /hint >}}
+{{<hint "note" >}}所有 "模式 "都遵循 Kubernetes 自定义资源定义[OpenAPIv3 结构模式](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#specifying-a-structural-schema)。{{< /hint >}}
 
-Each 
-{{<hover label="schema" line="11">}}version{{</hover>}} of the API has a unique 
-{{<hover label="schema" line="12">}}schema{{</hover>}}. 
+每个{{<hover label="schema" line="11">}}版本{{</hover>}}都有一个独特的{{<hover label="schema" line="12">}}模式{{</hover>}}.
 
-All XRD {{<hover label="schema" line="12">}}schemas{{</hover>}} validate against
-the {{<hover label="schema" line="13">}}openAPIV3Schema{{</hover>}}. The schema
-is an OpenAPI 
-{{<hover label="schema" line="14">}}object{{</hover>}} with the 
-{{<hover label="schema" line="15">}}properties{{</hover>}} of a 
-{{<hover label="schema" line="16">}}spec{{</hover>}}
-{{<hover label="schema" line="17">}}object{{</hover>}}.
+所有 XRD {{<hover label="schema" line="12">}}模式{{</hover>}}根据 {{<hover label="schema" line="13">}}模式进行验证。{{</hover>}}模式是 OpenAPI{{<hover label="schema" line="14">}}对象{{</hover>}}对象，具有{{<hover label="schema" line="15">}}属性{{</hover>}}属性的{{<hover label="schema" line="16">}}模式{{</hover>}}{{<hover label="schema" line="17">}}对象{{</hover>}}.
 
-Inside the {{<hover label="schema" line="18">}}spec.properties{{</hover>}} is the custom
-API definition.
+在 {{<hover label="schema" line="18">}}spec.properties{{</hover>}}是自定义 API 的定义。
 
-In this example, the key {{<hover label="schema" line="19">}}region{{</hover>}}
-is a {{<hover label="schema" line="20">}}string{{</hover>}}.
+在本例中，关键字 {{<hover label="schema" line="19">}}区域{{</hover>}}是一个 {{<hover label="schema" line="20">}}字符串{{</hover>}}.
 
 ```yaml {label="schema",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -227,11 +173,7 @@ spec:
     # Removed for brevity
 ```
 
-A composite resource using this API references the 
-{{<hover label="xr" line="1">}}group/version{{</hover>}} and 
-{{<hover label="xr" line="2">}}kind{{</hover>}}. The 
-{{<hover label="xr" line="5">}}spec{{</hover>}} has the 
-{{<hover label="xr" line="6">}}region{{</hover>}} key with a string value. 
+使用该 API 的 Composition 资源会引用{{<hover label="xr" line="1">}}组/版本{{</hover>}}和{{<hover label="xr" line="2">}}种类。{{</hover>}}的{{<hover label="xr" line="5">}}规格{{</hover>}}有{{<hover label="xr" line="6">}}区域{{</hover>}}键的字符串值。
 
 ```yaml {label="xr"}
 apiVersion: custom-api.example.org/v1alpha1
@@ -242,35 +184,20 @@ spec:
   region: "US"
 ```
 
+{{<hint "tip" >}}内定义的自定义应用程序接口{{<hover label="schema" line="18">}}spec.properties{{</hover>}}是 OpenAPIv3 规范。Swagger 文档的 [data models page](https://swagger.io/docs/specification/data-models/) 提供了使用数据类型和输入限制的示例列表。
 
-{{<hint "tip" >}}
-The custom API defined inside the 
-{{<hover label="schema" line="18">}}spec.properties{{</hover>}} is an OpenAPIv3
-specification. The 
-[data models page](https://swagger.io/docs/specification/data-models/) of 
-the Swagger documentation provides a list of examples using data types and input
-restrictions. 
-
-The Kubernetes documentation lists 
-[the set of special restrictions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation)
-on what your OpenAPIv3 custom API can use.
-{{< /hint >}}
+Kubernetes 文档列出了关于 OpenAPIv3 自定义 API 可以使用的 [一组特殊限制](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation)。{{< /hint >}}
 
 {{<hint "important" >}}
 
-Changing or expanding the XRD schema requires restarting the [Crossplane pod]({{<ref "./pods#crossplane-pod">}}) to take effect.
-{{< /hint >}}
+更改或扩展 XRD 模式需要重新启动 [Crossplane pod]({{<ref "./pods#crossplane-pod">}}) 才能生效。{{< /hint >}}
 
-##### Required fields
+##### 必填字段
 
-By default all fields in a schema are optional. Define a parameter as required
-with the 
-{{< hover label="required" line="25">}}required{{</hover>}} attribute. 
+默认情况下，模式中的所有字段都是可选的。{{< hover label="required" line="25">}}属性{{</hover>}}属性将参数定义为必填项。
 
-In this example the XRD requires 
-{{< hover label="required" line="19">}}region{{</hover>}} and 
-{{< hover label="required" line="21">}}size{{</hover>}} but
-{{< hover label="required" line="23">}}name{{</hover>}} is optional. 
+在本例中，X 射线衍射需要{{< hover label="required" line="19">}}区域{{</hover>}}和{{< hover label="required" line="21">}}尺寸{{</hover>}}但{{< hover label="required" line="23">}}名称{{</hover>}}是可选的。
+
 ```yaml {label="required",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
@@ -302,25 +229,16 @@ spec:
     # Removed for brevity
 ```
 
-According to the OpenAPIv3 specification, the `required` field is per-object. If
-a schema contains multiple objects the schema may need multiple `required`
-fields.
+根据 OpenAPIv3 规范，"必要 "字段是按对象设置的。 如果模式包含多个对象，模式可能需要多个 "必要 "字段。
 
-This XRD defines two objects:
- 1. the top-level {{<hover label="required2" line="7">}}spec{{</hover>}} object
- 2. a second {{<hover label="required2" line="14">}}location{{</hover>}} object
+该 XRD 定义了两个对象: 
 
-The {{<hover label="required2" line="7">}}spec{{</hover>}} object 
-{{<hover label="required2" line="23">}}requires{{</hover>}} the 
-{{<hover label="required2" line="10">}}size{{</hover>}} and 
-{{<hover label="required2" line="14">}}location{{</hover>}} but 
-{{<hover label="required2" line="12">}}name{{</hover>}} is optional.
+1. 顶级 {{<hover label="required2" line="7">}}对象{{</hover>}}对象
+2. 第二个 {{<hover label="required2" line="14">}}对象{{</hover>}}对象
 
-Inside the required {{<hover label="required2" line="14">}}location{{</hover>}} 
-object,
-{{<hover label="required2" line="17">}}country{{</hover>}} is 
-{{<hover label="required2" line="21">}}required{{</hover>}} and
-{{<hover label="required2" line="19">}}zone{{</hover>}} is optional.
+规格 {{<hover label="required2" line="7">}}规格{{</hover>}}对象{{<hover label="required2" line="23">}}要求{{</hover>}}的{{<hover label="required2" line="10">}}大小{{</hover>}}和{{<hover label="required2" line="14">}}位置{{</hover>}}但{{<hover label="required2" line="12">}}名称{{</hover>}}是可选的。
+
+所需的 {{<hover label="required2" line="14">}}位置{{</hover>}}对象、{{<hover label="required2" line="17">}}国家{{</hover>}}是{{<hover label="required2" line="21">}}是{{</hover>}}和{{<hover label="required2" line="19">}}区{{</hover>}}为可选项。
 
 ```yaml {copy-lines="none",label="required2"}
 # Removed for brevity
@@ -350,27 +268,24 @@ object,
               - location
 ```
 
-The Swagger "[Describing Parameters](https://swagger.io/docs/specification/describing-parameters/)"
-documentation has more examples. 
+Swagger "[描述参数](https://swagger.io/docs/specification/describing-parameters/) "文档中有更多示例。
 
-##### Crossplane reserved fields
+##### crossplane 保留字段
 
-Crossplane doesn't allow the following fields in a schema:
-* `spec.resourceRef`
-* `spec.resourceRefs`
-* `spec.claimRef`
-* `spec.writeConnectionSecretToRef`
-* `status.conditions`
-* `status.connectionDetails`
+crossplane 不允许在模式中使用以下字段: 
 
-Crossplane ignores any fields matching the reserved fields.
+* `spec.resourceRef` 参数
+* `spec.resourceRefs`参数
+* `spec.claimRef` `spec.writeConnectionSecretToRef`.
+* `spec.writeConnectionSecretToRef`.
+* 状态.条件
+* 状态.连接细节
 
-#### Serve and reference a schema
+crossplane 会忽略任何与保留字段匹配的字段。
 
-To use a schema it must be
-{{<hover label="served" line="12" >}}served: true{{</hover >}}
-and 
-{{<hover label="served" line="13" >}}referenceable: true{{</hover>}}.
+#### 服务和引用模式
+
+被引用的模式必须是{{<hover label="served" line="12" >}}服务: true{{</hover >}}和{{<hover label="served" line="13" >}}可引用: true{{</hover>}}.
 
 ```yaml {label="served"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -394,66 +309,42 @@ spec:
             type: object
             properties:
               region:
-                type: string            
+                type: string
 ```
 
-Composite resources can use any schema version set as 
-{{<hover label="served" line="12" >}}served: true{{</hover >}}.  
-Kubernetes rejects any composite resource using a schema version set as `served:
-false`.
+Composition 资源可以使用任何被引用为{{<hover label="served" line="12" >}}服务: true。{{</hover >}}Kubernetes会拒绝任何被引用为 "served: false "的模式版本的复合资源。
 
-{{< hint "tip" >}}
-Setting a schema version as `served:false` causes errors for users using an older
-schema. This can be an effective way to identify and upgrade users before
-deleting the older schema version. 
-{{< /hint >}}
+{{< hint "tip" >}}将模式版本设置为 "served:false "会导致使用旧模式的用户出错。 在删除旧模式版本之前，这可以有效地识别和升级用户。{{< /hint >}}
 
-The {{<hover label="served" line="13" >}}referenceable: true{{</hover>}}
-field indicates which version of the schema Compositions use. Only one
-version can be `referenceable`. 
+可参考:  true {{<hover label="served" line="13" >}}referenceable: true{{</hover>}}字段表示 Composition 使用模式的哪个版本。 只能有一个版本是 "可引用的"。
 
-{{< hint "note" >}}
-Changing which version is `referenceable:true` requires [updating the `compositeTypeRef.apiVersion`]({{<ref "./compositions#enabling-composite-resources" >}}) 
-of any Compositions referencing that XRD.
-{{< /hint >}}
+{{< hint "note" >}}更改哪个版本为 `referenceable:true` 需要[更新 `compositeTypeRef.apiVersion`]({{<ref "./compositions#enabling-composite-resources" >}})。{{< /hint >}}
 
+#### 多个模式版本
 
-#### Multiple schema versions
+{{<hint "warning" >}}crossplane 支持定义多个 "版本"，但每个版本的模式不能改变任何现有字段，也称为 "进行破坏性更改"。
 
-{{<hint "warning" >}}
-Crossplane supports defining multiple `versions`, but the schema of each version
-can't change any existing fields, also called "making a breaking change."
+要打破不同版本之间的模式变化，需要使用[转换 webhooks](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion)。
 
-Breaking schema changes between versions requires the use of [conversion webhooks](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/#webhook-conversion).
-
-New versions may define new optional parameters, but new required fields are
-a "breaking change."
+新版本可以定义新的可选参数，但新的必填字段属于 "重大变更"。
 
 <!-- vale Crossplane.Spelling = NO -->
+
 <!-- ignore to allow for CRDs -->
+
 <!-- don't add to the spelling exceptions to catch when it's used instead of XRD -->
-Crossplane XRDs use Kubernetes custom resource definitions for versioning. 
-Read the Kubernetes documentation on 
-[versions in CustomResourceDefinitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/)
-for more background on versions and breaking changes. 
+
+crossplane XRD 使用 Kubernetes 自定义资源定义来进行版本控制。请阅读 Kubernetes 文档 [versions in CustomResourceDefinitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/)，了解有关版本和中断更改的更多背景信息。
+
 <!-- vale Crossplane.Spelling = YES -->
 
-Crossplane recommends implementing breaking schema changes as brand new XRDs.
-{{< /hint >}}
+crossplane 建议将模式更改作为全新的 XRD 来实施。{{< /hint >}}
 
-For XRDs, to create a new version of an API add a new 
-{{<hover label="ver" line="21">}}name{{</hover>}} in the
-{{<hover label="ver" line="10">}}versions{{</hover>}}
-list. 
+对于 XRD，要创建新版本的应用程序接口，可添加一个新的{{<hover label="ver" line="21">}}名称{{</hover>}}在{{<hover label="ver" line="10">}}版本{{</hover>}}列表中添加新名称。
 
-For example, this XRD version 
-{{<hover label="ver" line="11">}}v1alpha1{{</hover>}} only has the field 
-{{<hover label="ver" line="19">}}region{{</hover>}}.
+例如，该 XRD 版本{{<hover label="ver" line="11">}}v1alpha1{{</hover>}}只有字段{{<hover label="ver" line="19">}}区域{{</hover>}}.
 
-A second version, 
-{{<hover label="ver" line="21">}}v1{{</hover>}} expands the API to have both 
-{{<hover label="ver" line="29">}}region{{</hover>}} and 
-{{<hover label="ver" line="31">}}size{{</hover>}}.
+第二个版本{{<hover label="ver" line="21">}}v1{{</hover>}}扩展了应用程序接口，使{{<hover label="ver" line="29">}}区域{{</hover>}}和{{<hover label="ver" line="31">}}大小{{</hover>}}.
 
 ```yaml {label="ver",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -487,49 +378,28 @@ spec:
               region:
                 type: string 
               size:
-                type: string            
+                type: string
 ```
 
 {{<hint "important" >}}
 
-Changing or expanding the XRD schema requires restarting the [Crossplane pod]({{<ref "./pods#crossplane-pod">}}) to take effect.
-{{< /hint >}}
+更改或扩展 XRD 模式需要重新启动 [Crossplane pod]({{<ref "./pods#crossplane-pod">}}) 才能生效。{{< /hint >}}
 
-### Enable Claims
+### 启用索赔
 
-Optionally, XRDs can allow Claims to use the XRD API. 
+作为选项，XRD 可以允许 claims 使用 XRD API。
 
 {{<hint "note" >}}
 
-Read the [Claims]({{<ref "./claims">}}) page for more
-information about Claims.
-{{</hint >}}
+请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关索赔的信息。{{</hint >}}
 
-XRDs offer Claims with a 
-{{<hover label="claim" line="10">}}claimNames{{</hover >}} object.
+XRD 为索赔提供了一个{{<hover label="claim" line="10">}}索赔名称{{</hover >}}对象的索赔。
 
-The {{<hover label="claim" line="10">}}claimNames{{</hover >}} defines a 
-{{<hover label="claim" line="11">}}kind{{</hover >}} and 
-{{<hover label="claim" line="12">}}plural{{</hover >}} like the XRD 
-{{<hover label="claim" line="7">}}names{{</hover >}} object.   
-Also like XRD 
-{{<hover label="claim" line="7">}}names{{</hover >}}, use UpperCamelCase
-for the
-{{<hover label="claim" line="11">}}kind{{</hover >}} and lowercase for the 
-{{<hover label="claim" line="12">}}plural{{</hover >}}.
+索赔名称 {{<hover label="claim" line="10">}}名称{{</hover >}}定义了{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}就像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}也像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}一样，被引用的{{<hover label="claim" line="11">}}种类{{</hover >}}使用大写，而{{<hover label="claim" line="12">}}复数{{</hover >}}.
 
-The Claim 
-{{<hover label="claim" line="11">}}kind{{</hover >}} and 
-{{<hover label="claim" line="12">}}plural{{</hover >}} must be unique. They
-can't match any other Claim or other XRD 
-{{<hover label="claim" line="8">}}kind{{</hover >}}.
+claims{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}必须是唯一的，不能与任何其他索赔或其他 XRD{{<hover label="claim" line="8">}}种类{{</hover >}}.
 
-{{<hint "tip" >}}
-Common Crossplane convention is to use 
-{{<hover label="claim" line="10">}}claimNames{{</hover >}} that match the XRD 
-{{<hover label="claim" line="7">}}names{{</hover >}}, but without the beginning
-"x."
-{{</hint >}}
+{{<hint "tip" >}}常见的 crossplane 惯例是使用{{<hover label="claim" line="10">}}索赔名称{{</hover >}}与 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}但不以 "x "开头。{{</hint >}}
 
 ```yaml {label="claim",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -548,51 +418,25 @@ spec:
   # Removed for brevity
 ```
 
-{{<hint "important" >}}
-You can't change the 
-{{<hover label="claim" line="10">}}claimNames{{</hover >}}
-after they're defined. You must delete and
-recreate the XRD to change the 
-{{<hover label="claim" line="10">}}claimNames{{</hover >}}.
-{{</hint >}}
+{{<hint "important" >}}您不能更改{{<hover label="claim" line="10">}}索赔名称{{</hover >}}您必须删除并重新创建 XRD 才能更改{{<hover label="claim" line="10">}}索赔名称{{</hover >}}.{{</hint >}}
 
-### Manage connection secrets
+#### 管理连接秘密
 
-When a composite resource creates managed resources, Crossplane provides any
-[connection secrets]({{<ref "./managed-resources#writeconnectionsecrettoref">}})
-to the composite resource or Claim. This requires the creators of composite
-resources and Claims to know the secrets provided by a managed resource.
-In other cases, Crossplane administrators may not want to expose some or all the
-generated connection secrets.
+当复合资源创建托管资源时，Crossplane 会提供任何 [connection secrets]({{<ref "./managed-resources#writeconnectionsecrettoref">}}) 提供给复合资源或 claims。 这就要求复合资源和 claims 的创建者知道受管资源提供的秘密。 在其他情况下，Crossplane 管理员可能不想公开部分或全部生成的连接秘密。
 
-XRDs can define a list of 
-{{<hover label="key" line="10">}}connectionSecretKeys{{</hover>}}
-to limit what's provided to a composite resource or Claim.
+XRD 可以定义一个{{<hover label="key" line="10">}}连接秘钥{{</hover>}}来限制提供给 Compider 资源或 Claim 的内容。
 
-Crossplane only provides the keys listed in the 
-{{<hover label="key" line="10">}}connectionSecretKeys{{</hover>}} 
-to the composite resource or Claim using this XRD. Any other connection
-secrets aren't passed to the composite resource or Claim. 
+crossplane 只提供连接秘钥（connectionSecretKeys）中列出的密钥。{{<hover label="key" line="10">}}中列出的密钥。{{</hover>}}中列出的密钥，其他任何连接秘密都不会被引用到复合资源或 claims。
 
-{{<hint "important" >}}
-The keys listed in the
-{{<hover label="key" line="10">}}connectionSecretKeys{{</hover>}} must match the 
-key names listed in the Composition's `connectionDetails`.  
+{{<hint "important" >}}中列出的密钥{{<hover label="key" line="10">}}连接密钥{{</hover>}}中列出的密钥名称必须与 Composition 的 "connectionDetails "中列出的密钥名称一致。
 
-An XRD ignores any keys listed that aren't created by a managed resource.
+XRD 会忽略列出的任何非托管资源创建的键。
 
-For more information read the 
-[Composition documentation]({{<ref "./compositions#storing-connection-details">}}).
-{{< /hint >}}
+更多信息，请阅读 [Composition documentation]({{<ref "./compositions#storing-connection-details">}}).{{< /hint >}}
 
+例如，XRD 传递的键是{{<hover label="key" line="11">}}用户名{{</hover>}},{{<hover label="key" line="12">}}密码{{</hover>}}和{{<hover label="key" line="13">}}地址{{</hover>}}.
 
-For example, an XRD passes the keys 
-{{<hover label="key" line="11">}}username{{</hover>}}, 
-{{<hover label="key" line="12">}}password{{</hover>}} and 
-{{<hover label="key" line="13">}}address{{</hover>}}.
-
-Composite resources or Claims save these in the secret defined by their
-`writeConnectionSecretToRef` field. 
+Composition 资源或 claims 会将这些内容保存在由其 `writeConnectionSecretToRef` 字段定义的 secret 中。
 
 ```yaml {label="key",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -612,49 +456,31 @@ spec:
   # Removed for brevity
 ```
 
-{{<hint "warning">}}
-You can't change the `connectionSecretKeys` of an XRD. You must delete and
-recreate the XRD to change the `connectionSecretKeys`.
-{{</hint >}}
+{{<hint "warning">}}您不能更改 XRD 的 "connectionSecretKeys"，必须删除并重新创建 XRD 才能更改 "connectionSecretKeys"。{{</hint >}}
 
-For more information on connection secrets read the 
-[Connection Secrets knowledge base article]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
 
-### Set composite resource defaults
-XRDs can set default parameters for composite resources and Claims.
+### 设置 Composition 资源默认值
+
+XRD 可以为 Composition 资源和索赔设置默认参数。
 
 <!-- vale off -->
+
 #### defaultCompositeDeletePolicy
+
 <!-- vale on -->
-The `defaultCompositeDeletePolicy` defines the default value for the claim's 
-`compositeDeletePolicy` property if the user doesn't specify a value when creating
-the claim. The claim controller uses the `compositeDeletePolicy` property to specify
-the propagation policy when deleting the associated composite.
-The `compositeDeletePolicy` doesn't apply to standalone composites that don't have
-associated claims.
 
-Using a `defaultCompositeDeletePolicy: Background` policy causes the CRD for the claim to have
-the default value `Background` for the `compositeDeletePolicy` property.
-When a deleted claim has the `compositeDeletePolicy` property set to `Background` 
-the claim controller deletes the composite resource using the propagation policy `background`
-and returns, relying on Kubernetes to delete the remaining child objects,
-like managed resources, nested composites and secrets.
+如果用户在创建索赔时没有指定值，"defaultCompositeDeletePolicy "会定义索赔的 "compositeDeletePolicy "属性的默认值。 索赔控制器会使用 "compositeDeletePolicy "属性来指定删除关联合成时的传播策略。 compositeDeletePolicy "不适用于没有关联索赔的独立合成。
 
-Using `defaultCompositeDeletePolicy: Foreground` causes the CRD for the claim to have
-the `compositeDeletePolicy` default value `Foreground`. When a deleted claim has the
-`compositeDeletePolicy` property set to `Foreground` the controller
-deletes the associated composite using the propagation policy `foreground`. This causes Kubernetes
-to use foreground cascading deletion which deletes all child resources before deleting the
-parent resource. The claim controller waits for the composite deletion to finish before returning.
+使用 "defaultCompositeDeletePolicy: Background "策略会使索赔的 CRD 的 "compositeDeletePolicy "属性的默认值为 "Background"。 当删除的索赔的 "compositeDeletePolicy "属性设置为 "Background "时，索赔控制器会使用传播策略 "background "删除复合资源并返回，依靠 Kubernetes 删除剩余的子对象，如托管资源、嵌套的复合资源和秘密。
 
-When creating a claim the user can override the `defaultCompositeDeletePolicy` by including
-the `spec.compositeDeletePolicy` property with either the `Background` or `Foreground` value.
+使用 `defaultCompositeDeletePolicy: Foreground` 会使索赔的 CRD 具有 `compositeDeletePolicy` 的默认值 `Foreground`。 当删除的索赔的 `compositeDeletePolicy` 属性设置为 `Foreground`时，控制器会使用传播策略 `foreground` 删除相关的 Composition。 这会导致 Kubernetes 使用前台级联删除，即在删除父资源之前删除所有子资源。 索赔控制器会等待 Composition 删除完成后再返回。
 
-The default value is `defaultCompositeDeletePolicy: Background`. 
+在创建索赔时，用户可以通过包含具有 "Background "或 "Foreground "值的 "spec.compositeDeletePolicy "属性来覆盖 "defaultCompositeDeletePolicy"。
 
-Set 
-{{<hover label="delete" line="6">}}defaultCompositeDeletePolicy: Foreground{{</hover>}} 
-to change the XRD deletion policy.
+默认值为 `defaultCompositeDeletePolicy: Background`。
+
+设置{{<hover label="delete" line="6">}}defaultCompositeDeletePolicy: Foreground{{</hover>}}来更改 XRD 删除策略。
 
 ```yaml {label="delete",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -671,18 +497,16 @@ spec:
 ```
 
 <!-- vale off -->
+
 #### defaultCompositionRef
+
 <!-- vale on -->
-It's possible for multiple [Compositions]({{<ref "./compositions">}}) to
-reference the same XRD. If more than one Composition references the same XRD,
-the composite resource or Claim must select which Composition to use. 
 
-An XRD can define the default Composition to use with the
-`defaultCompositionRef` value. 
+多个 [Composition]({{<ref "./compositions">}}如果有多个 Composition 引用同一个 XRD，复合资源或 claims 必须选择使用哪个 Composition。
 
-Set a
-{{<hover label="defaultComp" line="6">}}defaultCompositionRef{{</hover>}} 
-to set the default Composition.
+XRD 可以使用 `defaultCompositionRef` 值定义要使用的默认 Composition。
+
+设置一个{{<hover label="defaultComp" line="6">}}defaultCompositionRef{{</hover>}}以设置默认 Composition。
 
 ```yaml {label="defaultComp",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -700,20 +524,18 @@ spec:
 ```
 
 <!-- vale off -->
+
 #### defaultCompositionUpdatePolicy
+
 <!-- vale on -->
 
-Changes to a Composition generate a new Composition revision. By default all
-composite resources and Claims use the updated Composition revision. 
+对 Composition 的更改会生成新的 Composition 修订版。 默认情况下，所有复合资源和索赔都会被引用更新后的 Composition 修订版。
 
-Set the XRD `defaultCompositionUpdatePolicy` to `Manual` to prevent composite
-resources and Claims from automatically using the new revision. 
+将 XRD 的 "defaultCompositionUpdatePolicy "设置为 "Manual"，以防止合成资源和 claims 自动被引用新修订。
 
-The default value is `defaultCompositionUpdatePolicy: Automatic`.
+默认值为 `defaultCompositionUpdatePolicy: Automatic`。
 
-Set {{<hover label="compRev" line="6">}}defaultCompositionUpdatePolicy: Manual{{</hover>}}
-to set the default Composition update policy for composite resources and Claims
-using this XRD.
+设置 {{<hover label="compRev" line="6">}}defaultCompositionUpdatePolicy: Manual{{</hover>}}可为被引用此 XRD 的复合资源和 claims 设置默认的 Composition 更新策略。
 
 ```yaml {label="compRev",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -730,16 +552,14 @@ spec:
 ```
 
 <!-- vale off -->
-#### enforcedCompositionRef
-<!-- vale on -->
-To require all composite resources or Claims to use a specific Composition use
-the `enforcedCompositionRef` setting in the XRD.
 
-For example, to require all composite resources and Claims using this XRD to use
-the Composition 
-{{<hover label="enforceComp" line="6">}}myComposition{{</hover>}} 
-set 
-{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
+#### enforcedCompositionRef
+
+<!-- vale on -->
+
+要要求所有复合资源或 claims 使用特定 Composition，请使用 XRD 中的 "enforcedCompositionRef "设置。
+
+例如，要求使用该 XRD 的所有复合资源和索赔都使用 Composition{{<hover label="enforceComp" line="6">}}我的合成{{</hover>}}设置{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
 
 ```yaml {label="defaultComp",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -756,27 +576,23 @@ spec:
   # Removed for brevity
 ```
 
-## Verify a CompositeResourceDefinition
+## 验证复合资源定义
 
-Verify an XRD with `kubectl get compositeresourcedefinition` or the short form, 
-{{<hover label="getxrd" line="1">}}kubectl get xrd{{</hover>}}.
+使用 `kubectl get compositeresourcedefinition` 或简写形式验证 XRD、{{<hover label="getxrd" line="1">}}kubectl get xrd{{</hover>}}.
 
 ```yaml {label="getxrd",copy-lines="1"}
 kubectl get xrd                                
-NAME                                ESTABLISHED   OFFERED   AGE
-xdatabases.custom-api.example.org   True          True      22m
+NAME ESTABLISHED OFFERED AGE
+xdatabases.custom-api.example.org True True 22m
 ```
 
-The `ESTABLISHED` field indicates Crossplane installed the Kubernetes custom
-resource definition for this XRD.
+ESTABLISHED "字段表示 crossplane 为该 XRD 安装了 Kubernetes 自定义资源定义。
 
-The `OFFERED` field indicates this XRD offers a Claim and Crossplane installed
-the Kubernetes custom resource definitions for the Claim.
+OFFERED "字段表示该 XRD 提供了一个 claims，并且 crossplane 为该 Claim 安装了 Kubernetes 自定义资源定义。
 
-### XRD conditions
-Crossplane uses a standard set of `Conditions` for XRDs.  
-View the conditions of a XRD under their `Status` with 
-`kubectl describe xrd`. 
+### XRD 条件
+
+crossplane 对 XRD 使用一套标准的 "Conditions"（条件）。 使用 "kubectl describe xrd "查看 XRD 的 "Status"（状态）下的条件。
 
 ```yaml {copy-lines="none"}
 kubectl describe xrd
@@ -796,11 +612,12 @@ Status:
 ```
 
 <!-- vale off -->
+
 #### WatchingCompositeResource
+
 <!-- vale on -->
-`Reason: WatchingCompositeResource` indicates Crossplane defined the new
-Kubernetes custom resource definitions related to the composite resource and is 
-watching for the creation of new composite resources. 
+
+`Reason: WatchingCompositeResource` 表示 crossplane 定义了与 Composite 资源相关的新 Kubernetes 自定义资源定义，并正在观察新 Composite 资源的创建。
 
 ```yaml
 Type: Established
@@ -809,11 +626,12 @@ Reason: WatchingCompositeResource
 ```
 
 <!-- vale off -->
-#### TerminatingCompositeResource
+
+#### 终止复合资源
+
 <!-- vale on -->
-`Reason: TerminatingCompositeResource` indicates Crossplane is deleting the
-custom resource definitions related to the composite resource and is 
-terminating the composite resource controller.
+
+Reason: TerminatingCompositeResource "表示 crossplane 正在删除与 Composite 资源相关的自定义资源定义，并正在终止 Composite 资源控制器。
 
 ```yaml
 Type: Established
@@ -822,11 +640,12 @@ Reason: TerminatingCompositeResource
 ```
 
 <!-- vale off -->
+
 #### WatchingCompositeResourceClaim
+
 <!-- vale on -->
-`Reason: WatchingCompositeResourceClaim` indicates Crossplane defined the new
-Kubernetes custom resource definitions related to the offered Claims and is 
-watching for the creation of new Claims. 
+
+`Reason: WatchingCompositeResourceClaim` 表示 crossplane 定义了与所提供的 Claims 相关的新 Kubernetes 自定义资源定义，并正在观察新 Claims 的创建。
 
 ```yaml
 Type: Offered
@@ -835,11 +654,12 @@ Reason: WatchingCompositeResourceClaim
 ```
 
 <!-- vale off -->
+
 #### TerminatingCompositeResourceClaim
+
 <!-- vale on -->
-`Reason: TerminatingCompositeResourceClaim` indicates Crossplane is deleting the
-custom resource definitions related to the offered Claims and is 
-terminating the Claims controller.
+
+Reason: TerminatingCompositeResourceClaim "表示 crossplane 正在删除与提供的索赔相关的自定义资源定义，并终止索赔控制器。
 
 ```yaml
 Type: Offered

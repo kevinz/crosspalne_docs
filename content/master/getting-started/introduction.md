@@ -1,60 +1,35 @@
 ---
-title: Crossplane Introduction
+
+title: crossplane 简介
 weight: 2
+
 ---
 
-Crossplane connects your Kubernetes cluster to external,
-non-Kubernetes resources, and allows platform teams to build custom Kubernetes
-APIs to consume those resources.
+crossplane 可将 Kubernetes 集群连接到外部非 Kubernetes 资源，并允许平台团队构建定制的 Kubernetes API 来使用这些资源。
 
 <!-- vale gitlab.SentenceLength = NO -->
-Crossplane creates Kubernetes
-[Custom Resource Definitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)
-(`CRDs`) to represent the external resources as native 
-[Kubernetes objects](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/). 
-As native Kubernetes objects, you can use standard commands like `kubectl create`
-and `kubectl describe`. The full 
-[Kubernetes API](https://kubernetes.io/docs/reference/using-api/) is available
-for every Crossplane resource. 
+
+Crossplane 会创建 Kubernetes [Custom Resource Definitions](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/) (`CRDs`)，将外部资源表示为本地 [Kubernetes 对象](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/)。作为本地 Kubernetes 对象，你可以使用`kubectl create` 和`kubectl describe` 等标准命令。每个 Crossplane 资源都可以使用完整的 [Kubernetes API](https://kubernetes.io/docs/reference/using-api/)。
+
 <!-- vale gitlab.SentenceLength = YES -->
 
-Crossplane also acts as a
-[Kubernetes Controller](https://kubernetes.io/docs/concepts/architecture/controller/)
-to watch the state of the external resources and provide state enforcement. If
-something modifies or deletes a resource outside of Kubernetes, Crossplane reverses
-the change or recreates the deleted resource.
+Crossplane 还充当[Kubernetes 控制器](https://kubernetes.io/docs/concepts/architecture/controller/)，观察外部资源的状态并提供状态执行。如果有东西修改或删除了 Kubernetes 外部的资源，Crossplane 会逆转更改或重新创建被删除的资源。
 
-{{<img src="/media/crossplane-intro-diagram.png" alt="Diagram showing a user communicating to Kubernetes. Crossplane connected to Kubernetes and Crossplane communicating with AWS, Azure and GCP" align="center">}}
-With Crossplane installed in a Kubernetes cluster, users only communicate with
-Kubernetes. Crossplane manages the communication to external resources like AWS,
-Azure or Google Cloud.
+{{<img src="/media/crossplane-intro-diagram.png" alt="Diagram showing a user communicating to Kubernetes. Crossplane connected to Kubernetes and Crossplane communicating with AWS, Azure and GCP" align="center">}}在Kubernetes集群中安装Crossplane后，用户只与Kubernetes通信，Crossplane则管理与外部资源（如AWS、Azure或谷歌云）的通信。
 
-Crossplane also allows the creation of custom Kubernetes APIs. Platform teams can
-combine external resources and simplify or customize the APIs presented to the
-platform consumers.
+crossplane 还允许创建自定义 Kubernetes API。 平台团队可以结合外部资源，简化或自定义呈现给平台消费者的 API。
 
-## Crossplane components overview
-This table provides a summary of Crossplane components and their roles. 
+## crossplane 组件概览
 
-{{< table "table table-hover table-sm">}}
-| Component | Abbreviation | Scope | Summary |
-| --- | --- | --- | ---- | 
-| [Provider]({{<ref "#providers">}}) | | cluster | Creates new Kubernetes Custom Resource Definitions for an external service. |
-| [ProviderConfig]({{<ref "#provider-configurations">}}) | `PC` | cluster | Applies settings for a _Provider_. |
-| [Managed Resource]({{<ref "#managed-resources">}}) | `MR` | cluster | A Provider resource created and managed by Crossplane inside the Kubernetes cluster. | 
-| [Composition]({{<ref "#compositions">}}) |  | cluster | A template for creating multiple _managed resources_ at once. |
-| [Composite Resources]({{<ref "#composite-resources" >}}) | `XR` | cluster | Uses a _Composition_ template to create multiple _managed resources_ as a single Kubernetes object. |
-| [CompositeResourceDefinitions]({{<ref "#composite-resource-definitions" >}}) | `XRD` | cluster | Defines the API schema for _Composite Resources_ and _Claims_ |
-| [Claims]({{<ref "#claims" >}}) | `XC` | namespace | Like a _Composite Resource_, but namespace scoped. | 
-{{< /table >}}
+本表概述了 crossplane 组件及其作用。
+
+{{< table "table table-hover table-sm">}}| 组件 | 缩写 | 范围 | 摘要 | | --- | --- | ---- | | [Provider]({{<ref "#providers">}}) | | 集群 | 为外部服务创建新的 Kubernetes 自定义资源定义。{{<ref "#provider-configurations">}}) | `PC` | 集群 | 应用_Provider_的设置。{{<ref "#managed-resources">}}) | | `MR` | 集群 | 由 Crossplane 在 Kubernetes 集群内创建和管理的 Provider 资源。{{<ref "#compositions">}}) | | 集群 | 用于一次性创建多个_托管资源_的模板。{{<ref "#composite-resources" >}}) | `XR` | 集群 | 使用_Composition_模板将多个_managed resources_创建为一个Kubernetes对象。{{<ref "#composite-resource-definitions" >}}) | `XRD` | 集群 | 定义_复合资源_和_索赔_的 API 模式 | | | [Claims]({{<ref "#claims" >}}) | `XC` | namespace | 类似于 _Composite Resource_，但作用域为 namespace。{{< /table >}}
 
 ## The Crossplane Pod
-When installed in a Kubernetes cluster Crossplane creates an initial set of
-Custom Resource Definitions (`CRDs`) of the core Crossplane components. 
 
-{{< expand "View the initial Crossplane CRDs" >}}
-After installing Crossplane use `kubectl get crds` to view the Crossplane
-installed CRDs.
+Crossplane 安装在 Kubernetes 集群中时，会创建一组 Crossplane 核心组件的初始自定义资源定义（CRD）。
+
+{{< expand "View the initial Crossplane CRDs" >}}安装 Crossplane 后，使用 `kubectl get crds` 查看已安装的 Crossplane CRD。
 
 ```shell
 ❯ kubectl get crd
@@ -73,139 +48,86 @@ locks.pkg.crossplane.io
 providerrevisions.pkg.crossplane.io                     
 providers.pkg.crossplane.io                             
 storeconfigs.secrets.crossplane.io                      
-usages.apiextensions.crossplane.io                                        
+usages.apiextensions.crossplane.io
 ```
+
 {{< /expand >}}
 
-The following sections describe the functions of some of these CRDs.
+下文将介绍其中一些 CRD 的功能。
 
 ## Providers
-A Crossplane _Provider_ creates a second set of CRDs that define how Crossplane
-connects to a non-Kubernetes service. Each external service relies on its own
-Provider. For example, 
-[AWS](https://marketplace.upbound.io/providers/upbound/provider-aws), 
-[Azure](https://marketplace.upbound.io/providers/upbound/provider-azure) 
-and [GCP](https://marketplace.upbound.io/providers/upbound/provider-gcp)
-are different providers for each cloud service.
 
-{{< hint "tip" >}}
-Most Providers are for cloud services but Crossplane can use a Provider to
-connect to any service with an API.
-{{< /hint >}}
+Crossplane _Provider_创建了第二套CRD，定义了Crossplane如何连接到非Kubernetes服务。 每个外部服务都依赖于自己的Provider。例如，[AWS](https://marketplace.upbound.io/providers/upbound/provider-aws)、[Azure](https://marketplace.upbound.io/providers/upbound/provider-azure)和[GCP](https://marketplace.upbound.io/providers/upbound/provider-gcp)是每个云服务的不同提供商。
 
-For example, an AWS Provider defines Kubernetes CRDs for AWS resources like EC2
-compute instances or S3 storage buckets.
+{{< hint "tip" >}}大多数 Provider 是针对云服务的，但 crossplane 可以使用 Provider 连接到任何具有 API 的服务。{{< /hint >}}
 
-The Provider defines the Kubernetes API definition for the external resource.
-For example, the 
-[Upbound Provider AWS](https://marketplace.upbound.io/providers/upbound/provider-aws/)
-defines a 
-[`bucket`](https://marketplace.upbound.io/providers/upbound/provider-aws/v0.25.0/resources/s3.aws.upbound.io/Bucket/v1beta1) 
-resource for creating and managing AWS S3 storage buckets. 
+例如，AWS Provider 为 EC2 计算实例或 S3 存储桶等 AWS 资源定义 Kubernetes CRD。
 
-In the `bucket` CRD is a
-[`spec.forProvider.region`](https://marketplace.upbound.io/providers/upbound/provider-aws/v0.25.0/resources/s3.aws.upbound.io/Bucket/v1beta1#doc:spec-forProvider-region)
-value that defines which AWS region to deploy the bucket in.
+Provider 定义了外部资源的 Kubernetes API 定义。例如，[Upbound Provider AWS](https://marketplace.upbound.io/providers/upbound/provider-aws/) 定义了用于创建和管理 AWS S3 存储桶的 [`bucket`](https://marketplace.upbound.io/providers/upbound/provider-aws/v0.25.0/resources/s3.aws.upbound.io/Bucket/v1beta1)资源。
 
-The Upbound Marketplace contains a large 
-[collection of Crossplane Providers](https://marketplace.upbound.io/providers).
+在`bucket`CRD中，有一个[`spec.forProvider.region`](https://marketplace.upbound.io/providers/upbound/provider-aws/v0.25.0/resources/s3.aws.upbound.io/Bucket/v1beta1#doc:spec-forProvider-region)值，用于定义在哪个AWS区域部署bucket。
 
-More providers are available in the [Crossplane Contrib repository](https://github.com/crossplane-contrib/).
+Upbound Marketplace 包含大量[crossplane Providers 集合](https://marketplace.upbound.io/providers)。
 
-Providers are cluster scoped and available to all cluster namespaces.
+更多 Provider 可在 [Crossplane Contrib 资源库](https://github.com/crossplane-contrib/) 中找到。
 
-View all installed Providers with the command `kubectl get providers`.
+Provider 具有集群作用域，可用于所有集群名称空间。
 
-## Provider configurations
-Providers have _ProviderConfigs_. _ProviderConfigs_ configure settings
-related to the Provider like authentication or global defaults for the
-Provider.
+使用命令 `kubectl get providers` 查看所有已安装的 Provider。
 
-The API endpoints for ProviderConfigs are unique to each Provider.
+## Provider 配置
 
-_ProviderConfigs_ are cluster scoped and available to all cluster namespaces.
+ProviderConfigs_ 配置与 Provider 相关的设置，如身份验证或 Provider 的全局默认值。
 
-View all installed ProviderConfigs with the command `kubectl get providerconfig`.
+ProviderConfigs 的 API 端点对每个 Provider 都是唯一的。
 
-## Managed resources
-A Provider's CRDs map to individual _resources_ inside the provider. When
-Crossplane creates and monitors a resource it's a _Managed Resource_.
+_ProviderConfigs_具有集群作用域，可用于所有集群名称空间。
 
-Using a Provider's CRD creates a unique _Managed Resource_. For example,
-using the Provider AWS's `bucket` CRD, Crossplane creates a `bucket` _Managed Resource_
-inside the Kubernetes cluster that's connected to an AWS S3 storage bucket.
+使用命令 `kubectl get providerconfig` 查看所有已安装的 ProviderConfigs。
 
-The Crossplane controller provides state enforcement for _Managed Resources_.
-Crossplane enforces the settings and existence of _Managed Resources_. This
-"Controller Pattern" is like how the Kubernetes 
-[kube-controller-manager](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/)
-enforces state for pods.
+## 管理的资源
 
-_Managed Resources_ are cluster scoped and available to all cluster namespaces.
+Provider 的 CRD 映射到 Provider 内部的单个_资源_。 当 crossplane 创建并监控一个资源时，它就是一个_受管资源_。
 
-Use `kubectl get managed` to view all _managed resources_.
-{{<hint "warning" >}}
-The `kubectl get managed` creates a lot of Kubernetes API queries.
-Both the `kubectl` client and kube-apiserver throttle the API queries. 
+使用 Provider 的 CRD 会创建一个唯一的 _Managed Resource_。 例如，使用 AWS 的 `bucket` CRD，crossplane 会在 Kubernetes 集群内创建一个连接到 AWS S3 存储桶的 `bucket` _Managed Resource_。
 
-Depending on the size of the API server and number of managed resources, this
-command may take minutes to return or may timeout. 
+Crossplane 控制器为_Managed Resources_提供状态执行。 Crossplane 执行_Managed Resources_的设置和存在。这种 "控制器模式 "就像 Kubernetes [kube-controller-manager](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/) 为 pod 执行状态一样。
 
-For more information, read 
-[Kubernetes issue #111880](https://github.com/kubernetes/kubernetes/issues/111880)
-and 
-[Crossplane issue #3459](https://github.com/crossplane/crossplane/issues/3459).
-{{< /hint >}}
+托管资源_具有集群作用域，可用于所有集群名称空间。
 
-## Compositions
+使用 `kubectl get managed` 查看所有_受管资源_。{{<hint "warning" >}}`kubectl get managed` 会创建大量 Kubernetes API 查询。 `kubectl` 客户端和 kube-apiserver 都会限制 API 查询。
 
-A _Composition_ is a template for a collection of _managed resource_. _Compositions_ 
-allow platform teams to define a set of _managed resources_ as a 
-single object.
+根据 API 服务器的大小和托管资源的数量，该命令可能需要几分钟才能返回，也可能会超时。
 
-For example, a compute _managed resource_ may require the creation of a storage 
-resource and a virtual network as well. A single _Composition_ can define all three
-resources in a single _Composition_ object. 
+更多信息，请阅读 [Kubernetes issue #111880](https://github.com/kubernetes/kubernetes/issues/111880) 和 [Crossplane issue #3459](https://github.com/crossplane/crossplane/issues/3459) 。{{< /hint >}}
 
-Using _Compositions_ simplifies the deployment of infrastructure made up of
-multiple _managed resources_. _Compositions_ also enforce standards and settings
-across deployments.
+## 构成
 
-Platform teams can define fixed or default settings for each _managed resource_ inside a
-_Composition_ or define fields and settings that users may change.
+组件允许平台团队将一组_托管资源_定义为单一对象。
 
-Using the previous example, the platform team may set a compute resource size
-and virtual network settings. But the platform team allows users to define the 
-storage resource size.
+例如，一个计算_托管资源_可能需要创建一个存储资源和一个虚拟网络。 一个_组成_对象可以在一个_组成_对象中定义所有这三种资源。
 
-Creating a _Composition_ Crossplane doesn't create any managed
-resources. The _Composition_ is only a template for a collection of _managed
-resources_ and their settings. A _Composite Resource_ creates the specific resources.
+使用_Compositions_可简化由多个_managed resources_组成的基础架构的部署。
 
-{{< hint "note" >}}
-The [_Composite Resources_]({{<ref "#composite-resources">}}) section discusses
-_Composite Resources_.
-{{< /hint >}}
+平台团队可为_Composition_内的每个_managed resource_定义固定或默认设置，或定义用户可更改的字段和设置。
 
-_Compositions_ are cluster scoped and available to all cluster namespaces.
+使用前面的例子，平台团队可能会设置计算资源大小和虚拟网络设置。 但平台团队允许用户定义存储资源大小。
 
-Use `kubectl get compositions` to view all _compositions_.
- 
+创建 _Composition_ crossplane 并不创建任何受管资源。 _Composition_ 只是一个模板，用于集合 _managed resources_ 及其设置。 _Composite Resource_ 创建特定资源。
 
- ## Composite Resources
+{{< hint "note" >}}复合资源_]({{<ref "#composite-resources">}}) 部分讨论了_复合资源_。{{< /hint >}}
 
-A _Composite Resource_ (`XR`) is a set of provisioned _managed resources_. A
-_Composite Resource_ uses the template defined by a _Composition_ and applies
-any user defined settings. 
+_Compositions_具有集群作用域，可用于所有集群名称空间。
 
-Multiple unique _Composite Resource_ objects can use the same _Composition_. For
-example, a _Composition_ template can create a compute, storage and networking
-set of _managed resources_. Crossplane uses the same _Composition_ template
-every time a user requests this set of resources.
+使用 `kubectl get compositions` 查看所有_compositions_。
 
-If a _Composition_ allows a user to define resource settings, users apply them
-in a _Composite Resource_.
+## Composition Resources
 
+一个 _Composite Resource_ (`XR`)是一组已调配的_managed resources_。 一个 _Composite Resource_ 使用一个 _Composition_ 所定义的模板，并应用任何用户定义的设置。
+
+多个唯一的 _Composite Resource_ 对象可以使用同一个 _Composition_ 。 例如，一个 _Composition_ 模板可以创建一组计算、存储和网络的 _managed resources_。 每次用户请求这组资源时，crossplane 都会引用同一个 _Composition_ 模板。
+
+如果 _Composition_ 允许用户定义资源设置，用户就会在 _Composite Resource_ 中应用这些设置。
 
 <!-- A _Composition_ defines which _Composite Resources_ can use the _Composition_
 template with the _Composition_ `spec.compositeTypeRef` value. This defines the
@@ -250,57 +172,50 @@ In this example, the _Composite Resource_ also sets the
 _Composition_ uses this value when creating the associated _managed resources_
 owned by this _Composite Resource_. -->
 
-{{< hint "tip" >}}
-_Compositions_ are templates for a set of _managed resources_.  
-_Composite Resources_ fill out the template and create _managed resources_.
+{{< hint "tip" >}}_Compositions_ 是一组_managed resources_ 的模板。_Composite Resources_ 填充模板并创建_managed resources_。
 
-Deleting a _Composite Resource_ deletes all the _managed resources_ it created.
-{{< /hint >}}
+删除_复合资源_会删除它创建的所有_托管资源_。{{< /hint >}}
 
-_Composite Resources_ are cluster scoped and available to all cluster namespaces.
+_Composite Resources_ 具有集群作用域，可用于所有集群名称空间。
 
-Use `kubectl get composite` to view all _Composite Resources_.
+使用 `kubectl get composite` 查看所有 _Composite 资源。
 
-## Composite Resource Definitions
-_Composite Resource Definitions_ (`XRDs`) create custom Kubernetes APIs used by 
-_Claims_ and _Composite Resources_.
+### 复合资源定义
 
-{{< hint "note" >}}
-The [_Claims_]({{<ref "#claims">}}) section discusses
-_Claims_.
-{{< /hint >}}
+_Composite Resource Definitions_ (`XRDs`)创建了_Claims_和_Composite Resources_所引用的自定义 Kubernetes API。
 
-Platform teams define the custom APIs.  
-These APIs can define specific values
-like storage space in gigabytes, generic settings like `small` or `large`,
-deployment options like `cloud` or `onprem`. Crossplane doesn't limit the API definitions.
+{{< hint "note" >}}索赔]({{<ref "#claims">}}) 部分讨论了_索赔_。{{< /hint >}}
 
-The _Composite Resource Definition's_ `kind` is from Crossplane.
+平台团队可以定义自定义 API。 这些 API 可以定义以千兆字节为单位的存储空间等特定值、"小 "或 "大 "等通用设置、"云 "或 "onprem "等部署选项。 crossplane 不会限制 API 的定义。
+
+_Composite Resource Definition 的_ `kind` 来自 crossplane。
+
 ```yaml
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 ```
 
-The `spec` of a _Composite Resource Definition_ creates the  `apiVersion`,
-`kind` and `spec` of a _Composite Resource_. 
+复合资源定义_的 `spec` 创建了_复合资源_的 `apiVersion`、 `kind` 和 `spec`。
 
-{{< hint "tip" >}}
-The _Composite Resource Definition_ defines the parameters for a _Composite
-Resource_.
-{{< /hint >}}
+{{< hint "tip" >}}复合资源定义_定义了_复合资源_的参数。{{< /hint >}}
 
-A _Composite Resource Definition_ has four main `spec` parameters:
-* A {{<hover label="specGroup" line="3" >}}group{{< /hover >}} 
-to define the 
-{{< hover label="xr2" line="2" >}}apiVersion{{</hover >}} 
-in a _Composite Resource_ .
-* The {{< hover label="specGroup" line="7" >}}versions.name{{</hover >}} 
-that defines the version used in a _Composite Resource_.
+一个 _Composite Resource Definition_ 有四个主要的 `spec` 参数: 
+
+* A {{<hover label="specGroup" line="3" >}}组{{< /hover >}}
+
+来定义{{< hover label="xr2" line="2" >}}apiVersion{{</hover >}}中定义 apiVersion。
+
+* 版本.名称 {{< hover label="specGroup" line="7" >}}版本.名称{{</hover >}}
+
+定义了_复合资源_中被引用的版本。
+
 * A {{< hover label="specGroup" line="5" >}}names.kind{{</hover >}}
-to define the _Composite Resource_ 
-{{< hover label="xr2" line="3" >}}kind{{</hover>}}.
-* A {{< hover label="specGroup" line="8" >}}versions.schema{{</hover>}} section
-to define the _Composite Resource_ {{<hover label="xr2" line="6" >}}spec{{</hover >}}.
+
+来定义_复合资源_______。{{< hover label="xr2" line="3" >}}种类{{</hover>}}.
+
+* A {{< hover label="specGroup" line="8" >}}版本模式{{</hover>}}部分
+
+来定义_复合资源_。 {{<hover label="xr2" line="6" >}}规格{{</hover >}}.
 
 ```yaml {label="specGroup"}
 # Composite Resource Definition (XRD)
@@ -314,7 +229,7 @@ spec:
       # Removed for brevity
 ```
 
-A _Composite Resource_ based on this _Composite Resource Definition_ looks like this:
+基于该_复合资源定义_的_复合资源_看起来像这样: 
 
 ```yaml {label="xr2"}
 # Composite Resource (XR)
@@ -326,26 +241,15 @@ spec:
   storage: "large"
 ```
 
-A _Composite Resource Definition_ {{< hover label="specGroup" line="8" >}}schema{{</hover >}} defines the _Composite Resource_
-{{<hover label="xr2" line="6" >}}spec{{</hover >}} parameters.
+复合资源定义 {{< hover label="specGroup" line="8" >}}模式{{</hover >}}定义了_复合资源_的{{<hover label="xr2" line="6" >}}规格{{</hover >}}参数。
 
-These parameters are the new, custom APIs, that developers can use. 
+这些参数是新的、自定义的 API，开发人员可以使用。
 
-For example, creating a compute _managed resource_ requires knowledge of a
-cloud provider's compute class names like AWS's `m6in.large` or GCP's
-`e2-standard-2`. 
+例如，创建计算_托管资源_需要了解云 Provider 的计算类名称，如 AWS 的 `m6in.large` 或 GCP 的 `e2-standard-2`。
 
-A _Composite Resource Definition_ can limit the choices to `small` or `large`.
-A _Composite Resource_ uses those options and the _Composition_ maps them
-to specific cloud provider settings. 
+_Composite Resource Definition_ 可将选项限制为 "小 "或 "大"。 _Composite Resource_ 被引用这些选项，而 _Composition_ 则将其映射到特定的云提供商设置。
 
-The following _Composite Resource Definition_ defines a {{<hover label="specVersions" line="17" >}}storage{{< /hover >}}
-parameter. The storage is a 
-{{<hover label="specVersions" line="18">}}string{{< /hover >}} 
-and the OpenAPI 
-{{<hover label="specVersions" line="19" >}}oneOf{{< /hover >}} requires the
-options to be either {{<hover label="specVersions" line="20" >}}small{{< /hover >}} 
-or {{<hover label="specVersions" line="21" >}}large{{< /hover >}}.
+下面的_复合资源定义_定义了一个 {{<hover label="specVersions" line="17" >}}存储空间{{< /hover >}}存储空间是一个{{<hover label="specVersions" line="18">}}字符串{{< /hover >}}和 OpenAPI{{<hover label="specVersions" line="19" >}}的{{< /hover >}}要求选项必须是 {{<hover label="specVersions" line="20" >}}小{{< /hover >}}或 {{<hover label="specVersions" line="21" >}}大{{< /hover >}}.
 
 ```yaml {label="specVersions"}
 # Composite Resource Definition (XRD)
@@ -370,20 +274,17 @@ spec:
                   - pattern: '^small$'
                   - pattern: '^large$'
             required:
-            - storage  
+            - storage
 ```
 
-A _Composite Resource Definition_ can define a wide variety of settings and options. 
+一个_复合资源定义_可以定义多种设置和选项。
 
-Creating a _Composite Resource Definition_ enables the creation of _Composite
-Resources_ but can also create a _Claim_.
+创建_复合资源定义_可以创建_复合资源_，但也可以创建_索赔_。
 
-_Composite Resource Definitions_ with a `spec.claimNames` allow developers to
-create _Claims_.
+带有 `spec.claimNames` 的 _Composite Resource Definition_ 允许开发人员创建 _Claims_。
 
-For example, the 
-{{< hover label="xrdClaim" line="6" >}}claimNames.kind{{</hover >}}
-allows the creation of _Claims_ of `kind: computeClaim`.
+例如{{< hover label="xrdClaim" line="6" >}}claimNames.kind{{</hover >}}允许创建 `kind: computeClaim` 的 _Claims。
+
 ```yaml {label="xrdClaim"}
 # Composite Resource Definition (XRD)
 spec:
@@ -392,37 +293,26 @@ spec:
     kind: myComputeResource
   claimNames:
     kind: computeClaim
-  # Removed for brevity 
+  # Removed for brevity
 ```
 
-## Claims
-_Claims_ are the primary way developers interact with Crossplane. 
+## claims
 
-_Claims_ access the custom APIs defined by the platform team in a _Composite
-Resource Definition_.
+索赔是开发人员与 crossplane 交互的主要方式。
 
-_Claims_ look like _Composite Resources_, but they're namespace scoped,
-while _Composite Resources_ are cluster scoped. 
+_Claims_ 访问平台团队在 _Composite Resource Definition_ 中定义的自定义应用程序接口。
+
+_Claims_ 看起来像 _Composite Resources_，但它们是 namespace 作用域，而 _Composite Resources_ 是集群作用域。
 
 {{< hint "note" >}}
-**Why does namespace scope matter?**  
-Having namespace scoped _Claims_ allows multiple teams, using unique namespaces,
-to create the same types of resources, independent of each other. The compute
-resources of team A are unique to the compute resources of team B.
+**为什么名称空间范围很重要？** 具有名称空间范围的 _Claims_ 允许多个团队使用唯一的名称空间创建相同类型的资源，且相互独立。 团队 A 的计算资源与团队 B 的计算资源是唯一的。
 
-Directly creating _Composite Resources_ requires cluster-wide permissions,
-shared with all teams.   
-_Claims_ create the same set of resources, but on a namespace level.
-{{< /hint >}}
+直接创建 _Composite Resources_ 需要集群范围内的权限，并与所有团队共享。_Claims_ 创建相同的资源集，但在 namespace 层面上。{{< /hint >}}
 
-The previous _Composite Resource Definition_ allows the creation of _Claims_
-of the kind  
-{{<hover label="xrdClaim2" line="7" >}}computeClaim{{</hover>}}.  
+之前的_复合资源定义_允许创建_索赔_类型的{{<hover label="xrdClaim2" line="7" >}}computeClaim{{</hover>}}.
 
-Claims use the same 
-{{< hover label="xrdClaim2" line="3" >}}apiVersion{{< /hover >}}
-defined in _Composite Resource Definition_ and also used by 
-_Composite Resources_.
+索赔被引用相同的{{< hover label="xrdClaim2" line="3" >}}apiVersion{{< /hover >}}中定义的 apiVersion，_Composite Resource Definition_ 中定义的 apiVersion 也被_Composite Resources_ 引用。
+
 ```yaml {label="xrdClaim2"}
 # Composite Resource Definition (XRD)
 spec:
@@ -431,17 +321,12 @@ spec:
     kind: myComputeResource
   claimNames:
     kind: computeClaim
-  # Removed for brevity 
+  # Removed for brevity
 ```
 
-In an example _Claim_ the 
-{{<hover label="claim" line="2">}}apiVersion{{< /hover >}}
-matches the {{<hover label="xrdClaim2" line="3">}}group{{< /hover >}} in the
-_Composite Resource Definition_. 
+在 _Claim_ 的示例中{{<hover label="claim" line="2">}}apiVersion{{< /hover >}}与 {{<hover label="xrdClaim2" line="3">}}组{{< /hover >}}中的组。
 
-The _Claim_ {{<hover label="claim" line="3">}}kind{{< /hover >}} matches the
-_Composite Resource Definition_ 
-{{<hover label="xrdClaim2" line="7">}}claimNames.kind{{< /hover >}}.
+索赔 {{<hover label="claim" line="3">}}类型{{< /hover >}}与_复合资源定义_匹配。{{<hover label="xrdClaim2" line="7">}}claimNames.kind{{< /hover >}}.
 
 ```yaml {label="claim"}
 # Claim
@@ -454,22 +339,10 @@ spec:
   size: "large"
 ```
 
-A _Claim_ can install in a {{<hover label="claim" line="6">}}namespace{{</hover >}}.  
-The _Composite Resource Definition_ defines the 
-{{<hover label="claim" line="7">}}spec{{< /hover >}} options the same way it
-does for a _Composite Resource_ 
-{{<hover label="xr-claim" line="6">}}spec{{< /hover >}}.
+一个 _Claim_ 可以安装在一个 {{<hover label="claim" line="6">}}namespace 中。{{</hover >}}复合资源定义_定义了{{<hover label="claim" line="7">}}规格{{< /hover >}}选项的方式与_复合资源_的方式相同{{<hover label="xr-claim" line="6">}}规格{{< /hover >}}.
 
-{{< hint "tip" >}}
-_Composite Resources_ and _Claims_ are similar.   
-Only _Claims_ can be in
-a {{<hover label="claim" line="6">}}namespace{{</hover >}}.  
-Also the _Composite Resource's_ {{<hover label="xr-claim"
-line="3">}}kind{{</hover >}} may be different than the _Claim's_
-{{<hover label="claim" line="3">}}kind{{< /hover >}}.  
-The _Composite Resource Definition_ defines the 
-{{<hover label="xrdClaim2" line="7">}}kind{{</hover >}} values.
-{{< /hint >}}
+{{< hint "tip" >}}_Composite Resources_ 和 _Claims_ 是相似的。 只有 _Claims_ 可以在一个命名空间中。 {{<hover label="claim" line="6">}}名称空间。{{</hover >}}此外，_复合资源_的 {{<hover label="xr-claim"
+line="3">}}种类{{</hover >}}可能不同于_Claim_的{{<hover label="claim" line="3">}}种类。{{< /hover >}}_Composite Resource Definition_ 定义了{{<hover label="xrdClaim2" line="7">}}种类{{</hover >}}Values 的值。{{< /hint >}}
 
 ```yaml {label="xr-claim"}
 # Composite Resource (XR)
@@ -481,12 +354,14 @@ spec:
   storage: "large"
 ```
 
-_Claims_ are namespace scoped.
+_Claims_ 是 namespace 作用域。
 
-View all available Claims with the command `kubectl get claim`.
+使用命令 `kubectl get claim` 查看所有可用的 claims。
 
-## Next steps
-Build your own Crossplane platform using one of the quickstart guides.
-* [Azure Quickstart]({{<ref "provider-azure" >}})
-* [AWS Quickstart]({{<ref "provider-aws" >}})
-* [GCP Quickstart]({{<ref "provider-gcp" >}})
+## 下一步
+
+使用其中一个快速入门指南，构建自己的 crossplane 平台。
+
+* [Azure 快速入门]({{<ref "provider-azure" >}})
+* [AWS 快速入门]({{<ref "provider-aws" >}})
+* [GCP 快速入门]({{<ref "provider-gcp" >}})

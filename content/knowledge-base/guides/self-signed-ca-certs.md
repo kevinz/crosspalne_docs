@@ -1,49 +1,42 @@
----  
-title: Self-Signed CA Certs
-weight: 270   
----  
+---
 
->  Using self-signed certificates is not advised in production, it is 
-recommended to only use self-signed certificates for testing.
+title: 自签名 CA 证书
+weight: 270
 
-When Crossplane loads Configuration and Provider Packages from private 
-registries, it must be configured to trust the CA and Intermediate certs. 
+---
 
-Crossplane needs to be installed via the Helm chart with the 
-`registryCaBundleConfig.name` and `registryCaBundleConfig.key` parameters 
-defined. See [Install Crossplane]({{<ref "../../master/software/install" >}}).
+&gt; 不建议在生产中使用自签名证书，它是
 
-## Configure
+建议只使用自签名证书进行测试。
 
-1. Create a CA Bundle (A file containing your Root and Intermediate 
-certificates in a specific order). This can be done with any text editor or 
-from the command line, so long as the resulting file contains all required crt 
-files in the proper order. In many cases, this will be either a single 
-self-signed Root CA crt file, or an Intermediate crt and Root crt file. The 
-order of the crt files should be from lowest to highest in signing order. 
-For example, if you have a chain of two certificates below your Root 
-certificate, you place the bottom level Intermediate cert at the beginning of 
-the file, then the Intermediate cert that singed that cert, then the Root cert 
-that signed that cert.
+当 Crossplane 从私有注册表加载配置和 Provider 包时，必须将其配置为信任 CA 和中间认证。
 
-2. Save the files as `[yourdomain].ca-bundle`.
+crossplane 需要通过 helm chart 安装，并定义`registryCaBundleConfig.name`和`registryCaBundleConfig.key`参数。 参见 [Install Crossplane]({{<ref "../../master/software/install" >}}).
 
-3. Create a Kubernetes ConfigMap in your Crossplane system namespace:
+## 配置
+
+1.创建 CA 捆绑包（一个包含根 CA 和中间 CA 的文件）。
+
+这可以通过任何文本编辑器或命令行完成，只要生成的文件中包含的所有 crt 文件顺序正确即可。 在许多情况下，这要么是一个自签名的根 CA crt 文件，要么是一个中级 crt 文件和根 crt 文件。 crt 文件的顺序应按签名顺序从低到高排列。 例如，如果根证书下面有两个证书链，则应将最底层的中级证书放在文件开头，然后是签署该证书的中级证书，最后是签署该证书的根证书。
+
+2.将文件保存为 `[yourdomain].ca-bundle`。
+3.在你的 crossplane 系统命名空间中创建 Kubernetes ConfigMap: 
 
 ```
 kubectl -n [Crossplane system namespace] create cm ca-bundle-config \
 --from-file=ca-bundle=./[yourdomain].ca-bundle
 ```
 
-4. Set the `registryCaBundleConfig.name` Helm chart parameter to 
-`ca-bundle-config` and the `registryCaBundleConfig.key` parameter to 
-`ca-bundle`.
+4.将 `registryCaBundleConfig.name` helm chart 参数设置为
 
-> Providing Helm with parameter values is convered in the Helm docs, 
-[Helm install](https://helm.sh/docs/helm/helm_install/). An example block  
-in an `override.yaml` file would look like this:
+`ca-bundle-config` 和 `ca-bundle` 的 `registryCaBundleConfig.key` 参数。
+
+&gt; Helm 文档中介绍了如何为 Helm 提供参数值、
+
+[Helm install](https://helm.sh/docs/helm/helm_install/)。`override.yaml` 文件中的示例块如下: 
+
 ```
-  registryCaBundleConfig:
+registryCaBundleConfig:
     name: ca-bundle-config
     key: ca-bundle
 ```

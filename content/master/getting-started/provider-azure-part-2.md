@@ -1,29 +1,32 @@
 ---
-title: Azure Quickstart Part 2
-weight: 120
-tocHidden: true
-aliases:
+
+title: Azure Quickstart Part 2 
+weight: 120 
+tocHidden: true 
+aliases: 
   - /master/getting-started/provider-azure-part-3
+
 ---
 
-{{< hint "important" >}}
-This guide is part 2 of a series.  
+{{< hint "important" >}}本指南是系列指南的第二部分。
 
-[**Part 1**]({{<ref "provider-azure" >}}) covers
-to installing Crossplane and connect your Kubernetes cluster to Azure.
+[第 1 部分**]({{<ref "provider-azure" >}}包括安装 crossplane 并将 Kubernetes 集群连接到 Azure。
 
 {{< /hint >}}
 
-This guide walks you through building and accessing a custom API with Crossplane.
+本指南将指导您使用 crossplane 构建和访问自定义 API。
 
-## Prerequisites
-* Complete [quickstart part 1]({{<ref "provider-azure" >}}) connecting Kubernetes
-  to Azure.
-* an Azure account with permissions to create an Azure Virtual Machine, Resource
- Group and Virtual Networking.
+## 先决条件
+
+* 完成 [快速入门第 1 部分] ({{<ref "provider-azure" >}}) 将 Kubernetes 连接到 Azure。
+* 一个具有创建 Azure 虚拟机、资源的权限的 Azure 帐户。
+
+群组和虚拟网络。
 
 {{<expand "Skip part 1 and just get started" >}}
-1. Add the Crossplane Helm repository and install Crossplane
+
+1.添加 Crossplane Helm 软件源并安装 Crossplane
+
 ```shell
 helm repo add \
 crossplane-stable https://charts.crossplane.io/stable
@@ -35,9 +38,8 @@ crossplane-stable/crossplane \
 --create-namespace
 ```
 
-2. When the Crossplane pods finish installing and are ready, apply the Azure 
-   Provider
-   
+2.当 crossplane pod 完成安装并准备就绪时，应用 Azure Provider
+
 ```yaml {label="provider",copy-lines="all"}
 cat <<EOF | kubectl apply -f -
 apiVersion: pkg.crossplane.io/v1
@@ -49,18 +51,21 @@ spec:
 EOF
 ```
 
-3. Use the Azure CLI to create a service principal and save the JSON output as 
-   `azure-crednetials.json`
+3.使用 Azure CLI 创建服务委托，并将 JSON 输出保存为 `azure-crednetials.json
+
 {{< editCode >}}
+
 ```console
 az ad sp create-for-rbac \
 --sdk-auth \
 --role Owner \
 --scopes /subscriptions/$@<subscription_id>$@
 ```
+
 {{</ editCode >}}
 
-4. Create a Kubernetes secret from the Azure JSON file.
+4.从 Azure JSON 文件创建 Kubernetes secret。
+
 ```shell {label="kube-create-secret",copy-lines="all"}
 kubectl create secret \
 generic azure-secret \
@@ -68,7 +73,8 @@ generic azure-secret \
 --from-file=creds=./azure-credentials.json
 ```
 
-5. Create a _ProviderConfig_
+5.创建 _ProviderConfig_
+
 ```yaml {label="providerconfig",copy-lines="all"}
 cat <<EOF | kubectl apply -f -
 apiVersion: azure.upbound.io/v1beta1
@@ -84,18 +90,18 @@ spec:
       key: creds
 EOF
 ```
+
 {{</expand >}}
 
-## Create a custom API
+## 创建自定义应用程序接口
 
 <!-- vale alex.Condescending = NO -->
-Crossplane allows you to build your own custom APIs for your users, abstracting
-away details about the cloud provider and their resources. You can make your API
-as complex or simple as you wish. 
+
+Crossplane 允许您为用户构建自己的自定义 API，抽象掉有关云提供商及其资源的细节。 您可以随心所欲地让自己的 API 变得复杂或简单。
+
 <!-- vale alex.Condescending = YES -->
 
-The custom API is a Kubernetes object.  
-Here is an example custom API.
+下面是一个自定义 API 的示例。
 
 ```yaml {label="exAPI"}
 apiVersion: compute.example.com/v1alpha1
@@ -106,74 +112,56 @@ spec:
   location: "US"
 ```
 
-Like any Kubernetes object the API has a 
-{{<hover label="exAPI" line="1">}}version{{</hover>}}, 
-{{<hover label="exAPI" line="2">}}kind{{</hover>}} and 
-{{<hover label="exAPI" line="5">}}spec{{</hover>}}.
+与任何 Kubernetes 对象一样，API 也有一个{{<hover label="exAPI" line="1">}}版本{{</hover>}},{{<hover label="exAPI" line="2">}}类型{{</hover>}}和{{<hover label="exAPI" line="5">}}规格{{</hover>}}.
 
-### Define a group and version
-To create your own API start by defining an 
-[API group](https://kubernetes.io/docs/reference/using-api/#api-groups) and 
-[version](https://kubernetes.io/docs/reference/using-api/#api-versioning).  
+###定义组和版本
 
-The _group_ can be any value, but common convention is to map to a fully
-qualified domain name. 
+要创建自己的 API，首先要定义一个 [API 组](https://kubernetes.io/docs/reference/using-api/#api-groups) 和 [版本](https://kubernetes.io/docs/reference/using-api/#api-versioning)。
+
+_group_ 可以是任何值，但通常的习惯是映射到完全合格的域名。
 
 <!-- vale gitlab.SentenceLength = NO -->
-The version shows how mature or stable the API is and increments when changing,
-adding or removing fields in the API.
+
+版本显示 API 的成熟或稳定程度，并在更改、添加或删除 API 中的字段时递增。
+
 <!-- vale gitlab.SentenceLength = YES -->
 
-Crossplane doesn't require specific versions or a specific version naming 
-convention, but following 
-[Kubernetes API versioning guidelines](https://kubernetes.io/docs/reference/using-api/#api-versioning)
-is strongly recommended. 
+crossplane 并不要求特定的版本或特定的版本命名约定，但强烈建议遵循[Kubernetes API 版本指南](https://kubernetes.io/docs/reference/using-api/#api-versioning)。
 
-* `v1alpha1` - A new API that may change at any time.
-* `v1beta1` - An existing API that's considered stable. Breaking changes are
-  strongly discouraged.
-* `v1` - A stable API that doesn't have breaking changes. 
+* `v1alpha1` - 随时可能更改的新 API。
+* `v1beta1` - 稳定的现有 API。不鼓励进行破坏性更改。
+* `v1` - 没有破坏性更改的稳定 API。
 
-This guide uses the group 
-{{<hover label="version" line="1">}}compute.example.com{{</hover>}}.
+本指南被引用的组是{{<hover label="version" line="1">}}compute.example.com{{</hover>}}.
 
-Because this is the first version of the API, this guide uses the version
-{{<hover label="version" line="1">}}v1alpha1{{</hover>}}.
+由于这是 API 的第一个版本，本指南被引用的版本为{{<hover label="version" line="1">}}v1alpha1{{</hover>}}.
 
 ```yaml {label="version",copy-lines="none"}
 apiVersion: compute.example.com/v1alpha1
 ```
 
-### Define a kind
+### 定义一种
 
-The API group is a logical collection of related APIs. In a group are
-individual kinds representing different resources.
+API 组是相关 API 的逻辑集合。 在一个组中，有代表不同资源的单个种类。
 
-For example a `compute` group may have a `VirtualMachine` and `BareMetal` kinds.
+例如，一个 "计算 "组可能有 "虚拟机 "和 "裸机 "两种类型。
 
-The `kind` can be anything, but it must be 
-[UpperCamelCased](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects).
+种类 "可以是任何东西，但必须是[UpperCamelCased](https://kubernetes.io/docs/contribute/style/style-guide/#use-upper-camel-case-for-api-objects)。
 
-This API's kind is 
-{{<hover label="kind" line="2">}}VirtualMachine{{</hover>}}
+该应用程序接口的种类是{{<hover label="kind" line="2">}}虚拟机{{</hover>}}
 
 ```yaml {label="kind",copy-lines="none"}
 apiVersion: compute.example.com/v1alpha1
 kind: VirtualMachine
 ```
 
-### Define a spec
+### 定义规格
 
-The most important part of an API is the schema. The schema defines the inputs
-accepted from users. 
+应用程序接口最重要的部分是模式。 模式定义了用户接受的输入。
 
-This API allows users to provide a 
-{{<hover label="spec" line="4">}}location{{</hover>}} of where to run their 
-cloud resources.
+该应用程序接口允许用户提供{{<hover label="spec" line="4">}}位置{{</hover>}}运行云资源的位置。
 
-All other resource settings can't be configurable by the users. This allows
-Crossplane to enforce any policies and standards without worrying about
-user errors. 
+所有其他资源设置都不能由用户配置。 这使得 crossplane 可以执行任何策略和标准，而不用担心用户出错。
 
 ```yaml {label="spec",copy-lines="none"}
 apiVersion: compute.example.com/v1alpha1
@@ -182,34 +170,19 @@ spec:
   location: "US"
 ```
 
-### Apply the API
+### 应用应用程序接口
 
-Crossplane uses 
-{{<hover label="xrd" line="3">}}Composite Resource Definitions{{</hover>}} 
-(also called an `XRD`) to install your custom API in
-Kubernetes. 
+crossplane 被引用{{<hover label="xrd" line="3">}}Composition 资源定义{{</hover>}}(也称为 "XRD"）在 Kubernetes 中安装您的自定义 API。
 
-The XRD {{<hover label="xrd" line="6">}}spec{{</hover>}} contains all the
-information about the API including the 
-{{<hover label="xrd" line="7">}}group{{</hover>}},
-{{<hover label="xrd" line="12">}}version{{</hover>}},
-{{<hover label="xrd" line="9">}}kind{{</hover>}} and 
-{{<hover label="xrd" line="13">}}schema{{</hover>}}.
+XRD {{<hover label="xrd" line="6">}}规范{{</hover>}}包含有关应用程序接口的所有信息，包括{{<hover label="xrd" line="7">}}组{{</hover>}},{{<hover label="xrd" line="12">}}版本{{</hover>}},{{<hover label="xrd" line="9">}}种类{{</hover>}}和{{<hover label="xrd" line="13">}}模式{{</hover>}}.
 
-The XRD's {{<hover label="xrd" line="5">}}name{{</hover>}} must be the
-combination of the {{<hover label="xrd" line="10">}}plural{{</hover>}} and 
-{{<hover label="xrd" line="7">}}group{{</hover>}}.
+XRD 的 {{<hover label="xrd" line="5">}}名称{{</hover>}}必须是 {{<hover label="xrd" line="10">}}复数{{</hover>}}和{{<hover label="xrd" line="7">}}组{{</hover>}}.
 
-The {{<hover label="xrd" line="13">}}schema{{</hover>}} uses the
-{{<hover label="xrd" line="14">}}OpenAPIv3{{</hover>}} specification to define
-the API {{<hover label="xrd" line="17">}}spec{{</hover>}}.  
+模式 {{<hover label="xrd" line="13">}}模式{{</hover>}}被引用为{{<hover label="xrd" line="14">}}开放式应用程序接口 v3{{</hover>}}规范来定义应用程序接口 {{<hover label="xrd" line="17">}}规范{{</hover>}}.
 
-The API defines a {{<hover label="xrd" line="20">}}location{{</hover>}} that
-must be {{<hover label="xrd" line="22">}}oneOf{{</hover>}} either 
-{{<hover label="xrd" line="23">}}EU{{</hover>}} or 
-{{<hover label="xrd" line="24">}}US{{</hover>}}.
+应用程序接口定义了一个 {{<hover label="xrd" line="20">}}位置{{</hover>}}必须是 {{<hover label="xrd" line="22">}}之一{{</hover>}}或{{<hover label="xrd" line="23">}}欧盟{{</hover>}}或{{<hover label="xrd" line="24">}}美国{{</hover>}}.
 
-Apply this XRD to create the custom API in your Kubernetes cluster. 
+应用此 XRD 在 Kubernetes 集群中创建自定义 API。
 
 ```yaml {label="xrd",copy-lines="all"}
 cat <<EOF | kubectl apply -f -
@@ -246,63 +219,39 @@ spec:
 EOF
 ```
 
-Adding the {{<hover label="xrd" line="29">}}claimNames{{</hover>}} allows users
-to access this API either at the cluster level with the 
-{{<hover label="xrd" line="9">}}VirtualMachine{{</hover>}} endpoint or in a namespace
-with the 
-{{<hover label="xrd" line="30">}}VirtualMachineClaim{{</hover>}} endpoint. 
+添加 {{<hover label="xrd" line="29">}}索赔名称{{</hover>}}允许用户在集群级别使用{{<hover label="xrd" line="9">}}虚拟机{{</hover>}}端点访问该 API，或在名称空间中使用{{<hover label="xrd" line="30">}}虚拟机索赔{{</hover>}}端点访问该 API。
 
-The namespace scoped API is a Crossplane _Claim_.
+namespace 范围内的 API 是 crossplane _Claim_。
 
-{{<hint "tip" >}}
-For more details on the fields and options of Composite Resource Definitions
-read the 
-[XRD documentation]({{<ref "../concepts/composite-resource-definitions">}}). 
-{{< /hint >}}
+{{<hint "tip" >}}有关 Composition 资源定义的字段和选项的更多详情，请阅读 [XRD 文档]({{<ref "../concepts/composite-resource-definitions">}}).{{< /hint >}}
 
-View the installed XRD with `kubectl get xrd`.  
+使用 `kubectl get xrd` 查看已安装的 XRD。
 
 ```shell {copy-lines="1"}
 kubectl get xrd
-NAME                                  ESTABLISHED   OFFERED   AGE
-virtualmachines.compute.example.com   True          True      43s
+NAME ESTABLISHED OFFERED AGE
+virtualmachines.compute.example.com True True 43s
 ```
 
-View the new custom API endpoints with `kubectl api-resources | grep VirtualMachine`
+使用 `kubectl api-resources | grep VirtualMachine` 查看新的自定义 API 端点
 
 ```shell {copy-lines="1",label="apiRes"}
 kubectl api-resources | grep VirtualMachine
-virtualmachineclaims              compute.example.com/v1alpha1           true         VirtualMachineClaim
-virtualmachines                   compute.example.com/v1alpha1           false        VirtualMachine
+virtualmachineclaims compute.example.com/v1alpha1 true VirtualMachineClaim
+virtualmachines compute.example.com/v1alpha1 false VirtualMachine
 ```
 
-## Create a deployment template
+## 创建部署模板
 
-When users access the custom API Crossplane takes their inputs and combines them
-with a template describing what infrastructure to deploy. Crossplane calls this
-template a _Composition_.
+当用户访问自定义 API 时，crossplane 会接收他们的输入，并将其与描述要部署的基础架构的模板相结合。 Crossplane 将此模板称为_Composition_。
 
-The {{<hover label="comp" line="3">}}Composition{{</hover>}} defines all the 
-cloud resources to deploy.
-Each entry in the template
-is a full resource definitions, defining all the resource settings and metadata
-like labels and annotations. 
+构成 {{<hover label="comp" line="3">}}Composition{{</hover>}}模板中的每个条目都是一个完整的资源定义，定义了所有资源设置和元数据，如标签和 Annotations。
 
-This template creates an Azure
-{{<hover label="comp" line="11">}}LinuxVirtualMachine{{</hover>}}
-{{<hover label="comp" line="46">}}NetworkInterface{{</hover>}}, 
-{{<hover label="comp" line="69">}}Subnet{{</hover>}}
-{{<hover label="comp" line="90">}}VirtualNetwork{{</hover>}} and
-{{<hover label="comp" line="110">}}ResourceGroup{{</hover>}}.
+此模板会创建一个 Azure{{<hover label="comp" line="11">}}虚拟机{{</hover>}}{{<hover label="comp" line="46">}}网络接口{{</hover>}},{{<hover label="comp" line="69">}}子网{{</hover>}}{{<hover label="comp" line="90">}}虚拟网络{{</hover>}}和{{<hover label="comp" line="110">}}资源组{{</hover>}}.
 
-Crossplane uses {{<hover label="comp" line="34">}}patches{{</hover>}} to apply
-the user's input to the resource template.  
-This Composition takes the user's 
-{{<hover label="comp" line="36">}}location{{</hover>}} input and uses it as the 
-{{<hover label="comp" line="37">}}location{{</hover>}} used in the individual 
-resource.
+crossplane 被引用为 {{<hover label="comp" line="34">}}补丁{{</hover>}}将用户的输入应用到资源模板中。 该 Composition 将用户的{{<hover label="comp" line="36">}}位置{{</hover>}}输入，并将其作为{{<hover label="comp" line="37">}}位置{{</hover>}}被引用到单个资源中。
 
-Apply this Composition to your cluster. 
+将此 Composition 应用于您的集群。
 
 ```yaml {label="comp",copy-lines="all"}
 cat <<EOF | kubectl apply -f -
@@ -433,33 +382,25 @@ spec:
 EOF
 ```
 
-The {{<hover label="comp" line="52">}}compositeTypeRef{{</hover >}} defines
-which custom APIs can use this template to create resources.
+复合类型 {{<hover label="comp" line="52">}}compositeTypeRef{{</hover >}}定义了哪些自定义 API 可以使用此模板创建资源。
 
-{{<hint "tip" >}}
-Read the [Composition documentation]({{<ref "../concepts/compositions">}}) for
-more information on configuring Compositions and all the available options.
+{{<hint "tip" >}}请阅读 [Composition documentation]({{<ref "../concepts/compositions">}}) 获取更多关于配置 Composition 和所有可用选项的信息。
 
-Read the 
-[Patch and Transform documentation]({{<ref "../concepts/patch-and-transform">}}) 
-for more information on how Crossplane uses patches to map user inputs to
-Composition resource templates.
-{{< /hint >}}
+阅读[补丁和转换文档]({{<ref "../concepts/patch-and-transform">}})，了解有关 crossplane 如何使用补丁将用户输入映射到 Composition 资源模板的更多信息。{{< /hint >}}
 
-View the Composition with `kubectl get composition`
+使用 `kubectl get composition` 查看 Composition
 
 ```shell {copy-lines="1"}
 kubectl get composition
-NAME                                    XR-KIND           XR-APIVERSION                     AGE
-crossplane-quickstart-vm-with-network   XVirtualMachine   custom-api.example.org/v1alpha1   77s
+NAME XR-KIND XR-APIVERSION AGE
+crossplane-quickstart-vm-with-network XVirtualMachine custom-api.example.org/v1alpha1 77s
 ```
 
-## Install the Azure virtual machine provider
+## 安装 Azure 虚拟机 Providers
 
-Part 1 only installed the Azure Virtual Network Provider. To deploying virtual
-machines requires the Azure Compute provider as well. 
+第 1 部分只安装了 Azure 虚拟网络 Provider。 要部署虚拟机还需要 Azure 计算提供程序。
 
-Add the new Provider to the cluster. 
+将新的 Provider 添加到集群中。
 
 ```yaml
 cat <<EOF | kubectl apply -f -
@@ -472,24 +413,21 @@ spec:
 EOF
 ```
 
-View the new Compute provider with `kubectl get providers`.
-
+使用 `kubectl get Provider` 查看新的计算提供程序。
 
 ```shell {copy-lines="1"}
 kubectl get providers
-NAME                            INSTALLED   HEALTHY   PACKAGE                                                  AGE
-provider-azure-compute          True        True      xpkg.upbound.io/upbound/provider-azure-compute:v0.34.0   25s
-provider-azure-network          True        True      xpkg.upbound.io/upbound/provider-azure-network:v0.34.0   3h
-upbound-provider-family-azure   True        True      xpkg.upbound.io/upbound/provider-family-azure:v0.34.0    3h
+NAME INSTALLED HEALTHY PACKAGE AGE
+provider-azure-compute True True xpkg.upbound.io/upbound/provider-azure-compute:v0.34.0 25s
+provider-azure-network True True xpkg.upbound.io/upbound/provider-azure-network:v0.34.0 3h
+upbound-provider-family-azure True True xpkg.upbound.io/upbound/provider-family-azure:v0.34.0 3h
 ```
 
-## Access the custom API
+## 访问自定义应用程序接口
 
-With the custom API (XRD) installed and associated to a resource template
-(Composition) users can access the API to create resources.
+安装了自定义应用程序接口（XRD）并与资源模板（Composition）关联后，用户就可以访问应用程序接口来创建资源。
 
-Create a {{<hover label="xr" line="3">}}VirtualMachine{{</hover>}} object to 
-create the cloud resources.
+创建一个 {{<hover label="xr" line="3">}}虚拟机{{</hover>}}对象来创建云资源。
 
 ```yaml {copy-lines="all",label="xr"}
 cat <<EOF | kubectl apply -f -
@@ -502,47 +440,41 @@ spec:
 EOF
 ```
 
-View the resource with `kubectl get VirtualMachine`.
+使用 `kubectl get VirtualMachine` 查看资源。
 
-{{< hint "note" >}}
-It may take up to five minutes for the resources to provision.
-{{< /hint >}}
+{{< hint "note" >}}资源提供可能需要 5 分钟。{{< /hint >}}
 
 ```shell {copy-lines="1"}
 kubectl get VirtualMachine
-NAME    SYNCED   READY   COMPOSITION                             AGE
-my-vm   True     True    crossplane-quickstart-vm-with-network   3m3s
+NAME SYNCED READY COMPOSITION AGE
+my-vm True True crossplane-quickstart-vm-with-network 3m3s
 ```
 
-This object is a Crossplane _composite resource_ (also called an `XR`).  
-It's a
-single object representing the collection of resources created from the
-Composition template. 
+该对象是一个 crossplane _composite resource_（也称为 `XR`）。 它是一个单独的对象，代表从 Composition 模板创建的资源集合。
 
-View the individual resources with `kubectl get managed`
+使用 `kubectl get managed` 查看单个资源
 
 ```shell {copy-lines="1"}
 kubectl get managed
-NAME                                         READY   SYNCED   EXTERNAL-NAME   AGE
-resourcegroup.azure.upbound.io/my-vm-7jb4n   True    True     my-vm-7jb4n     3m43s
+NAME READY SYNCED EXTERNAL-NAME AGE
+resourcegroup.azure.upbound.io/my-vm-7jb4n True True my-vm-7jb4n 3m43s
 
-NAME                                                       READY   SYNCED   EXTERNAL-NAME   AGE
-linuxvirtualmachine.compute.azure.upbound.io/my-vm-5h7p4   True    True     my-vm-5h7p4     3m43s
+NAME READY SYNCED EXTERNAL-NAME AGE
+linuxvirtualmachine.compute.azure.upbound.io/my-vm-5h7p4 True True my-vm-5h7p4 3m43s
 
-NAME                                                    READY   SYNCED   EXTERNAL-NAME   AGE
-networkinterface.network.azure.upbound.io/my-vm-j7fpx   True    True     my-vm-j7fpx     3m43s
+NAME READY SYNCED EXTERNAL-NAME AGE
+networkinterface.network.azure.upbound.io/my-vm-j7fpx True True my-vm-j7fpx 3m43s
 
-NAME                                          READY   SYNCED   EXTERNAL-NAME   AGE
-subnet.network.azure.upbound.io/my-vm-b2dqt   True    True     my-vm-b2dqt     3m43s
+NAME READY SYNCED EXTERNAL-NAME AGE
+subnet.network.azure.upbound.io/my-vm-b2dqt True True my-vm-b2dqt 3m43s
 
-NAME                                                  READY   SYNCED   EXTERNAL-NAME   AGE
-virtualnetwork.network.azure.upbound.io/my-vm-pd2sw   True    True     my-vm-pd2sw     3m43s
+NAME READY SYNCED EXTERNAL-NAME AGE
+virtualnetwork.network.azure.upbound.io/my-vm-pd2sw True True my-vm-pd2sw 3m43s
 ```
 
-Accessing the API created all five resources defined in the template and linked
-them together. 
+访问应用程序接口可创建模板中定义的所有五个资源，并将它们链接在一起。
 
-Look at a specific resource to see it's created in the location used in the API.
+查看特定资源，看它是在 API 中被引用的位置创建的。
 
 ```yaml {copy-lines="1"}
 kubectl describe linuxvirtualmachine | grep Location
@@ -550,43 +482,37 @@ kubectl describe linuxvirtualmachine | grep Location
     Location:                         swedencentral
 ```
 
-Delete the resources with `kubectl delete VirtualMachine`.
+使用 `kubectl delete VirtualMachine` 删除资源。
 
 ```shell {copy-lines="1"}
 kubectl delete VirtualMachine my-vm
 virtualmachine.compute.example.com "my-vm" deleted
 ```
 
-Verify Crossplane deleted the resources with `kubectl get managed`
+使用 `kubectl get managed` 验证 crossplane 是否删除了资源
 
-{{<hint "note" >}}
-It may take up to 5 minutes to delete the resources.
-{{< /hint >}}
+{{<hint "note" >}}删除资源可能需要 5 分钟。{{< /hint >}}
 
 ```shell {copy-lines="1"}
 kubectl get managed
 No resources found
 ```
 
-## Using the API with namespaces
+## 使用带有 namespace 的应用程序接口
 
-Accessing the API `VirtualMachine` happens at the cluster scope.  
-Most organizations
-isolate their users into namespaces.  
+访问应用程序接口 `VirtualMachine` 是在集群范围内进行的。 大多数组织将用户隔离到 namespace 中。
 
-A Crossplane _Claim_ is the custom API in a namespace.
+Crossplane _Claim_ 是名称空间中的自定义应用程序接口。
 
-Creating a _Claim_ is just like accessing the custom API endpoint, but with the
-{{<hover label="claim" line="3">}}kind{{</hover>}} 
-from the custom API's `claimNames`.
+创建 _Claim_ 就像访问自定义 API 端点一样，只不过是使用了{{<hover label="claim" line="3">}}类型{{</hover>}}从自定义 API 的 "索赔名称 "中创建。
 
-Create a new namespace to test create a Claim in. 
+创建一个新的命名空间，以测试在其中创建一个 claims。
 
 ```shell
 kubectl create namespace crossplane-test
 ```
 
-Then create a Claim in the `crossplane-test` namespace.
+然后在 `crossplane-test` 名称空间中创建一个 claim。
 
 ```yaml {label="claim",copy-lines="all"}
 cat <<EOF | kubectl apply -f -
@@ -599,75 +525,71 @@ spec:
   location: "EU"
 EOF
 ```
-View the Claim with `kubectl get claim -n crossplane-test`.
+
+使用 `kubectl get claim -n crossplane-test` 查看索赔。
 
 ```shell {copy-lines="1"}
 kubectl get claim -n crossplane-test
-NAME               SYNCED   READY   CONNECTION-SECRET   AGE
-my-namespaced-vm   True     True                        5m11s
+NAME SYNCED READY CONNECTION-SECRET AGE
+my-namespaced-vm True True 5m11s
 ```
 
-The Claim automatically creates a composite resource, which creates the managed
-resources. 
+claims 会自动创建一个复合资源，该资源会创建托管资源。
 
-View the Crossplane created composite resource with `kubectl get composite`.
+使用 `kubectl get composite` 查看 Crossplane 创建的 Composition 资源。
 
 ```shell {copy-lines="1"}
 kubectl get composite
-NAME                     SYNCED   READY   COMPOSITION                             AGE
-my-namespaced-vm-r7gdr   True     True    crossplane-quickstart-vm-with-network   5m33s
+NAME SYNCED READY COMPOSITION AGE
+my-namespaced-vm-r7gdr True True crossplane-quickstart-vm-with-network 5m33s
 ```
 
-Again, view the managed resources with `kubectl get managed`.
+同样，使用 `kubectl get managed` 查看托管资源。
 
 ```shell {copy-lines="1"}
-NAME                                                          READY   SYNCED   EXTERNAL-NAME                  AGE
-resourcegroup.azure.upbound.io/my-namespaced-vm-r7gdr-cvzw6   True    True     my-namespaced-vm-r7gdr-cvzw6   5m51s
+NAME READY SYNCED EXTERNAL-NAME AGE
+resourcegroup.azure.upbound.io/my-namespaced-vm-r7gdr-cvzw6 True True my-namespaced-vm-r7gdr-cvzw6 5m51s
 
-NAME                                                                        READY   SYNCED   EXTERNAL-NAME                  AGE
-linuxvirtualmachine.compute.azure.upbound.io/my-namespaced-vm-r7gdr-vrbgb   True    True     my-namespaced-vm-r7gdr-vrbgb   5m51s
+NAME READY SYNCED EXTERNAL-NAME AGE
+linuxvirtualmachine.compute.azure.upbound.io/my-namespaced-vm-r7gdr-vrbgb True True my-namespaced-vm-r7gdr-vrbgb 5m51s
 
-NAME                                                                     READY   SYNCED   EXTERNAL-NAME                  AGE
-networkinterface.network.azure.upbound.io/my-namespaced-vm-r7gdr-hwrb8   True    True     my-namespaced-vm-r7gdr-hwrb8   5m51s
+NAME READY SYNCED EXTERNAL-NAME AGE
+networkinterface.network.azure.upbound.io/my-namespaced-vm-r7gdr-hwrb8 True True my-namespaced-vm-r7gdr-hwrb8 5m51s
 
-NAME                                                           READY   SYNCED   EXTERNAL-NAME                  AGE
-subnet.network.azure.upbound.io/my-namespaced-vm-r7gdr-gh468   True    True     my-namespaced-vm-r7gdr-gh468   5m51s
+NAME READY SYNCED EXTERNAL-NAME AGE
+subnet.network.azure.upbound.io/my-namespaced-vm-r7gdr-gh468 True True my-namespaced-vm-r7gdr-gh468 5m51s
 
-NAME                                                                   READY   SYNCED   EXTERNAL-NAME                  AGE
-virtualnetwork.network.azure.upbound.io/my-namespaced-vm-r7gdr-5qhz7   True    True     my-namespaced-vm-r7gdr-5qhz7   5m51s
+NAME READY SYNCED EXTERNAL-NAME AGE
+virtualnetwork.network.azure.upbound.io/my-namespaced-vm-r7gdr-5qhz7 True True my-namespaced-vm-r7gdr-5qhz7 5m51s
 ```
 
-Deleting the Claim deletes all the Crossplane generated resources.
+删除 claim 会删除所有 crossplane 生成的资源。
 
-`kubectl delete claim -n crossplane-test my-VirtualMachine-database`
+`kubectl delete claim -n crossplane-test my-VirtualMachine-database`.
 
 ```shell {copy-lines="1"}
 kubectl delete claim -n crossplane-test my-namespaced-vm
 virtualmachineclaim.compute.example.com "my-namespaced-vm" deleted
 ```
 
-{{<hint "note" >}}
-It may take up to 5 minutes to delete the resources.
-{{< /hint >}}
+{{<hint "note" >}}删除资源可能需要 5 分钟。{{< /hint >}}
 
-Verify Crossplane deleted the composite resource with `kubectl get composite`.
+使用 `kubectl get composite` 验证 crossplane 是否删除了 Composition 资源。
 
 ```shell {copy-lines="1"}
 kubectl get composite
 No resources found
 ```
 
-Verify Crossplane deleted the managed resources with `kubectl get managed`.
+使用 `kubectl get managed` 验证 crossplane 是否删除了托管资源。
 
 ```shell {copy-lines="1"}
 kubectl get managed
 No resources found
 ```
 
-## Next steps
-* Explore Azure resources that Crossplane can configure in the 
-  [Provider CRD reference](https://marketplace.upbound.io/providers/upbound/provider-family-azure/).
-* Join the [Crossplane Slack](https://slack.crossplane.io/) and connect with 
-  Crossplane users and contributors.
-* Read more about the [Crossplane concepts]({{<ref "../concepts">}}) to find out
-  what else you can do with Crossplane. 
+## 下一步
+
+* 在[Provider CRD reference](https://marketplace.upbound.io/providers/upbound/provider-family-azure/)中探索 Crossplane 可以配置的 Azure 资源。
+* 加入 [Crossplane Slack](https://slack.crossplane.io/) 并与 Crossplane 用户和贡献者联系。
+* 阅读更多有关[Crossplane 概念]({{<ref "../concepts">}})，了解 Crossplane 还能做些什么。
