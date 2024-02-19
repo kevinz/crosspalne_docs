@@ -1,6 +1,6 @@
 ---
 
-title: 作文修订示例
+title: Composition Revision示例
 状态:  beta
 alphaVersion: "1.4"
 betaVersion: "1.11"
