@@ -1,6 +1,6 @@
 ---
 
-title: crossplane 简介
+title: Crossplane 简介
 weight: 2
 
 ---
