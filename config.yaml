@@ -1,6 +1,6 @@
 baseURL: "/"
 enableRobotsTXT: True
-languageCode: "en-us"
+languageCode: "zh-cn"
 title: "Crossplane"
 theme: "geekboot"
 enableGitInfo: true
