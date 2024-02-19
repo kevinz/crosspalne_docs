@@ -1,6 +1,6 @@
 ---
 
-title: 构成修订
+title: Composition Revisions
 状态:  beta
 alphaVersion: "1.4"
 betaVersion: "1.11"
@@ -17,7 +17,7 @@ Composition "和使用它的 XR 之间是一对多的关系。 您可能会定�
 
 Composition Revisions 允许 XRs 选择退出自动更新。 相反，您可以按照自己的节奏更新 XRs 以利用最新的 "Composition "设置。 这样，您就可以对基础架构进行[金丝雀]更改，或将某些 XRs 回滚到以前的 "Composition "设置，而无需回滚所有 XRs。
 
-### 被引用的作文修改
+### 被引用的Composition Revisions
 
 启用 "Composition Revisions "后，会发生三件事: 
 

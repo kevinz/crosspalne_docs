@@ -1,6 +1,6 @@
 ---
 
-title: crossplane 吊舱
+title: crossplane pod
 weight: 1
 说明: Crossplane 安装的组件及其功能的背景介绍。
 
@@ -51,9 +51,9 @@ crossplane-9f6d5cd7b-r9j8w 1/1 Running 0 15s
 
 主 crossplane 容器被称为 _core_ 容器，它负责强制执行 crossplane 资源的理想状态、管理领导者选举和处理 webhook。
 
-{{<hint "note" >}}Crossplane pod 只调节 Crossplane 核心组件，包括 claims 和 Composite 资源。 Provider 负责调节其管理的资源。{{< /hint >}}
+{{<hint "note" >}}Crossplane pod 只调和 Crossplane 核心组件，包括 claims 和 Composite 资源。 Provider 负责调和其管理的资源。{{< /hint >}}
 
-#### 调节循环
+#### 调和循环
 
 核心容器在一个_reconcile循环中运行，不断检查已部署资源的状态，并纠正任何 "漂移"。 在检查完一个资源后，crossplane 会等待一段时间，然后再次检查。
 
@@ -81,11 +81,11 @@ managed resources 使用轮询。
 
 Crossplane 会对所有资源进行双重检查，以确认它们是否处于所需的状态。 Crossplane 默认每隔一小时进行一次检查。 使用 `--sync-interval` Crossplane pod 参数可更改这一间隔。
 
-最大调节速率 "定义了 crossplane 调节资源的速率（以每秒次数为单位）。
+最大调和速率 "定义了 crossplane 调和资源的速率（以每秒次数为单位）。
 
 降低"--max-reconcile-rate"（最大同步率）或使其更小，可以减少 crossplane 被引用的 CPU 资源，但会增加更改后的资源完全同步所需的时间。
 
-增加"-max-reconcile-rate"，或者使其变大，会增加 crossplane 被引用的 CPU 资源，但可以让 crossplane 更快地调节所有资源。
+增加"-max-reconcile-rate"，或者使其变大，会增加 crossplane 被引用的 CPU 资源，但可以让 crossplane 更快地调和所有资源。
 
 {{< hint "important" >}}大多数 Provider 使用自己的"-max-reconcile-rate"（最大重合率）。 这将决定 Provider 及其管理资源的相同设置。 将"-max-reconcile-rate "引用到 crossplane 只能控制核心 crossplane 资源的速率。{{< /hint >}}
 

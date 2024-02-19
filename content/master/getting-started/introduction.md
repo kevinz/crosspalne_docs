@@ -1,6 +1,6 @@
 ---
 
-title: crossplane 简介
+title: Crossplane 简介
 weight: 2
 
 ---
@@ -23,7 +23,7 @@ crossplane 还允许创建自定义 Kubernetes API。 平台团队可以结合�
 
 本表概述了 crossplane 组件及其作用。
 
-{{< table "table table-hover table-sm">}}| 组件 | 缩写 | 范围 | 摘要 | | --- | --- | ---- | | [Provider]({{<ref "#providers">}}) | | 集群 | 为外部服务创建新的 Kubernetes 自定义资源定义。{{<ref "#provider-configurations">}}) | `PC` | 集群 | 应用_Provider_的设置。{{<ref "#managed-resources">}}) | | `MR` | 集群 | 由 Crossplane 在 Kubernetes 集群内创建和管理的 Provider 资源。{{<ref "#compositions">}}) | | 集群 | 用于一次性创建多个_托管资源_的模板。{{<ref "#composite-resources" >}}) | `XR` | 集群 | 使用_Composition_模板将多个_managed resources_创建为一个Kubernetes对象。{{<ref "#composite-resource-definitions" >}}) | `XRD` | 集群 | 定义_复合资源_和_索赔_的 API 模式 | | | [Claims]({{<ref "#claims" >}}) | `XC` | namespace | 类似于 _Composite Resource_，但作用域为 namespace。{{< /table >}}
+{{< table "table table-hover table-sm">}}| 组件 | 缩写 | 范围 | 摘要 | | --- | --- | ---- | | [Provider]({{<ref "#providers">}}) | | 集群 | 为外部服务创建新的 Kubernetes 自定义资源定义。{{<ref "#provider-configurations">}}) | `PC` | 集群 | 应用_Provider_的设置。{{<ref "#managed-resources">}}) | | `MR` | 集群 | 由 Crossplane 在 Kubernetes 集群内创建和管理的 Provider 资源。{{<ref "#compositions">}}) | | 集群 | 用于一次性创建多个_托管资源_的模板。{{<ref "#composite-resources" >}}) | `XR` | 集群 | 使用_Composition_模板将多个_managed resources_创建为一个Kubernetes对象。{{<ref "#composite-resource-definitions" >}}) | `XRD` | 集群 | 定义_复合资源_和_claim_的 API 模式 | | | [Claims]({{<ref "#claims" >}}) | `XC` | namespace | 类似于 _Composite Resource_，但作用域为 namespace。{{< /table >}}
 
 ## The Crossplane Pod
 
@@ -77,23 +77,23 @@ Provider 具有集群作用域，可用于所有集群名称空间。
 
 ## Provider 配置
 
-ProviderConfigs_ 配置与 Provider 相关的设置，如身份验证或 Provider 的全局默认值。
+_ProviderConfigs_ 配置与 Provider 相关的设置，如身份验证或 Provider 的全局默认值。
 
 ProviderConfigs 的 API 端点对每个 Provider 都是唯一的。
 
-_ProviderConfigs_具有集群作用域，可用于所有集群名称空间。
+_ProviderConfigs_ 具有集群作用域，可用于所有集群名称空间。
 
 使用命令 `kubectl get providerconfig` 查看所有已安装的 ProviderConfigs。
 
-## 管理的资源
+## 受托管的资源
 
-Provider 的 CRD 映射到 Provider 内部的单个_资源_。 当 crossplane 创建并监控一个资源时，它就是一个_受管资源_。
+Provider 的 CRD 映射到 Provider 内部的单个 _资源_。 当 crossplane 创建并监控一个资源时，它就是一个 _受管资源_。
 
 使用 Provider 的 CRD 会创建一个唯一的 _Managed Resource_。 例如，使用 AWS 的 `bucket` CRD，crossplane 会在 Kubernetes 集群内创建一个连接到 AWS S3 存储桶的 `bucket` _Managed Resource_。
 
-Crossplane 控制器为_Managed Resources_提供状态执行。 Crossplane 执行_Managed Resources_的设置和存在。这种 "控制器模式 "就像 Kubernetes [kube-controller-manager](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/) 为 pod 执行状态一样。
+Crossplane 控制器为 _Managed Resources_ 提供状态执行。 Crossplane 执行 _Managed Resources_ 的设置和存在。这种 "控制器模式 "就像 Kubernetes [kube-controller-manager](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/) 为 pod 执行状态一样。
 
-托管资源_具有集群作用域，可用于所有集群名称空间。
+_托管资源_ 具有集群作用域，可用于所有集群名称空间。
 
 使用 `kubectl get managed` 查看所有_受管资源_。{{<hint "warning" >}}`kubectl get managed` 会创建大量 Kubernetes API 查询。 `kubectl` 客户端和 kube-apiserver 都会限制 API 查询。
 
@@ -101,13 +101,13 @@ Crossplane 控制器为_Managed Resources_提供状态执行。 Crossplane 执�
 
 更多信息，请阅读 [Kubernetes issue #111880](https://github.com/kubernetes/kubernetes/issues/111880) 和 [Crossplane issue #3459](https://github.com/crossplane/crossplane/issues/3459) 。{{< /hint >}}
 
-## 构成
+## Compositions
 
 组件允许平台团队将一组_托管资源_定义为单一对象。
 
 例如，一个计算_托管资源_可能需要创建一个存储资源和一个虚拟网络。 一个_组成_对象可以在一个_组成_对象中定义所有这三种资源。
 
-使用_Compositions_可简化由多个_managed resources_组成的基础架构的部署。
+使用 _Compositions_ 可简化由多个_managed resources_组成的基础架构的部署。
 
 平台团队可为_Composition_内的每个_managed resource_定义固定或默认设置，或定义用户可更改的字段和设置。
 
@@ -115,9 +115,9 @@ Crossplane 控制器为_Managed Resources_提供状态执行。 Crossplane 执�
 
 创建 _Composition_ crossplane 并不创建任何受管资源。 _Composition_ 只是一个模板，用于集合 _managed resources_ 及其设置。 _Composite Resource_ 创建特定资源。
 
-{{< hint "note" >}}复合资源_]({{<ref "#composite-resources">}}) 部分讨论了_复合资源_。{{< /hint >}}
+{{< hint "note" >}}[_复合资源_]({{<ref "#composite-resources">}}) 部分讨论了_复合资源_。{{< /hint >}}
 
-_Compositions_具有集群作用域，可用于所有集群名称空间。
+_Compositions_ 具有集群作用域，可用于所有集群名称空间。
 
 使用 `kubectl get compositions` 查看所有_compositions_。
 
@@ -184,7 +184,7 @@ _Composite Resources_ 具有集群作用域，可用于所有集群名称空间�
 
 _Composite Resource Definitions_ (`XRDs`)创建了_Claims_和_Composite Resources_所引用的自定义 Kubernetes API。
 
-{{< hint "note" >}}索赔]({{<ref "#claims">}}) 部分讨论了_索赔_。{{< /hint >}}
+{{< hint "note" >}}claim]({{<ref "#claims">}}) 部分讨论了_claim_。{{< /hint >}}
 
 平台团队可以定义自定义 API。 这些 API 可以定义以千兆字节为单位的存储空间等特定值、"小 "或 "大 "等通用设置、"云 "或 "onprem "等部署选项。 crossplane 不会限制 API 的定义。
 
@@ -279,7 +279,7 @@ spec:
 
 一个_复合资源定义_可以定义多种设置和选项。
 
-创建_复合资源定义_可以创建_复合资源_，但也可以创建_索赔_。
+创建_复合资源定义_可以创建_复合资源_，但也可以创建_claim_。
 
 带有 `spec.claimNames` 的 _Composite Resource Definition_ 允许开发人员创建 _Claims_。
 
@@ -298,7 +298,7 @@ spec:
 
 ## claims
 
-索赔是开发人员与 crossplane 交互的主要方式。
+claim是开发人员与 crossplane 交互的主要方式。
 
 _Claims_ 访问平台团队在 _Composite Resource Definition_ 中定义的自定义应用程序接口。
 
@@ -309,9 +309,9 @@ _Claims_ 看起来像 _Composite Resources_，但它们是 namespace 作用域�
 
 直接创建 _Composite Resources_ 需要集群范围内的权限，并与所有团队共享。_Claims_ 创建相同的资源集，但在 namespace 层面上。{{< /hint >}}
 
-之前的_复合资源定义_允许创建_索赔_类型的{{<hover label="xrdClaim2" line="7" >}}computeClaim{{</hover>}}.
+之前的_复合资源定义_允许创建_claim_类型的{{<hover label="xrdClaim2" line="7" >}}computeClaim{{</hover>}}.
 
-索赔被引用相同的{{< hover label="xrdClaim2" line="3" >}}apiVersion{{< /hover >}}中定义的 apiVersion，_Composite Resource Definition_ 中定义的 apiVersion 也被_Composite Resources_ 引用。
+claim被引用相同的{{< hover label="xrdClaim2" line="3" >}}apiVersion{{< /hover >}}中定义的 apiVersion，_Composite Resource Definition_ 中定义的 apiVersion 也被_Composite Resources_ 引用。
 
 ```yaml {label="xrdClaim2"}
 # Composite Resource Definition (XRD)
@@ -326,7 +326,7 @@ spec:
 
 在 _Claim_ 的示例中{{<hover label="claim" line="2">}}apiVersion{{< /hover >}}与 {{<hover label="xrdClaim2" line="3">}}组{{< /hover >}}中的组。
 
-索赔 {{<hover label="claim" line="3">}}类型{{< /hover >}}与_复合资源定义_匹配。{{<hover label="xrdClaim2" line="7">}}claimNames.kind{{< /hover >}}.
+claim {{<hover label="claim" line="3">}}类型{{< /hover >}}与_复合资源定义_匹配。{{<hover label="xrdClaim2" line="7">}}claimNames.kind{{< /hover >}}.
 
 ```yaml {label="claim"}
 # Claim

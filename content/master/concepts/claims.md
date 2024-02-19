@@ -1,6 +1,6 @@
 ---
 
-title: 索赔
+title: Claims
 weight: 60
 description: "Claims是一种通过名称空间范围来消费 Crossplane 资源的方式"
 
@@ -23,17 +23,17 @@ claims 类似于 [composite resources]({{<ref "./composite-resources">}}Claims �
 
 {{</expand >}}
 
-## 创建索赔
+## 创建claim
 
-创建索赔需要一个 [Composition]({{<ref "./compositions">}}) 和 [CompositeResourceDefinition]({{<ref "./composite-resource-definitions">}}) (`XRD`)已经安装。
+创建claim需要一个 [Composition]({{<ref "./compositions">}}) 和 [CompositeResourceDefinition]({{<ref "./composite-resource-definitions">}}) (`XRD`)已经安装。
 
-{{<hint "note" >}}XRD 必须 [启用索赔]({{<ref "./composite-resource-definitions#enable-claims">}}).{{< /hint >}}
+{{<hint "note" >}}XRD 必须 [启用claim]({{<ref "./composite-resource-definitions#enable-claims">}}).{{< /hint >}}
 
 Composition 定义了要创建的资源集。 XRD 定义了用户为请求资源集而调用的自定义 API。
 
 Crossplane组件关系图](/media/composition-how-it-works.svg)
 
-例如，该 {{<hover label="xrd1" line="2">}}复合资源定义{{</hover>}}创建了一个 Composition 资源 API 端点{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover>}}并启用索赔 API 端点{{<hover label="xrd1" line="11">}}数据库.example.org{{</hover>}}
+例如，该 {{<hover label="xrd1" line="2">}}复合资源定义{{</hover>}}创建了一个 Composition 资源 API 端点{{<hover label="xrd1" line="4">}}xmydatabases.example.org{{</hover>}}并启用claim API 端点{{<hover label="xrd1" line="11">}}数据库.example.org{{</hover>}}
 
 ```yaml {label="xrd1",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -51,9 +51,9 @@ spec:
   # Removed for brevity
 ```
 
-索赔被引用 XRD 的{{<hover label="xrd1" line="11">}}种类{{</hover>}}API 端点来请求资源。
+claim被引用 XRD 的{{<hover label="xrd1" line="11">}}种类{{</hover>}}API 端点来请求资源。
 
-索赔的 {{<hover label="xrd1" line="1">}}版本{{</hover>}}与 XRD {{<hover label="xrd1" line="6">}}组{{</hover>}}和{{<hover label="claim1" line="2">}}类型{{</hover>}}与 XRD{{<hover label="xrd1" line="11">}}索赔名称种类{{</hover>}}
+claim的 {{<hover label="xrd1" line="1">}}版本{{</hover>}}与 XRD {{<hover label="xrd1" line="6">}}组{{</hover>}}和{{<hover label="claim1" line="2">}}类型{{</hover>}}与 XRD{{<hover label="xrd1" line="11">}}claim名称种类{{</hover>}}
 
 ```yaml {label="claim1",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -68,7 +68,7 @@ spec:
 
 被引用 {{<hover label="claimcomp" line="1">}}kubectl describe{{</hover>}}来查看相关 Composition 资源。
 
-资源参考 {{<hover label="claimcomp" line="6">}}资源参考{{</hover>}}是为该索赔创建的 Composition 资源 crossplane。
+资源参考 {{<hover label="claimcomp" line="6">}}资源参考{{</hover>}}是为该claim创建的 Composition 资源 crossplane。
 
 ```shell {label="claimcomp",copy-lines="1"}
 kubectl describe database.example.org/my-claimed-database
@@ -100,15 +100,15 @@ Spec:
 
 {{<hint "note" >}}Crossplane 支持直接创建复合资源。 Composition 允许为使用自定义 API 的用户提供名称空间范围和隔离。
 
-如果您在 Kubernetes 部署中不使用 namespace，则不需要索赔。{{< /hint >}}
+如果您在 Kubernetes 部署中不使用 namespace，则不需要claim。{{< /hint >}}
 
-### 索赔现有 Composition 资源
+### claim现有 Composition 资源
 
 默认情况下，创建一个 Composition 会创建一个新的复合资源。 Claims 也可以链接到现有的复合资源。
 
-索赔现有复合资源的一个用例可能是资源调配缓慢。 复合资源可以预先调配，索赔可以使用这些资源，而无需等待创建。
+claim现有复合资源的一个用例可能是资源调配缓慢。 复合资源可以预先调配，claim可以使用这些资源，而无需等待创建。
 
-设置索赔的 {{<hover label="resourceref" line="6">}}资源{{</hover>}}并匹配预先存在的 Composition 资源{{<hover label="resourceref" line="9">}}名称{{</hover>}}.
+设置claim的 {{<hover label="resourceref" line="6">}}资源{{</hover>}}并匹配预先存在的 Composition 资源{{<hover label="resourceref" line="9">}}名称{{</hover>}}.
 
 ```yaml {label="resourceref",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -128,7 +128,7 @@ spec:
 
 ## claim connection secrets
 
-如果索赔需要连接秘密，索赔必须定义一个{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象。
+如果claim需要连接秘密，claim必须定义一个{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象。
 
 写入{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象定义了用于保存连接详细信息的 Kubernetes secret 对象的名称。
 
