@@ -1,6 +1,6 @@
 ---
 
-title: crossplane 吊舱
+title: crossplane pod
 weight: 1
 说明: Crossplane 安装的组件及其功能的背景介绍。
 
