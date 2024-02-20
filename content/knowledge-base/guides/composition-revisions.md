@@ -7,9 +7,9 @@ betaVersion: "1.11"
 
 ---
 
-本指南讨论如何使用 "Composition Revisions "安全地对 crossplane [`Composition`][组合类型]进行修改和回滚。 本指南假定读者熟悉 crossplane，特别是 [Composition]。
+本指南讨论如何使用 "Composition Revisions "安全地对 crossplane [`Composition`][composition-type]进行修改和回滚。 本指南假定读者熟悉 crossplane，特别是 [Composition]。
 
-Composition "配置了 Crossplane 应该如何调和复合资源（XR）。 换句话说，当你创建一个 XR 时，所选的 "Composition "决定了 Crossplane 将创建哪些管理资源作为响应。 例如，假设你定义了一个 "PlatformDB "XR，它代表了你的组织对 Azure MySQL 服务器和一些防火墙规则的通用数据库配置。 Composition "包含了 MySQL 服务器和防火墙规则的 "基本 "配置，这些配置由 "PlatformDB "的配置扩展自。
+Composition "配置了 Crossplane 应该如何调和复合资源（XR）。 换句话说，当你创建一个 XR 时，所选的 "Composition "决定了 Crossplane 将创建哪些管理资源作为响应。 例如，假设你定义了一个 "PlatformDB "XR，它代表了你的组织对 Azure MySQL 服务器和一些防火墙规则的通用数据库配置。 Composition "包含了 MySQL 服务器和防火墙规则的 "基本 "配置，这些配置由 "PlatformDB "的配置扩展出来。
 
 Composition "和使用它的 XR 之间是一对多的关系。 您可能会定义一个名为 "big-platform-db "的 "Composition"，它被十个不同的 "PlatformDB "XR 使用。 通常，为了实现自助服务，"Composition "由不同于实际 "PlatformDB "XR 的团队管理。 例如，"Composition "可能由平台团队成员编写和维护，而各个应用程序团队则创建使用所述 "Composition "的 "PlatformDB "XR。
 
@@ -91,4 +91,7 @@ spec:
     name: db-conn
 ```
 
-[作曲类型]:  {{<ref "../../master/concepts/compositions" >}}[Composition]:  {{<ref "../../master/concepts/compositions" >}}[金丝雀]:  https://martinfowler.com/bliki/CanaryRelease.html [install-guide]:  {{<ref "../../master/software/install" >}}
+[作曲类型]:  {{<ref "../../master/concepts/compositions" >}}
+[Composition]:  {{<ref "../../master/concepts/compositions" >}}
+[金丝雀]:  https://martinfowler.com/bliki/CanaryRelease.html 
+[install-guide]:  {{<ref "../../master/software/install" >}}
