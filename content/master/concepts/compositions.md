@@ -8,7 +8,7 @@ description: "Compositions are a template for creating Crossplane resources"
 
 Composition 是将多个受管资源创建为单一对象的模板。
 
-Composition 将单个受管资源组合成一个更大的、可重复使用的解决方案。
+Composition 将单个受管资源组composition一个更大的、可重复使用的解决方案。
 
 Composition 模板将所有这些单独的资源连接在一起。
 
@@ -492,13 +492,13 @@ spec:
 
 EnvironmentConfigs]({{<ref "./environment-configs" >}}) 页面有更多关于 EnvironmentConfigs 选项和用法的信息。
 
-#### 被引用的组成函数
+#### 被引用的composition函数
 
 Composition 函数（简称函数）是模板化 crossplane 资源的自定义程序。 您可以使用 Go 或 Python 等通用编程语言编写函数模板化资源。 使用通用编程语言，函数可以使用更高级的逻辑模板化资源，如循环和条件。
 
-{{<hint "important" >}}合成功能是一项测试版功能。 Crossplane 默认启用测试版功能。 在[合成功能]({{<ref "./composition-functions#disable-composition-functions">}}) 页面解释了如何禁用 Composition 功能。{{< /hint >}}
+{{<hint "important" >}}composition功能是一项测试版功能。 Crossplane 默认启用测试版功能。 在[composition功能]({{<ref "./composition-functions#disable-composition-functions">}}) 页面解释了如何禁用 Composition 功能。{{< /hint >}}
 
-要使用合成功能，请设置合成{{<hover label="xfn" line="6">}}模式{{</hover>}}为{{<hover label="xfn" line="6">}}Pipelines{{</hover>}}.
+要使用composition功能，请设置composition{{<hover label="xfn" line="6">}}模式{{</hover>}}为{{<hover label="xfn" line="6">}}Pipelines{{</hover>}}.
 
 定义一个 {{<hover label="xfn" line="7">}}Pipelines{{</hover>}}的{{<hover label="xfn" line="8">}}步骤。{{</hover>}}每个{{<hover label="xfn" line="8">}}步骤{{</hover>}}都会调用一个函数。
 
@@ -773,7 +773,7 @@ Composition 通过以下方式支持资源字段的匹配:
 
 #### 匹配字符串
 
-{{<hover label="matchstring" line="11">}}匹配字符串{{</hover>}}认为，当组成资源的字段值与指定字符串匹配时，该资源已准备就绪。
+{{<hover label="matchstring" line="11">}}匹配字符串{{</hover>}}认为，当composition资源的字段值与指定字符串匹配时，该资源已准备就绪。
 
 {{<hint "note" >}}
 
@@ -805,7 +805,7 @@ spec:
 
 #### 匹配一个整数
 
-{{<hover label="matchint" line="11">}}匹配整数{{</hover>}}当组成资源的字段值与指定整数相匹配时，该资源将被视为已准备就绪。
+{{<hover label="matchint" line="11">}}匹配整数{{</hover>}}当composition资源的字段值与指定整数相匹配时，该资源将被视为已准备就绪。
 
 {{<hint "note" >}}
 
@@ -837,7 +837,7 @@ spec:
 
 #### 匹配一个字段是否存在
 
-{{<hover label="NonEmpty" line="11">}}非空{{</hover>}}认为当一个字段存在值时，组成的资源已就绪。
+{{<hover label="NonEmpty" line="11">}}非空{{</hover>}}认为当一个字段存在值时，composition的资源已就绪。
 
 {{<hint "note" >}}
 
@@ -868,7 +868,7 @@ spec:
 
 #### 始终考虑准备好资源
 
-{{<hover label="none" line="11">}}无{{</hover>}}认为组成的资源在创建后立即就绪。 在声明资源就绪之前，crossplane 不会等待任何其他条件。
+{{<hover label="none" line="11">}}无{{</hover>}}认为composition的资源在创建后立即就绪。 在声明资源就绪之前，crossplane 不会等待任何其他条件。
 
 例如，请考虑{{<hover label="none" line="7">}}我的资源{{</hover>}}一创建就准备就绪。
 
@@ -888,7 +888,7 @@ spec:
 
 #### 匹配条件
 
-{{<hover label="condition" line="11">}}条件{{</hover>}}认为组成的资源在找到预期的条件类型时已准备就绪，其 `status.conditions` 中有预期的状态。
+{{<hover label="condition" line="11">}}条件{{</hover>}}认为composition的资源在找到预期的条件类型时已准备就绪，其 `status.conditions` 中有预期的状态。
 
 例如，请考虑{{<hover label="condition" line="7">}}我的资源{{</hover>}}，如果有一个类型为{{<hover label="condition" line="13">}}类型的{{</hover>}}状态为{{<hover label="condition" line="14">}}成功{{</hover>}}.
 
@@ -916,9 +916,9 @@ spec:
 * `MatchTrue
 * 匹配错误
 
-MatchTrue "认为，当组成的资源中某个字段的值为 "true "时，该资源已准备就绪。
+MatchTrue "认为，当composition的资源中某个字段的值为 "true "时，该资源已准备就绪。
 
-`MatchFalse` 认为，当组成的资源中某个字段的值为 `false`时，该资源已准备就绪。
+`MatchFalse` 认为，当composition的资源中某个字段的值为 `false`时，该资源已准备就绪。
 
 例如，请考虑{{<hover label="matchTrue" line="7">}}我的资源{{</hover>}}如果{{<hover label="matchTrue" line="12">}}status.atProvider.config.status.ready{{</hover>}}为 {{<hover label="matchTrue" line="11">}}为{{</hover>}}.
 

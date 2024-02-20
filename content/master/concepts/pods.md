@@ -6,7 +6,7 @@ weight: 1
 
 ---
 
-基本的 crossplane 安装由两个 pod 组成: "crossplane "pod 和 "crossplane-rbac-manager "pod。 这两个 pod 默认安装在 "crossplane-system "命名空间中。
+基本的 crossplane 安装由两个 pod composition: "crossplane "pod 和 "crossplane-rbac-manager "pod。 这两个 pod 默认安装在 "crossplane-system "命名空间中。
 
 ## Crossplane pod
 
@@ -89,9 +89,9 @@ Crossplane 会对所有资源进行双重检查，以确认它们是否处于所
 
 {{< hint "important" >}}大多数 Provider 使用自己的"-max-reconcile-rate"（最大重合率）。 这将决定 Provider 及其管理资源的相同设置。 将"-max-reconcile-rate "引用到 crossplane 只能控制核心 crossplane 资源的速率。{{< /hint >}}
 
-##### 实现实时合成
+##### 实现实时composition
 
-启用实时 Composition 后，crossplane 会使用 Kubernetes 观察器来观察每个组成资源。 当组成资源发生变化时，crossplane 会从 Kubernetes API 服务器接收事件。 例如，当 Provider 将 "Ready "条件设置为 "true "时。
+启用实时 Composition 后，crossplane 会使用 Kubernetes 观察器来观察每个composition资源。 当composition资源发生变化时，crossplane 会从 Kubernetes API 服务器接收事件。 例如，当 Provider 将 "Ready "条件设置为 "true "时。
 
 {{<hint "important" >}}实时 Composition 是一项 alpha 功能，默认情况下不会启用。{{< /hint >}}
 

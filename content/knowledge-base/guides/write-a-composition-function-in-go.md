@@ -17,7 +17,7 @@ Composition 函数（简称函数）是模板化 Crossplane 资源的自定义�
 
 ## 了解步骤
 
-本指南介绍为{{<hover label="xr" line="2">}}XBuckets{{</hover>}}Composition 资源 (XR) 的合成函数。
+本指南介绍为{{<hover label="xr" line="2">}}XBuckets{{</hover>}}Composition 资源 (XR) 的composition函数。
 
 ```yaml {label="xr"}
 apiVersion: example.crossplane.io/v1
@@ -365,7 +365,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 3.为每个桶名添加一个所需的 S3 桶。
 4.在 "RunFunctionResponse "中返回所需的 S3 存储桶。
 
-代码使用了 [Upbound's AWS S3 Provider](https://github.com/upbound/provider-aws) 中的 `v1beta1.Bucket` 类型。用 Go 编写函数的一个好处是，你可以使用 crossplane 在其 Provider 中使用的强类型结构体来组成资源。
+代码使用了 [Upbound's AWS S3 Provider](https://github.com/upbound/provider-aws) 中的 `v1beta1.Bucket` 类型。用 Go 编写函数的一个好处是，你可以使用 crossplane 在其 Provider 中使用的强类型结构体来composition资源。
 
 您必须获取 AWS Provider Go 模块才能使用这种类型: 
 
@@ -373,7 +373,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 go get github.com/upbound/provider-aws@v0.43.0
 ```
 
-crossplane 提供了一个[软件开发工具包](https://github.com/crossplane/function-sdk-go) (SDK)，用于在[Go](https://go.dev) 中编写组成函数。本函数被引用了 SDK 中的实用工具。特别是 `request` 和 `response` 包，使得使用 `RunFunctionRequest` 和 `RunFunctionResponse` 类型变得更加容易。
+crossplane 提供了一个[软件开发工具包](https://github.com/crossplane/function-sdk-go) (SDK)，用于在[Go](https://go.dev) 中编写composition函数。本函数被引用了 SDK 中的实用工具。特别是 `request` 和 `response` 包，使得使用 `RunFunctionRequest` 和 `RunFunctionResponse` 类型变得更加容易。
 
 {{<hint "tip">}}请阅读 SDK 的 [Go package documentation](https://pkg.go.dev/github.com/crossplane/function-sdk-go)。{{</hint>}}
 
@@ -671,7 +671,7 @@ spec:
     region: us-east-2
 ```
 
-{{<hint "tip">}}请阅读组成函数文档，了解有关 [测试组成函数](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions) 的更多信息。{{</hint>}}
+{{<hint "tip">}}请阅读composition函数文档，了解有关 [测试composition函数](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions) 的更多信息。{{</hint>}}
 
 ## 构建函数并将其推送至 packages 注册表
 

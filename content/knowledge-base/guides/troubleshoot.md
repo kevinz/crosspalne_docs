@@ -135,8 +135,8 @@ Crossplane 及其 Providers 会将大多数错误信息记录到资源的事件�
     ---- ------ ---- ---- -------
     Normal PublishConnectionSecret 9s (x2 over 10s) defined/compositeresourcedefinition.apiextensions.crossplane.io 成功发布连接详情
     正常 SelectComposition 6 秒（x6，超过 11 秒） defined/positeresourcedefinition.apiextensions.crossplane.io 成功选择 Composition
-    警告 ComposeResources 6 秒（x6 超过 10 秒）defined/compiteresourcedefinition.apiextensions.crossplane.io 无法从索引 3 处的资源模板渲染组成资源: 无法使用干运行创建为组成资源命名: 创建过程中可能未设置空名称空间
-    正常 ComposeResources 6s (x6 over 10s) defined/compositeresourcedefinition.apiextensions.crossplane.io 成功组成资源
+    警告 ComposeResources 6 秒（x6 超过 10 秒）defined/compiteresourcedefinition.apiextensions.crossplane.io 无法从索引 3 处的资源模板渲染composition资源: 无法使用干运行创建为composition资源命名: 创建过程中可能未设置空名称空间
+    正常 ComposeResources 6s (x6 over 10s) defined/compositeresourcedefinition.apiextensions.crossplane.io 成功composition资源
     ```
 5.你在事件中看到了错误。它在抱怨没有在其 Composition 中指定 namespace。对于这种特殊错误，您可以获取其子资源并检查哪个没有创建。
     ```bash
@@ -341,13 +341,13 @@ crossplane 在很大程度上依赖状态条件和事件来排除故障。 您�
 kubectl describe postgresqlinstance.database.example.org my-db
 ```
 
-根据 Kubernetes 的惯例，Crossplane 会在错误发生地附近保留错误。 这意味着，如果你的 claim 由于 "Composition "或组成资源的问题而没有准备就绪，你需要 "跟踪引用 "来找出原因。 你的 claim 只会告诉你 XR 尚未准备就绪。
+根据 Kubernetes 的惯例，Crossplane 会在错误发生地附近保留错误。 这意味着，如果你的 claim 由于 "Composition "或composition资源的问题而没有准备就绪，你需要 "跟踪引用 "来找出原因。 你的 claim 只会告诉你 XR 尚未准备就绪。
 
 参考文献: 
 
 1.在你的 claims 上运行 `kubectl describe` 查找你的 XR，并查找它的 "Resource Ref"（又名 `spec.resourceRef`）。
 2.在 XR 上运行 `kubectl describe`。您将在此发现所使用的 `Composition` 中存在的问题（如果有的话）。
-3.如果没有问题，但你的 XR 似乎还没有准备就绪，请查看 "Resource Refs"（或 `spec.resourceRefs`），找到你的组成资源。
-4.在每个引用的组成资源上运行 `kubectl describe` 以确定其是否准备就绪，以及遇到了哪些问题（如果有的话）。
+3.如果没有问题，但你的 XR 似乎还没有准备就绪，请查看 "Resource Refs"（或 `spec.resourceRefs`），找到你的composition资源。
+4.在每个引用的composition资源上运行 `kubectl describe` 以确定其是否准备就绪，以及遇到了哪些问题（如果有的话）。
 
 <!-- Named Links -->

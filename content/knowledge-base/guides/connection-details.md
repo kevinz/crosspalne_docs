@@ -11,7 +11,7 @@ description: "如何跨 crossplane 受管资源、复合资源、Composition 和
 * 在[claim]( ) 中定义`writeConnectionSecretToRef.name`。{{<ref "/master/concepts/claims#claim-connection-secrets">}}).
 * 在 [Composition]() 中定义 `writeConnectionSecretsToNamespace` 值。{{<ref "/master/concepts/compositions#composite-resource-combined-secret">}}).
 * 在 [Composition]( ) 中为每个资源定义 `writeConnectionSecretToRef` 名称和名称空间。{{<ref "/master/concepts/compositions#composed-resource-secrets">}}).
-* 在 [Composition]( ) 中用 `connectionDetails` 定义每个组成资源产生的secret密钥列表。{{<ref "/master/concepts/compositions#define-secret-keys">}}).
+* 在 [Composition]( ) 中用 `connectionDetails` 定义每个composition资源产生的secret密钥列表。{{<ref "/master/concepts/compositions#define-secret-keys">}}).
 * 可选择在 [CompositeResourceDefinition]( ) 中定义 `connectionSecretKeys` 。{{<ref "/master/concepts/composite-resource-definitions#manage-connection-secrets">}}).
 
 {{<hint "note">}}本指南讨论创建 Kubernetes secret。 crossplane 还支持使用外部secret存储，如 [HashiCorp Vault](https://www.vaultproject.io/)。
@@ -30,7 +30,7 @@ Provider 定义了要将哪些信息作为受管资源的_连接详情_来展示
 
 <!-- wordy because of type names -->
 
-当一个受管资源是一个 [Composition]({{<ref "/master/concepts/compositions">}})、[合成资源定义]({{<ref "/master/concepts/composite-resource-definitions">}})和可选的[claim]({{<ref "/master/concepts/claims">}}) 定义了哪些细节是可见的以及存储在哪里。
+当一个受管资源是一个 [Composition]({{<ref "/master/concepts/compositions">}})、[composition资源定义]({{<ref "/master/concepts/composite-resource-definitions">}})和可选的[claim]({{<ref "/master/concepts/claims">}}) 定义了哪些细节是可见的以及存储在哪里。
 
 <!-- vale gitlab.SentenceLength = YES -->
 
@@ -395,7 +395,7 @@ key2-user:                       20 bytes
 
 CompositeResourceDefinition (`XRD`)可以限制哪些密钥会被放入组合密钥并提供给 Claim。
 
-默认情况下，XRD 会将组成资源 `connectionDetails` 中列出的所有secret密钥写入组合secret对象。
+默认情况下，XRD 会将composition资源 `connectionDetails` 中列出的所有secret密钥写入组合secret对象。
 
 限制传递给组合secret对象的密钥，并声明带有{{<hover label="xrd" line="4">}}连接秘钥{{</hover>}}对象的密钥。
 

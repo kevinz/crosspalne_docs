@@ -65,7 +65,7 @@ crossplane 通过查看复合资源所引用的 Composition，知道当复合资
 
 {{</expand >}}
 
-要使用合成功能，请设置合成{{<hover label="single" line="6">}}模式{{</hover>}}为{{<hover label="single" line="6">}}Pipelines{{</hover>}}.
+要使用composition功能，请设置composition{{<hover label="single" line="6">}}模式{{</hover>}}为{{<hover label="single" line="6">}}Pipelines{{</hover>}}.
 
 定义一个 {{<hover label="single" line="7">}}Pipelines{{</hover>}}的{{<hover label="single" line="8">}}步骤。{{</hover>}}每个{{<hover label="single" line="8">}}步骤{{</hover>}}都会调用一个函数。
 
@@ -143,7 +143,7 @@ spec:
 
 {{<hint "important">}}运行 `crossplane beta render` 需要 [Docker](https://www.docker.com)。{{< /hint >}}
 
-提供合成资源、合成和合成函数，以便在本地渲染输出。
+提供composition资源、composition和composition函数，以便在本地渲染输出。
 
 ```shell
 crossplane beta render xr.yaml composition.yaml functions.yaml
@@ -287,7 +287,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 }
 ```
 
-有些人设计的 Composition 功能可以被任何类型的合成资源引用。[Function Patch and Transform](https://github.com/crossplane-contrib/function-patch-and-transform) 和 [Function Auto Ready](https://github.com/crossplane-contrib/function-auto-ready)可以被任何类型的合成资源引用。
+有些人设计的 Composition 功能可以被任何类型的composition资源引用。[Function Patch and Transform](https://github.com/crossplane-contrib/function-patch-and-transform) 和 [Function Auto Ready](https://github.com/crossplane-contrib/function-auto-ready)可以被任何类型的composition资源引用。
 
 另一种常见的模式是为一种复合资源编写一个特定的 Composition 函数。 该函数包含在创建复合资源时告诉 crossplane 要创建哪些资源所需的所有逻辑。 当你编写这样的 Composition 函数时，你的 Composition 可以很小。 它只是告诉 crossplane 在你创建、更新或删除复合资源时要运行什么函数。
 
@@ -370,14 +370,14 @@ sequenceDiagram
 
 当 crossplane 调用函数时，它会在 RunFunctionRequest 中包含四项重要内容。
 
-1.Composition 资源和任何组成资源的**观测状态**。
-2.复合资源和任何组成资源的**期望状态。
+1.Composition 资源和任何composition资源的**观测状态**。
+2.复合资源和任何composition资源的**期望状态。
 3.函数的**输入。
 4.函数 Pipelines 的**上下文**。
 
 函数的主要工作是更新**期望状态**并将其返回给 crossplane。 它通过返回 RunFunctionResponse 来实现这一目标。
 
-大多数 Composition 函数都会读取所观察到的复合资源状态，并利用它将组成资源添加到所需状态。 这就告诉了 crossplane 它应该创建或更新哪些组成资源。
+大多数 Composition 函数都会读取所观察到的复合资源状态，并利用它将composition资源添加到所需状态。 这就告诉了 crossplane 它应该创建或更新哪些composition资源。
 
 {{<hint "tip">}}
 
@@ -404,30 +404,30 @@ spec:
   bucketRegion: us-east-2
 ```
 
-如果已经存在任何组成资源，crossplane 会对其进行观察，并将其作为观察状态的一部分发送给您的函数。
+如果已经存在任何composition资源，crossplane 会对其进行观察，并将其作为观察状态的一部分发送给您的函数。
 
-crossplane 还会观察您的 Composition 资源和任何组成资源的连接详情，并将其作为观察状态的一部分发送给您的函数。
+crossplane 还会观察您的 Composition 资源和任何composition资源的连接详情，并将其作为观察状态的一部分发送给您的函数。
 
-Crossplane 在开始调用 Pipelines 中的函数之前，会对 Composition 资源和任何组成资源进行一次观测。 这意味着，Crossplane 会向 Pipelines 中的每个函数发送相同的观测状态。
+Crossplane 在开始调用 Pipelines 中的函数之前，会对 Composition 资源和任何composition资源进行一次观测。 这意味着，Crossplane 会向 Pipelines 中的每个函数发送相同的观测状态。
 
 #### 期望状态
 
-期望状态是函数 Pipelines 希望对 Composition 资源和任何组成资源进行更改的集合。 当函数将组成资源添加到期望状态时，crossplane 就会创建这些资源。
+期望状态是函数 Pipelines 希望对 Composition 资源和任何composition资源进行更改的集合。 当函数将composition资源添加到期望状态时，crossplane 就会创建这些资源。
 
 功能可以改变: 
 
 * Composition 资源的 "状态"。
-* 任何合成资源的 "元数据 "和 "规格"。
+* 任何composition资源的 "元数据 "和 "规格"。
 
-函数还可以更改 Composition 资源的连接详情和就绪状态。 函数通过告诉 Crossplane 其组成资源是否就绪来表明 Composition 资源已就绪。 当函数管道告诉 Crossplane 所有组成资源都已就绪时，Crossplane 就会将 Composition 资源标记为就绪。
+函数还可以更改 Composition 资源的连接详情和就绪状态。 函数通过告诉 Crossplane 其composition资源是否就绪来表明 Composition 资源已就绪。 当函数管道告诉 Crossplane 所有composition资源都已就绪时，Crossplane 就会将 Composition 资源标记为就绪。
 
 函数不能改变: 
 
-* 合成资源的 `metadata` 或 `spec`。
-* 任何合成资源的 "状态"。
-* 任何合成资源的连接详情。
+* composition资源的 `metadata` 或 `spec`。
+* 任何composition资源的 "状态"。
+* 任何composition资源的连接详情。
 
-一个由多个函数组成的流水线会积累所需的状态，这意味着每个函数都是建立在流水线中之前函数的所需状态之上。 Crossplane 会向一个函数发送流水线中之前所有函数积累的所需状态。 该函数会添加或更新所需的状态，然后将其传递下去。 当流水线中的最后一个函数运行完毕后，Crossplane 就会应用其返回的所需状态。
+一个由多个函数composition的流水线会积累所需的状态，这意味着每个函数都是建立在流水线中之前函数的所需状态之上。 Crossplane 会向一个函数发送流水线中之前所有函数积累的所需状态。 该函数会添加或更新所需的状态，然后将其传递下去。 当流水线中的最后一个函数运行完毕后，Crossplane 就会应用其返回的所需状态。
 
 {{<hint "important">}}函数***必须***将其 RunFunctionRequest 中的所有所需状态复制到其 RunFunctionResponse 中。 如果函数在其所需状态中添加了资源，则下一个函数必须将其复制到所需的状态中。 如果没有，则 crossplane 不会应用该资源。 如果该资源存在，则 crossplane 会将其删除。
 
@@ -435,11 +435,11 @@ Crossplane 在开始调用 Pipelines 中的函数之前，会对 Composition 资
 
 大多数功能 SDK 都会自动复制所需的状态。{{</hint>}}
 
-函数只应将它所关心的字段添加到所需的状态中。 每次 crossplane 调用它时，它都应添加这些字段。 如果函数将某个字段添加到所需的状态中一次，但在下次调用时没有添加，则 crossplane 会删除该字段。 组成资源也是如此。 如果函数将某个组成资源添加到所需的状态中，但在下次调用时没有添加，则 crossplane 会删除该组成资源。
+函数只应将它所关心的字段添加到所需的状态中。 每次 crossplane 调用它时，它都应添加这些字段。 如果函数将某个字段添加到所需的状态中一次，但在下次调用时没有添加，则 crossplane 会删除该字段。 composition资源也是如此。 如果函数将某个composition资源添加到所需的状态中，但在下次调用时没有添加，则 crossplane 会删除该composition资源。
 
 {{<hint "tip">}}crossplane 使用[服务器端引用](https://kubernetes.io/docs/reference/using-api/server-side-apply/)来引用函数 Pipelines 返回的所需状态。在服务器端引用术语中，所需的状态是_完全指定的意图_。{{</hint>}}
 
-例如，如果函数只想确保区域 `us-east-2` 中的 S3 bucket 存在，它就应该将此资源添加到所需的组成资源中。
+例如，如果函数只想确保区域 `us-east-2` 中的 S3 bucket 存在，它就应该将此资源添加到所需的composition资源中。
 
 ```yaml
 apiVersion: s3.aws.upbound.io/v1beta1
@@ -493,7 +493,7 @@ spec:
 
 Crossplane 也可以写入上下文。 如果启用 alpha [composition environment]({{<ref "environment-configs">}}) 功能，crossplane 就会将环境写入顶级上下文字段 `apiextensions.crossplane.io/environment`。
 
-## 关闭组成功能
+## 关闭composition功能
 
 Crossplane 默认启用 Composition 函数。 使用 `helm install --args` 在 Crossplane 中禁用 beta 功能标志，即可禁用对 Composition 函数的支持。
 

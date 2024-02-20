@@ -31,7 +31,7 @@ crossplane-7f75ddcc46-f4d2z 1/1 Running 0 9s
 crossplane-rbac-manager-78bd597746-sdv6w 1/1 Running 0 9s
 ```
 
-### 部署组成和 XRD 示例
+### 部署composition和 XRD 示例
 
 应用示例 Composition。
 
@@ -107,7 +107,7 @@ myvpcs.aws.example.upbound.io-ad265bc 1 dev
 
 ## 创建 Composition 资源
 
-本教程有四个复合资源，涵盖不同的更新策略和合成物选择选项。 默认行为是将 XR 更新到合成物的最新修订版。 不过，可以通过在 XR 中设置 `compositionUpdatePolicy: Manual` 来更改。也可以使用 `compositionRevisionSelector.matchLabels` 和 `compositionUpdatePolicy: Automatic` 来选择带有特定标签的最新修订版。
+本教程有四个复合资源，涵盖不同的更新策略和composition物选择选项。 默认行为是将 XR 更新到composition物的最新修订版。 不过，可以通过在 XR 中设置 `compositionUpdatePolicy: Manual` 来更改。也可以使用 `compositionRevisionSelector.matchLabels` 和 `compositionUpdatePolicy: Automatic` 来选择带有特定标签的最新修订版。
 
 ### 默认更新策略
 
@@ -192,7 +192,7 @@ spec:
 myvpc.aws.example.upbound.io/vpc-staging created
 ```
 
-验证标签为 "channel: staging "的合成资源没有 "REVISION"。 所有其他 XRs 的 "REVISION "都与创建的合成修订版相匹配。
+验证标签为 "channel: staging "的composition资源没有 "REVISION"。 所有其他 XRs 的 "REVISION "都与创建的composition修订版相匹配。
 
 ```shell
 kubectl get composite -o="custom-columns=NAME:.metadata.name,SYNCED:.status.conditions[0].status,REVISION:.spec.compositionRevisionRef.name,POLICY:.spec.compositionUpdatePolicy,MATCHLABEL:.spec.compositionRevisionSelector.matchLabels"

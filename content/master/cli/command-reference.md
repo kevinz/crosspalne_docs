@@ -225,7 +225,7 @@ crossplane 维护者可能会在未来发布的版本中推广或删除 `beta` �
 
 #### 测试版渲染
 
-crossplane beta render "命令预览[合成资源]({{<ref "../concepts/composite-resources">}}) 应用任何 [合成函数]({{<ref "../concepts/composition-functions">}}).
+crossplane beta render "命令预览[composition资源]({{<ref "../concepts/composite-resources">}}) 应用任何 [composition函数]({{<ref "../concepts/composition-functions">}}).
 
 {{< hint "important" >}}crossplane beta render "命令不应用[打补丁和变换]({{<ref "../concepts/patch-and-transform">}}).
 
@@ -345,7 +345,7 @@ spec:
 
 默认情况下，"crossplane beta trace "直接打印到终端，将 "就绪 "条件和 "状态 "信息限制为 64 个字符。
 
-下示例输出了 AWS 参考平台的 "集群 "claim，其中包括多个 Composition 和组成资源: 
+下示例输出了 AWS 参考平台的 "集群 "claim，其中包括多个 Composition 和composition资源: 
 
 ```shell {copy-lines="1"}
 crossplane beta trace cluster.aws.platformref.upbound.io platform-ref-aws
@@ -450,8 +450,8 @@ Provider 被引用的软件包名称和软件包模板应从命令 `crossplane b
 
 <template>` 值可以是四种众所周知的模板之一: 
 
-* `function-template-go` - 一个用于构建 crossplane Go [组成函数]({{<ref "../concepts/composition-functions">}}) 的模板来自 [crossplane/function-template-go](https://github.com/crossplane/function-template-go) 资源库。
-* `function-template-python` - 一个模板，用于从 [crossplane/function-template-go]() 资源库中创建 Crossplane Python [组成函数]({{<ref "../concepts/composition-functions">}}) 的模板，来自 [crossplane/function-template-python](https://github.com/crossplane/function-template-go) 资源库。
+* `function-template-go` - 一个用于构建 crossplane Go [composition函数]({{<ref "../concepts/composition-functions">}}) 的模板来自 [crossplane/function-template-go](https://github.com/crossplane/function-template-go) 资源库。
+* `function-template-python` - 一个模板，用于从 [crossplane/function-template-go]() 资源库中创建 Crossplane Python [composition函数]({{<ref "../concepts/composition-functions">}}) 的模板，来自 [crossplane/function-template-python](https://github.com/crossplane/function-template-go) 资源库。
 * `provider-template` - 从 [crossplane/provider-template](https://github.com/crossplane/provider-template) 资源库中创建基本的 Crossplane 提供程序的模板。
 * `provider-template-upjet` - 用于从现有 Terraform 提供程序构建基于 [Upjet](https://github.com/crossplane/upjet) 的 Crossplane 提供程序的模板。复制自 [upbound/upjet-provider-template](https://github.com/upbound/upjet-provider-template) 资源库。
 

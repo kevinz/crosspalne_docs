@@ -1,7 +1,7 @@
 ---
 
 title: 配置包
-描述: "包将多个 crossplane 资源组合成一个可移植的 OCI 镜像"
+描述: "包将多个 crossplane 资源组composition一个可移植的 OCI 镜像"
 altTitle: "crossplane软件包"
 weight: 200
 

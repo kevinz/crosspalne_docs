@@ -128,7 +128,7 @@ spec:
   # Removed for brevity
 ```
 
-合成资源还可以通过一个{{<hover label="complabel" line="6">}}组成选择器{{</hover>}}.
+composition资源还可以通过一个{{<hover label="complabel" line="6">}}composition选择器{{</hover>}}.
 
 在 {{<hover label="complabel" line="7">}}matchLabels{{</hover>}}部分提供一个或多个要匹配的 Composition 标签。
 
@@ -195,7 +195,7 @@ my-composition-b5aa1eb 2 xmydatabases example.org/v1alpha1 64m
 
 {{< /hint >}}
 
-合成资源还可以通过一个{{<hover label="comprevsel" line="6">}}组成修订版选择器{{</hover>}}.
+composition资源还可以通过一个{{<hover label="comprevsel" line="6">}}composition修订版选择器{{</hover>}}.
 
 在 {{<hover label="comprevsel" line="7">}}matchLabels{{</hover>}}部分提供一个或多个要匹配的 Composition 修订标签。
 
@@ -329,9 +329,9 @@ Composition 资源的条件与其 managed 资源的条件相匹配。
 
 Crossplane 为复合资源添加标签，以显示它们与其他 Crossplane 组件的关系。
 
-#### 合成标签
+#### composition标签
 
-crossplane 添加了{{<hover label="complabel" line="4">}}crossplane.io/composite{{</hover>}}标签。 该标签与合成资源的名称相匹配。 Crossplane 会将合成标签应用到由合成资源创建的任何托管资源，从而在托管资源和拥有合成资源的资源之间创建一个引用。
+crossplane 添加了{{<hover label="complabel" line="4">}}crossplane.io/composite{{</hover>}}标签。 该标签与composition资源的名称相匹配。 Crossplane 会将composition标签应用到由composition资源创建的任何托管资源，从而在托管资源和拥有composition资源的资源之间创建一个引用。
 
 ```shell {label="claimname",copy-lines="1"}
 kubectl describe xmydatabase.example.org/my-claimed-database-x9rx9

@@ -1,6 +1,6 @@
 ---
 
-title: 用 Python 编写一个组成函数
+title: 用 Python 编写一个composition函数
 状态: beta
 alphaVersion: "1.11"
 betaVersion: "1.14"
@@ -17,7 +17,7 @@ Composition 函数（简称函数）是模板化 Crossplane 资源的自定义�
 
 ## 了解步骤
 
-本指南介绍为{{<hover label="xr" line="2">}}XBuckets{{</hover>}}Composition 资源 (XR) 的合成函数。
+本指南介绍为{{<hover label="xr" line="2">}}XBuckets{{</hover>}}Composition 资源 (XR) 的composition函数。
 
 ```yaml {label="xr"}
 apiVersion: example.crossplane.io/v1
@@ -111,7 +111,7 @@ This tip talks about future plans for Crossplane.
 
 package/input 目录定义了函数输入的 OpenAPI 模式。 本指南中的函数不接受输入。 删除 `package/input` 目录。
 
-组成函数](https://docs.crossplane.io/latest/concepts/composition-functions) 文档解释了组成函数的输入。
+composition函数](https://docs.crossplane.io/latest/concepts/composition-functions) 文档解释了composition函数的输入。
 
 {{<hint "tip">}}如果您正在编写一个被引用的函数，请编辑输入 YAML 文件以满足您的函数要求。
 
@@ -567,7 +567,7 @@ spec:
     region: us-east-2
 ```
 
-{{<hint "tip">}}请阅读组成函数文档，了解有关 [测试组成函数](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions) 的更多信息。{{</hint>}}
+{{<hint "tip">}}请阅读composition函数文档，了解有关 [测试composition函数](https://docs.crossplane.io/latest/concepts/composition-functions#test-a-composition-that-uses-functions) 的更多信息。{{</hint>}}
 
 ## 构建函数并将其推送至 packages 注册表
 

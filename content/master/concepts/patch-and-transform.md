@@ -529,7 +529,7 @@ Name:         my-resource-eu-north-1-field2-text
 
 {{< /hint >}}
 
-组合{{<hover label="combineToComposite" line="12">}}组合到合成{{</hover>}}补丁仅支持{{<hover label="combineToComposite" line="13">}}组合{{</hover>}}选项。
+组合{{<hover label="combineToComposite" line="12">}}组合到composition{{</hover>}}补丁仅支持{{<hover label="combineToComposite" line="13">}}组合{{</hover>}}选项。
 
 变量 {{<hover label="combineToComposite" line="14">}}变量{{</hover>}}是{{<hover label="combineToComposite" line="15">}}fromFieldPath{{</hover>}}要合并的 managed 资源。
 

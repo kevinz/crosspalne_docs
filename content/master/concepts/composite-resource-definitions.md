@@ -470,7 +470,7 @@ XRD 可以为 Composition 资源和claim设置默认参数。
 
 <!-- vale on -->
 
-如果用户在创建claim时没有指定值，"defaultCompositeDeletePolicy "会定义claim的 "compositeDeletePolicy "属性的默认值。 claim控制器会使用 "compositeDeletePolicy "属性来指定删除关联合成时的传播策略。 compositeDeletePolicy "不适用于没有关联claim的独立合成。
+如果用户在创建claim时没有指定值，"defaultCompositeDeletePolicy "会定义claim的 "compositeDeletePolicy "属性的默认值。 claim控制器会使用 "compositeDeletePolicy "属性来指定删除关联composition时的传播策略。 compositeDeletePolicy "不适用于没有关联claim的独立composition。
 
 使用 "defaultCompositeDeletePolicy: Background "策略会使claim的 CRD 的 "compositeDeletePolicy "属性的默认值为 "Background"。 当删除的claim的 "compositeDeletePolicy "属性设置为 "Background "时，claim控制器会使用传播策略 "background "删除复合资源并返回，依靠 Kubernetes 删除剩余的子对象，如托管资源、嵌套的复合资源和secret。
 
@@ -531,7 +531,7 @@ spec:
 
 对 Composition 的更改会生成新的 Composition 修订版。 默认情况下，所有复合资源和claim都会被引用更新后的 Composition 修订版。
 
-将 XRD 的 "defaultCompositionUpdatePolicy "设置为 "Manual"，以防止合成资源和 claims 自动被引用新修订。
+将 XRD 的 "defaultCompositionUpdatePolicy "设置为 "Manual"，以防止composition资源和 claims 自动被引用新修订。
 
 默认值为 `defaultCompositionUpdatePolicy: Automatic`。
 
@@ -559,7 +559,7 @@ spec:
 
 要要求所有复合资源或 claims 使用特定 Composition，请使用 XRD 中的 "enforcedCompositionRef "设置。
 
-例如，要求使用该 XRD 的所有复合资源和claim都使用 Composition{{<hover label="enforceComp" line="6">}}我的合成{{</hover>}}设置{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
+例如，要求使用该 XRD 的所有复合资源和claim都使用 Composition{{<hover label="enforceComp" line="6">}}我的composition{{</hover>}}设置{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
 
 ```yaml {label="defaultComp",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
