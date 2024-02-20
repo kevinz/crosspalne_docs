@@ -61,7 +61,7 @@ crossplane 通过查看复合资源所引用的 Composition，知道当复合资
 * [Composition]({{<ref "./compositions">}}) - 用于定义如何创建资源的模板。
 * [复合资源定义]({{<ref "./composite-resource-definitions">}}) (`XRD`) - 一种自定义 API 规范。
 * [复合资源]({{<ref "./composite-resources">}}) (`XR`) - 使用 CompositeResourceDefinition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
-* [声称]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composite Resource，但具有名称空间范围。
+* [声明]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composite Resource，但具有名称空间范围。
 
 {{</expand >}}
 
@@ -71,7 +71,7 @@ crossplane 通过查看复合资源所引用的 Composition，知道当复合资
 
 每个 {{<hover label="single" line="8">}}步骤{{</hover>}}被引用一个{{<hover label="single" line="9">}}函数{{</hover>}}来引用{{<hover label="single" line="10">}}名称{{</hover>}}的名称。
 
-{{<hint "important" >}}被引用的构成 {{<hover label="single" line="6">}}模式: Pipelines{{</hover>}}不能使用 `resources` 字段指定资源模板。
+{{<hint "important" >}}被引用的composition {{<hover label="single" line="6">}}模式: Pipelines{{</hover>}}不能使用 `resources` 字段指定资源模板。
 
 使用功能 "修补和转换 "创建资源模板。{{< /hint >}}
 
@@ -310,7 +310,7 @@ spec:
       name: function-xr-xbucket
 ```
 
-要写好作文函数，你: 
+要写好 Composition 函数，你: 
 
 1.从模板中创建函数。
 2.编辑模板，添加函数逻辑。

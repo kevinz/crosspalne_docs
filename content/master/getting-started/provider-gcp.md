@@ -76,7 +76,7 @@ Provider 需要凭据才能创建和管理 GCP 资源。 Provider 使用 Kuberne
 
 ### 使用 GCP 凭据创建 Kubernetes secret
 
-Kubernetes 通用 secret 有名称和内容。 使用{{< hover label="kube-create-secret" line="1">}}kubectl create secret{{< /hover >}}生成名为{{< hover label="kube-create-secret" line="2">}}gcp-secret{{< /hover >}}的{{< hover label="kube-create-secret" line="3">}}名称空间中名为{{</ hover >}}名称空间中生成名为 gcp-secret 的秘密对象。 {{< hover label="kube-create-secret" line="4">}}--从文件{{</hover>}}参数将值设置为{{< hover label="kube-create-secret" line="4">}}gcp-credentials.json{{< /hover >}}文件的内容。
+Kubernetes 通用 secret 有名称和内容。 使用{{< hover label="kube-create-secret" line="1">}}kubectl create secret{{< /hover >}}生成名为{{< hover label="kube-create-secret" line="2">}}gcp-secret{{< /hover >}}的{{< hover label="kube-create-secret" line="3">}}名称空间中名为{{</ hover >}}名称空间中生成名为 gcp-secret 的secret对象。 {{< hover label="kube-create-secret" line="4">}}--从文件{{</hover>}}参数将值设置为{{< hover label="kube-create-secret" line="4">}}gcp-credentials.json{{< /hover >}}文件的内容。
 
 ```shell {label="kube-create-secret",copy-lines="all"}
 kubectl create secret \
@@ -85,7 +85,7 @@ generic gcp-secret \
 --from-file=creds=./gcp-credentials.json
 ```
 
-使用 `kubectl describe secret` 查看秘密
+使用 `kubectl describe secret` 查看secret
 
 {{< hint "note" >}}文件大小可能因内容而异。{{< /hint >}}
 

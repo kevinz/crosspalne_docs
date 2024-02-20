@@ -188,9 +188,9 @@ spec:
 
 {{<hint "important" >}}Kubernetes secret 必须与 crossplane 位于同一命名空间。{{</hint >}}
 
-包 {{<hover label="pps" line="6">}}是一个秘密列表。{{</hover>}}是一个秘密列表。
+包 {{<hover label="pps" line="6">}}是一个secret列表。{{</hover>}}是一个secret列表。
 
-例如，要使用名为{{<hover label="pps" line="6">}}example-secret 的秘密{{</hover>}}配置一个{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
+例如，要使用名为{{<hover label="pps" line="6">}}example-secret 的secret{{</hover>}}配置一个{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
 
 ```yaml {label="pps"}
 apiVersion: pkg.crossplane.io/v1
@@ -505,7 +505,7 @@ ControllerConfigs 最常见的用例是为 Provider 的 pod 启用可选服务�
 
 {{<hint "note" >}}与 `ControllerConfig` 不同，`DeploymentRuntimeConfig` 嵌入了整个 Kubernetes 部署规范，可以更灵活地配置运行时。详情请参考[设计文档](https://github.com/crossplane/crossplane/blob/2c5e7f07ba9e3d83d1c85169bbde685de8514ab8/design/one-pager-package-runtime-config.md)。{{< /hint >}}
 
-举例来说，如果要通过在控制器中添加 `--enable-external-secret-stores`参数来启用 `Provider` 的外部秘密存储 alpha 功能，可以应用下面的方法: 
+举例来说，如果要通过在控制器中添加 `--enable-external-secret-stores`参数来启用 `Provider` 的外部secret存储 alpha 功能，可以应用下面的方法: 
 
 ```yaml
 apiVersion: pkg.crossplane.io/v1
@@ -605,7 +605,7 @@ spec:
     - **Sets** `metadata.ownerReferences` such that the deployment owned by the packages revision.
     - **设置*** `spec.selectors` 使用生成的标签。
     - **使用创建的**服务账户**设置**`spec.serviceAccount`。
-    - **添加**Package 规范中提供的拉取秘密作为镜像拉取秘密，即 `spec.packagePullSecrets`。
+    - **添加**Package 规范中提供的拉取secret作为镜像拉取secret，即 `spec.packagePullSecrets`。
     - **使用软件包规格中提供的值设置**镜像拉取策略**，`spec.packagePullPolicy`。
     - **向运行时容器添加**必要的**端口。
     - **将必要的**端口**添加到运行时容器。

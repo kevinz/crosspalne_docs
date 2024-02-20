@@ -12,18 +12,18 @@ Composite resource definitions (`XRD`)定义了自定义 API 的模式。 用户
 
 请阅读 [Composition resources]({{<ref "./composite-resources">}}) 页面，了解有关 Composition 资源的更多信息。
 
-请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关索赔的信息。{{</hint >}}
+请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关claim的信息。{{</hint >}}
 
 {{<expand "Confused about Compositions, XRDs, XRs and Claims?" >}}crossplane 有四个核心组件，用户通常会把它们混为一谈: 
 
 * [Composition]({{<ref "./compositions" >}}) - 用于定义如何创建资源的模板。
 * Composite Resource Definition (`XRD`) - 本页面。自定义 API 规范。
 * [复合资源]({{<ref "./composite-resources">}}) (`XR`) - 通过使用 Composition Resource Definition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
-* [索赔]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
+* [claim]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
 
 {{</expand >}}
 
-Crossplane XRD 类似于[Kubernetes 自定义资源定义](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)。XRD 需要的字段较少，并添加了与 Crossplane 相关的选项，如 claims 和连接秘密。
+Crossplane XRD 类似于[Kubernetes 自定义资源定义](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)。XRD 需要的字段较少，并添加了与 Crossplane 相关的选项，如 claims 和连接secret。
 
 ## 创建复合资源定义
 
@@ -35,8 +35,8 @@ Crossplane XRD 类似于[Kubernetes 自定义资源定义](https://kubernetes.io
 
 CompositeResourceDefinitions 还支持可选项: 
 
-* [提供索赔](#enable-claims)。
-* [定义连接秘密](#manage-connection-secrets)。
+* [提供claim](#enable-claims)。
+* [定义连接secret](#manage-connection-secrets)。
 * [设置 Composition 资源默认值](#set-composite-resource-defaults)。
 
 Composition 资源定义（"XRD"）可在 Kubernetes 集群内创建新的 API 端点。
@@ -385,21 +385,21 @@ spec:
 
 更改或扩展 XRD 模式需要重新启动 [Crossplane pod]({{<ref "./pods#crossplane-pod">}}) 才能生效。{{< /hint >}}
 
-### 启用索赔
+### 启用claim
 
 作为选项，XRD 可以允许 claims 使用 XRD API。
 
 {{<hint "note" >}}
 
-请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关索赔的信息。{{</hint >}}
+请阅读 [Claims]({{<ref "./claims">}}) 页面获取更多有关claim的信息。{{</hint >}}
 
-XRD 为索赔提供了一个{{<hover label="claim" line="10">}}索赔名称{{</hover >}}对象的索赔。
+XRD 为claim提供了一个{{<hover label="claim" line="10">}}claim名称{{</hover >}}对象的claim。
 
-索赔名称 {{<hover label="claim" line="10">}}名称{{</hover >}}定义了{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}就像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}也像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}一样，被引用的{{<hover label="claim" line="11">}}种类{{</hover >}}使用大写，而{{<hover label="claim" line="12">}}复数{{</hover >}}.
+claim名称 {{<hover label="claim" line="10">}}名称{{</hover >}}定义了{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}就像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}也像 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}一样，被引用的{{<hover label="claim" line="11">}}种类{{</hover >}}使用大写，而{{<hover label="claim" line="12">}}复数{{</hover >}}.
 
-claims{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}必须是唯一的，不能与任何其他索赔或其他 XRD{{<hover label="claim" line="8">}}种类{{</hover >}}.
+claims{{<hover label="claim" line="11">}}种类{{</hover >}}和{{<hover label="claim" line="12">}}复数{{</hover >}}必须是唯一的，不能与任何其他claim或其他 XRD{{<hover label="claim" line="8">}}种类{{</hover >}}.
 
-{{<hint "tip" >}}常见的 crossplane 惯例是使用{{<hover label="claim" line="10">}}索赔名称{{</hover >}}与 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}但不以 "x "开头。{{</hint >}}
+{{<hint "tip" >}}常见的 crossplane 惯例是使用{{<hover label="claim" line="10">}}claim名称{{</hover >}}与 XRD{{<hover label="claim" line="7">}}名称{{</hover >}}但不以 "x "开头。{{</hint >}}
 
 ```yaml {label="claim",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -418,15 +418,15 @@ spec:
   # Removed for brevity
 ```
 
-{{<hint "important" >}}您不能更改{{<hover label="claim" line="10">}}索赔名称{{</hover >}}您必须删除并重新创建 XRD 才能更改{{<hover label="claim" line="10">}}索赔名称{{</hover >}}.{{</hint >}}
+{{<hint "important" >}}您不能更改{{<hover label="claim" line="10">}}claim名称{{</hover >}}您必须删除并重新创建 XRD 才能更改{{<hover label="claim" line="10">}}claim名称{{</hover >}}.{{</hint >}}
 
-#### 管理连接秘密
+#### 管理连接secret
 
-当复合资源创建托管资源时，Crossplane 会提供任何 [connection secrets]({{<ref "./managed-resources#writeconnectionsecrettoref">}}) 提供给复合资源或 claims。 这就要求复合资源和 claims 的创建者知道受管资源提供的秘密。 在其他情况下，Crossplane 管理员可能不想公开部分或全部生成的连接秘密。
+当复合资源创建托管资源时，Crossplane 会提供任何 [connection secrets]({{<ref "./managed-resources#writeconnectionsecrettoref">}}) 提供给复合资源或 claims。 这就要求复合资源和 claims 的创建者知道受管资源提供的secret。 在其他情况下，Crossplane 管理员可能不想公开部分或全部生成的连接secret。
 
 XRD 可以定义一个{{<hover label="key" line="10">}}连接秘钥{{</hover>}}来限制提供给 Compider 资源或 Claim 的内容。
 
-crossplane 只提供连接秘钥（connectionSecretKeys）中列出的密钥。{{<hover label="key" line="10">}}中列出的密钥。{{</hover>}}中列出的密钥，其他任何连接秘密都不会被引用到复合资源或 claims。
+crossplane 只提供连接秘钥（connectionSecretKeys）中列出的密钥。{{<hover label="key" line="10">}}中列出的密钥。{{</hover>}}中列出的密钥，其他任何连接secret都不会被引用到复合资源或 claims。
 
 {{<hint "important" >}}中列出的密钥{{<hover label="key" line="10">}}连接密钥{{</hover>}}中列出的密钥名称必须与 Composition 的 "connectionDetails "中列出的密钥名称一致。
 
@@ -458,11 +458,11 @@ spec:
 
 {{<hint "warning">}}您不能更改 XRD 的 "connectionSecretKeys"，必须删除并重新创建 XRD 才能更改 "connectionSecretKeys"。{{</hint >}}
 
-有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接secret的更多信息，请阅读[连接secret知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
 
 ### 设置 Composition 资源默认值
 
-XRD 可以为 Composition 资源和索赔设置默认参数。
+XRD 可以为 Composition 资源和claim设置默认参数。
 
 <!-- vale off -->
 
@@ -470,13 +470,13 @@ XRD 可以为 Composition 资源和索赔设置默认参数。
 
 <!-- vale on -->
 
-如果用户在创建索赔时没有指定值，"defaultCompositeDeletePolicy "会定义索赔的 "compositeDeletePolicy "属性的默认值。 索赔控制器会使用 "compositeDeletePolicy "属性来指定删除关联合成时的传播策略。 compositeDeletePolicy "不适用于没有关联索赔的独立合成。
+如果用户在创建claim时没有指定值，"defaultCompositeDeletePolicy "会定义claim的 "compositeDeletePolicy "属性的默认值。 claim控制器会使用 "compositeDeletePolicy "属性来指定删除关联合成时的传播策略。 compositeDeletePolicy "不适用于没有关联claim的独立合成。
 
-使用 "defaultCompositeDeletePolicy: Background "策略会使索赔的 CRD 的 "compositeDeletePolicy "属性的默认值为 "Background"。 当删除的索赔的 "compositeDeletePolicy "属性设置为 "Background "时，索赔控制器会使用传播策略 "background "删除复合资源并返回，依靠 Kubernetes 删除剩余的子对象，如托管资源、嵌套的复合资源和秘密。
+使用 "defaultCompositeDeletePolicy: Background "策略会使claim的 CRD 的 "compositeDeletePolicy "属性的默认值为 "Background"。 当删除的claim的 "compositeDeletePolicy "属性设置为 "Background "时，claim控制器会使用传播策略 "background "删除复合资源并返回，依靠 Kubernetes 删除剩余的子对象，如托管资源、嵌套的复合资源和secret。
 
-使用 `defaultCompositeDeletePolicy: Foreground` 会使索赔的 CRD 具有 `compositeDeletePolicy` 的默认值 `Foreground`。 当删除的索赔的 `compositeDeletePolicy` 属性设置为 `Foreground`时，控制器会使用传播策略 `foreground` 删除相关的 Composition。 这会导致 Kubernetes 使用前台级联删除，即在删除父资源之前删除所有子资源。 索赔控制器会等待 Composition 删除完成后再返回。
+使用 `defaultCompositeDeletePolicy: Foreground` 会使claim的 CRD 具有 `compositeDeletePolicy` 的默认值 `Foreground`。 当删除的claim的 `compositeDeletePolicy` 属性设置为 `Foreground`时，控制器会使用传播策略 `foreground` 删除相关的 Composition。 这会导致 Kubernetes 使用前台级联删除，即在删除父资源之前删除所有子资源。 claim控制器会等待 Composition 删除完成后再返回。
 
-在创建索赔时，用户可以通过包含具有 "Background "或 "Foreground "值的 "spec.compositeDeletePolicy "属性来覆盖 "defaultCompositeDeletePolicy"。
+在创建claim时，用户可以通过包含具有 "Background "或 "Foreground "值的 "spec.compositeDeletePolicy "属性来覆盖 "defaultCompositeDeletePolicy"。
 
 默认值为 `defaultCompositeDeletePolicy: Background`。
 
@@ -529,7 +529,7 @@ spec:
 
 <!-- vale on -->
 
-对 Composition 的更改会生成新的 Composition 修订版。 默认情况下，所有复合资源和索赔都会被引用更新后的 Composition 修订版。
+对 Composition 的更改会生成新的 Composition 修订版。 默认情况下，所有复合资源和claim都会被引用更新后的 Composition 修订版。
 
 将 XRD 的 "defaultCompositionUpdatePolicy "设置为 "Manual"，以防止合成资源和 claims 自动被引用新修订。
 
@@ -559,7 +559,7 @@ spec:
 
 要要求所有复合资源或 claims 使用特定 Composition，请使用 XRD 中的 "enforcedCompositionRef "设置。
 
-例如，要求使用该 XRD 的所有复合资源和索赔都使用 Composition{{<hover label="enforceComp" line="6">}}我的合成{{</hover>}}设置{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
+例如，要求使用该 XRD 的所有复合资源和claim都使用 Composition{{<hover label="enforceComp" line="6">}}我的合成{{</hover>}}设置{{<hover label="enforceComp" line="6">}}enforcedCompositionRef.name: myComposition{{</hover>}}.
 
 ```yaml {label="defaultComp",copy-lines="none"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -659,7 +659,7 @@ Reason: WatchingCompositeResourceClaim
 
 <!-- vale on -->
 
-Reason: TerminatingCompositeResourceClaim "表示 crossplane 正在删除与提供的索赔相关的自定义资源定义，并终止索赔控制器。
+Reason: TerminatingCompositeResourceClaim "表示 crossplane 正在删除与提供的claim相关的自定义资源定义，并终止claim控制器。
 
 ```yaml
 Type: Offered

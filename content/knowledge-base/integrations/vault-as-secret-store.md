@@ -1,15 +1,15 @@
 ---
 
-title: 作为外部秘密存储的 Vault
+title: 作为外部secret存储的 Vault
 weight: 230
 
 ---
 
-本指南介绍了配置 Crossplane 及其 Provider 将 [Vault](https://www.vaultproject.io/) 用作 [外部秘密存储](https://github.com/crossplane/crossplane/blob/master/design/design-doc-external-secret-stores.md) (`ESS`)与 [ESS 插件 Vault](https://github.com/crossplane-contrib/ess-plugin-vault)所需的步骤。
+本指南介绍了配置 Crossplane 及其 Provider 将 [Vault](https://www.vaultproject.io/) 用作 [外部secret存储](https://github.com/crossplane/crossplane/blob/master/design/design-doc-external-secret-stores.md) (`ESS`)与 [ESS 插件 Vault](https://github.com/crossplane-contrib/ess-plugin-vault)所需的步骤。
 
-{{<hint "warning" >}}外部秘密存储是 alpha 功能。
+{{<hint "warning" >}}外部secret存储是 alpha 功能。
 
-crossplane 默认禁用外部秘密存储。{{< /hint >}}
+crossplane 默认禁用外部secret存储。{{< /hint >}}
 
 crossplane 会使用敏感信息，包括 Provider 凭据、对托管资源的输入和连接详情。
 
@@ -17,7 +17,7 @@ Vault 凭据注入指南]({{<ref "vault-injection" >}}) 详细介绍了如何使
 
 Crossplane 不支持将 Vault 用于托管资源输入。[Crossplane issue #2985](https://github.com/crossplane/crossplane/issues/2985)跟踪对该功能的支持。
 
-使用 Vault 支持连接详情需要一个 Crossplane 外部秘密存储。
+使用 Vault 支持连接详情需要一个 Crossplane 外部secret存储。
 
 ## 先决条件
 
@@ -132,7 +132,7 @@ Success! Data written to: auth/kubernetes/config
 
 ## 配置 Vault 以实现 Crossplane 集成
 
-crossplane 依赖 Vault 键值秘密引擎存储信息，Vault 需要为 crossplane 服务账户设置权限策略。
+crossplane 依赖 Vault 键值secret引擎存储信息，Vault 需要为 crossplane 服务账户设置权限策略。
 
 <!-- vale Crossplane.Spelling = NO -->
 
@@ -190,7 +190,7 @@ helm upgrade --install crossplane crossplane-stable/crossplane --namespace cross
 
 ## 安装 Crossplane Vault 插件
 
-Crossplane Vault 插件不是 Crossplane 默认安装的一部分。 该插件以独特 Pod 的形式安装，使用 [Vault Agent Sidecar Injection](https://www.vaultproject.io/docs/platform/k8s/injector) 将 Vault 秘密存储连接到 Crossplane。
+Crossplane Vault 插件不是 Crossplane 默认安装的一部分。 该插件以独特 Pod 的形式安装，使用 [Vault Agent Sidecar Injection](https://www.vaultproject.io/docs/platform/k8s/injector) 将 Vault secret存储连接到 Crossplane。
 
 首先，为 Vault 插件 pod 配置 Annotations。
 
@@ -216,11 +216,11 @@ helm upgrade --install ess-plugin-vault oci://xpkg.upbound.io/crossplane-contrib
 
 配置好插件和 Provider 后，Crossplane 需要两个 `StoreConfig` 对象来描述 Crossplane 和 Provider 如何与 Vault 通信。
 
-### 在 Provider 中启用外部秘密存储
+### 在 Provider 中启用外部secret存储
 
 {{<hint "note">}}本例被引用的是 Provider GCP，但{{<hover label="ControllerConfig" line="2">}}控制器配置{{</hover>}}对所有 Provider 都一样。{{</hint >}}
 
-创建一个 `ControllerConfig` 对象，以启用外部秘密存储。
+创建一个 `ControllerConfig` 对象，以启用外部secret存储。
 
 ```yaml {label="ControllerConfig"}
 echo "apiVersion: pkg.crossplane.io/v1alpha1
@@ -414,11 +414,11 @@ spec:
         - fromConnectionSecretKey: publicKeyType" | kubectl apply -f -
 ```
 
-### 创建索赔
+### 创建claim
 
-现在创建一个 "声称"，让 crossplane 创建 GCP 资源和相关秘密。
+现在创建一个 "声明"，让 crossplane 创建 GCP 资源和相关secret。
 
-与 Composition 一样，Claim 也被引用为{{<hover label="claim" line="12">}}发布连接详情到{{</hover>}}连接到 Vault 并存储秘密。
+与 Composition 一样，Claim 也被引用为{{<hover label="claim" line="12">}}发布连接详情到{{</hover>}}连接到 Vault 并存储secret。
 
 ```yaml {label="claim"}
 echo "apiVersion: ess.example.org/v1alpha1
@@ -455,7 +455,7 @@ NAME READY SYNCED KEY_ID CREATED_AT EXPIRES_AT
 serviceaccountkey.iam.gcp.crossplane.io/my-ess-zvmkz-bq8pz True True 5cda49b7c32393254b5abb121b4adc07e140502c 2022-03-23T10:54:50Z
 ```
 
-查看索赔
+查看claim
 
 ```shell {copy-lines="1"}
 kubectl -n default get claim
@@ -471,9 +471,9 @@ NAME READY COMPOSITION AGE
 my-ess-zvmkz True essinstances.ess.example.org 32s
 ```
 
-## 验证 Vault 秘密
+## 验证 Vault secret
 
-查看 Vault 内部，查看来自管理资源的秘密。
+查看 Vault 内部，查看来自管理资源的secret。
 
 ```shell {copy-lines="1",label="vault-key"}
 kubectl -n vault-system exec -i vault-0 -- vault kv list /secret/default
@@ -482,9 +482,9 @@ Keys
 ess-claim-conn
 ```
 
-关键字 {{<hover label="vault-key" line="4">}}ess-claim-conn{{</hover>}}是索赔的{{<hover label="claim" line="12">}}publishConnectionDetailsTo{{</hover>}}配置的名称。
+关键字 {{<hover label="vault-key" line="4">}}ess-claim-conn{{</hover>}}是claim的{{<hover label="claim" line="12">}}publishConnectionDetailsTo{{</hover>}}配置的名称。
 
-检查 "crossplane-system "Vault 范围内的连接秘密。
+检查 "crossplane-system "Vault 范围内的连接secret。
 
 ```shell {copy-lines="1",label="scope-key"}
 kubectl -n vault-system exec -i vault-0 -- vault kv list /secret/crossplane-system
@@ -500,7 +500,7 @@ ess-mr-conn
 
 和钥匙{{<hover label="scope-key"line="5">}}本质-先生-康{{</hover>}}来自 Composition 的{{<hover label="comp" line="31">}}publishConnectionDetailsTo{{</hover>}}配置。
 
-检查 claims 的连接秘密 `ess-claim-conn` 的内容，查看管理资源创建的密钥。
+检查 claims 的连接secret `ess-claim-conn` 的内容，查看管理资源创建的密钥。
 
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -i vault-0 -- vault kv get /secret/default/ess-claim-conn
@@ -528,7 +528,7 @@ vwIDAQAB
 publicKeyType TYPE_RAW_PUBLIC_KEY
 ```
 
-检查托管资源连接秘密 `ess-mr-conn` 的内容。 公钥与 claim 中的公钥相同，因为 claim 正在引用此托管资源。
+检查托管资源连接secret `ess-mr-conn` 的内容。 公钥与 claim 中的公钥相同，因为 claim 正在引用此托管资源。
 
 ```shell {copy-lines="1"}
 kubectl -n vault-system exec -i vault-0 -- vault kv get /secret/crossplane-system/ess-mr-conn
@@ -571,7 +571,7 @@ publicKeyType TYPE_RAW_PUBLIC_KEY
 
 #### 删除资源
 
-删除索赔会从 Vault 中删除受管资源和相关密钥。
+删除claim会从 Vault 中删除受管资源和相关密钥。
 
 ```shell
 kubectl delete claim my-ess

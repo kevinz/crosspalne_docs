@@ -219,7 +219,7 @@ spec:
 EOF
 ```
 
-添加 {{<hover label="xrd" line="29">}}索赔名称{{</hover>}}允许用户在集群级别使用{{<hover label="xrd" line="9">}}虚拟机{{</hover>}}端点访问该 API，或在名称空间中使用{{<hover label="xrd" line="30">}}虚拟机索赔{{</hover>}}端点访问该 API。
+添加 {{<hover label="xrd" line="29">}}claim名称{{</hover>}}允许用户在集群级别使用{{<hover label="xrd" line="9">}}虚拟机{{</hover>}}端点访问该 API，或在名称空间中使用{{<hover label="xrd" line="30">}}虚拟机claim{{</hover>}}端点访问该 API。
 
 namespace 范围内的 API 是 crossplane _Claim_。
 
@@ -245,7 +245,7 @@ virtualmachines compute.example.com/v1alpha1 false VirtualMachine
 
 当用户访问自定义 API 时，crossplane 会接收他们的输入，并将其与描述要部署的基础架构的模板相结合。 Crossplane 将此模板称为_Composition_。
 
-构成 {{<hover label="comp" line="3">}}Composition{{</hover>}}模板中的每个条目都是一个完整的资源定义，定义了所有资源设置和元数据，如标签和 Annotations。
+composition {{<hover label="comp" line="3">}}Composition{{</hover>}}模板中的每个条目都是一个完整的资源定义，定义了所有资源设置和元数据，如标签和 Annotations。
 
 此模板会创建一个 Azure{{<hover label="comp" line="11">}}虚拟机{{</hover>}}{{<hover label="comp" line="46">}}网络接口{{</hover>}},{{<hover label="comp" line="69">}}子网{{</hover>}}{{<hover label="comp" line="90">}}虚拟网络{{</hover>}}和{{<hover label="comp" line="110">}}资源组{{</hover>}}.
 
@@ -504,7 +504,7 @@ No resources found
 
 Crossplane _Claim_ 是名称空间中的自定义应用程序接口。
 
-创建 _Claim_ 就像访问自定义 API 端点一样，只不过是使用了{{<hover label="claim" line="3">}}类型{{</hover>}}从自定义 API 的 "索赔名称 "中创建。
+创建 _Claim_ 就像访问自定义 API 端点一样，只不过是使用了{{<hover label="claim" line="3">}}类型{{</hover>}}从自定义 API 的 "claim名称 "中创建。
 
 创建一个新的命名空间，以测试在其中创建一个 claims。
 
@@ -526,7 +526,7 @@ spec:
 EOF
 ```
 
-使用 `kubectl get claim -n crossplane-test` 查看索赔。
+使用 `kubectl get claim -n crossplane-test` 查看claim。
 
 ```shell {copy-lines="1"}
 kubectl get claim -n crossplane-test

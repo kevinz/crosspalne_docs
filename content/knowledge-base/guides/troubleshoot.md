@@ -99,23 +99,23 @@ Crossplane 及其 Providers 会将大多数错误信息记录到资源的事件�
 
 <!-- vale Google.WordList = NO -->
 
-您使用索赔部署了一个示例应用程序。 Kind = `ExampleApp`. Name = `example-application`.
+您使用claim部署了一个示例应用程序。 Kind = `ExampleApp`. Name = `example-application`.
 
 如下图所示，示例应用程序从未达到可用状态。
 
-1.查看索赔。
+1.查看claim。
     ```bash
     kubectl describe exampleapp example-application
     
     状态: 
     条件: 
         最后转换时间: 2022-03-01T22:57:38Z
-        原因:                 复合资源索赔正在等待复合资源就绪
+        原因:                 复合资源claim正在等待复合资源就绪
         状态:                 false
         类型:                   就绪
     事件                   <none>
     ```
-2.如果索赔没有错误，请检查索赔的 `.spec.resourceRef` 字段。
+2.如果claim没有错误，请检查claim的 `.spec.resourceRef` 字段。
     ```bash
     kubectl get exampleapp example-application -o=jsonpath='{.spec.resourceRef}{" "}{.spec.resourceRefs}' | jq
     
@@ -125,7 +125,7 @@ Crossplane 及其 Providers 会将大多数错误信息记录到资源的事件�
       "名称": "example-application-xqlsz"（示例应用-xqlsz
     }
     ```
-3.在前面的输出中，您可以看到此索赔的集群作用域资源。Kind = `XExampleApp` name = `example-application-xqlsz`
+3.在前面的输出中，您可以看到此claim的集群作用域资源。Kind = `XExampleApp` name = `example-application-xqlsz`
 4.查看集群作用域资源的事件。
     ```bash
     kubectl describe xexampleapp example-application-xqlsz
@@ -332,7 +332,7 @@ kubectl patch cloudsqlinstance my-db -p '{"metadata":{"finalizers": []}}' --type
 
 在本节中，我们将介绍使用 Composition 资源时的一些常用技巧、窍门和故障排除步骤。 如果您想找出 Composition 资源无法运行的原因，[故障排除][froubles-ref] 页面也提供了一些有用的信息。
 
-### 解决索赔和 XR 的问题
+### 解决claim和 XR 的问题
 
 crossplane 在很大程度上依赖状态条件和事件来排除故障。 您可以使用 `kubectl describe` 查看这两种状态条件和事件--例如: 
 

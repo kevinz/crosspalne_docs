@@ -729,4 +729,4 @@ crossplane xpkg push \
 
 {{<hint "tip">}}如果您将函数推送到 GitHub 仓库，模板会使用 [GitHub Actions](https://github.com/features/actions) 自动设置持续集成 (CI)。CI 工作流将对您的函数进行校验、测试和构建。您可以通过阅读 `.github/workflows/ci.yaml`，查看模板是如何配置 CI 的。
 
-CI 工作流可以自动将软件包推送到 `xpkg.upbound.io`。要做到这一点，您必须在 https://marketplace.upbound.io 创建一个版本库。通过创建一个 API 令牌并[将其添加到您的版本库](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)，赋予 CI 工作流向市场推送的权限。将您的 API 令牌访问 ID 保存为名为 `XPKG_ACCESS_ID` 的秘密，并将您的 API 令牌保存为名为 `XPKG_TOKEN` 的秘密。{{</hint>}}
+CI 工作流可以自动将软件包推送到 `xpkg.upbound.io`。要做到这一点，您必须在 https://marketplace.upbound.io 创建一个版本库。通过创建一个 API 令牌并[将其添加到您的版本库](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)，赋予 CI 工作流向市场推送的权限。将您的 API 令牌访问 ID 保存为名为 `XPKG_ACCESS_ID` 的secret，并将您的 API 令牌保存为名为 `XPKG_TOKEN` 的secret。{{</hint>}}

@@ -98,7 +98,7 @@ az ad sp create-for-rbac \
 
 ### 使用 Azure 凭据创建 Kubernetes secret
 
-Kubernetes 通用 secret 有名称和内容。 使用 {{< hover label="kube-create-secret" line="1">}}kubectl create secret{{< /hover >}}生成名为 {{< hover label="kube-create-secret" line="2">}}azure-secret{{< /hover >}}的 {{< hover label="kube-create-secret" line="3">}}crossplane-system{{</ hover >}}namespace 中名为 azure-secret 的秘密对象。
+Kubernetes 通用 secret 有名称和内容。 使用 {{< hover label="kube-create-secret" line="1">}}kubectl create secret{{< /hover >}}生成名为 {{< hover label="kube-create-secret" line="2">}}azure-secret{{< /hover >}}的 {{< hover label="kube-create-secret" line="3">}}crossplane-system{{</ hover >}}namespace 中名为 azure-secret 的secret对象。
 
 <!-- vale gitlab.Substitutions = NO -->
 
@@ -115,7 +115,7 @@ generic azure-secret \
 --from-file=creds=./azure-credentials.json
 ```
 
-使用 `kubectl describe secret` 查看秘密
+使用 `kubectl describe secret` 查看secret
 
 {{< hint type="note" >}}如果文本文件中有额外的空白，大小可能会更大。{{< /hint >}}
 

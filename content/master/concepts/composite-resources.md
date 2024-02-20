@@ -13,7 +13,7 @@ description: "复合资源，即一个 XR 或多个 XR，代表相关云资源�
 * [Composition]({{<ref "./compositions">}}) - 用于定义如何创建资源的模板。
 * [Composition Resource Definition]({{<ref "./composite-resource-definitions">}}) (`XRD`) - 一种自定义 API 规范。
 * Composite Resource (`XR`) - 本页面。通过使用 Composite Resource Definition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
-* [声称]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
+* [声明]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
 
 {{</expand >}}
 
@@ -52,7 +52,7 @@ spec:
   # Removed for brevity
 ```
 
-构成{{<hover label="typeref" line="6">}}复合类型{{</hover>}}与 XRD {{<hover label="xrd1" line="6">}}组{{</hover>}}和{{<hover label="xrd1" line="9">}}类{{</hover>}}.
+Composition {{<hover label="typeref" line="6">}}复合类型{{</hover>}}与 XRD {{<hover label="xrd1" line="6">}}组{{</hover>}}和{{<hover label="xrd1" line="9">}}类{{</hover>}}.
 
 crossplane 会创建匹配的 Composition 中定义的资源，并将它们表示为单一的 "复合 "资源。
 
@@ -111,7 +111,7 @@ spec:
 
 有关修补资源的更多信息，请参阅 [Patch and Transform]({{<ref "./patch-and-transform">}}) 文档。
 
-### 构成选择
+### Composition选择器
 
 为复合资源选择一个特定的 Composition，以便与{{<hover label="compref" line="6">}}compositionRef{{</hover>}}
 
@@ -144,7 +144,7 @@ spec:
   # Removed for brevity
 ```
 
-#### 作文修订政策
+#### Composition revisions 政策
 
 crossplane 会以 [Composition revisions] 的形式跟踪对 Composition 的修改({{<ref "/knowledge-base/guides/composition-revisions">}}) .
 
@@ -164,7 +164,7 @@ spec:
   # Removed for brevity
 ```
 
-#### 作文修订选择
+#### Composition revisions 选择器 
 
 crossplane 会把对 Composition 的修改记录为[Composition revisions]({{<ref "/knowledge-base/guides/composition-revisions">}}复合资源可选择特定的 Composition 修订版本。
 
@@ -211,17 +211,17 @@ spec:
   # Removed for brevity
 ```
 
-#### 管理连接秘密
+#### 管理连接secret
 
 当复合资源创建资源时，Crossplane 会提供任何 [connection secrets]({{<ref "./managed-resources#writeconnectionsecrettoref">}}) 提供给 Composition 资源。
 
 {{<hint "important" >}}
 
-资源只能访问 XRD 允许的连接秘密。 默认情况下，XRD 允许访问由托管资源生成的所有连接秘密。 阅读更多关于[管理连接秘密]({{<ref "./composite-resource-definitions#manage-connection-secrets">}}) 的更多信息，请参阅 XRD 文档。{{< /hint >}}
+资源只能访问 XRD 允许的连接secret。 默认情况下，XRD 允许访问由托管资源生成的所有连接secret。 阅读更多关于[管理连接secret]({{<ref "./composite-resource-definitions#manage-connection-secrets">}}) 的更多信息，请参阅 XRD 文档。{{< /hint >}}
 
-被引用{{<hover label="writesecret" line="6">}}writeConnectionSecretToRef{{</hover>}}来指定 Composition 资源向何处写入连接秘密。
+被引用{{<hover label="writesecret" line="6">}}writeConnectionSecretToRef{{</hover>}}来指定 Composition 资源向何处写入连接secret。
 
-例如，该 Composition 资源会将连接 secrets 保存在 Kubernetes secret 对象中，该对象名为{{<hover label="writesecret" line="7">}}我的秘密{{</hover>}}的 Kubernetes secret 对象中。{{<hover label="writesecret" line="8">}}crossplane-system{{</hover>}}.
+例如，该 Composition 资源会将连接 secrets 保存在 Kubernetes secret 对象中，该对象名为{{<hover label="writesecret" line="7">}}我的secret{{</hover>}}的 Kubernetes secret 对象中。{{<hover label="writesecret" line="8">}}crossplane-system{{</hover>}}.
 
 ```yaml {label="writesecret",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -235,12 +235,12 @@ spec:
   # Removed for brevity
 ```
 
-Composition 资源可将连接秘密写入[外部秘密存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}})，如 HashiCorp Vault。
+Composition 资源可将连接secret写入[外部secret存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}})，如 HashiCorp Vault。
 
-{{<hint "important" >}}外部秘密存储是 alpha 功能，默认情况下不启用 alpha 功能。{{< /hint >}}
+{{<hint "important" >}}外部secret存储是 alpha 功能，默认情况下不启用 alpha 功能。{{< /hint >}}
 
 被引用 {{<hover label="publishsecret"
-line="6">}}字段将连接秘密保存到外部秘密存储中。{{</hover>}}字段将连接秘密存储到外部秘密存储区。
+line="6">}}字段将连接secret保存到外部secret存储中。{{</hover>}}字段将连接secret存储到外部secret存储区。
 
 ```yaml {label="publishsecret",copy-lines="none"}
 apiVersion: example.org/v1alpha1
@@ -253,9 +253,9 @@ spec:
   # Removed for brevity
 ```
 
-请阅读[外部秘密存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) 文档，了解更多关于使用外部秘密存储的信息。
+请阅读[外部secret存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) 文档，了解更多关于使用外部secret存储的信息。
 
-有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接secret的更多信息，请阅读[连接secret知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
 
 ### 暂停 Composition 资源
 
@@ -340,7 +340,7 @@ Namespace:
 Labels:       crossplane.io/composite=my-claimed-database-x9rx9
 ```
 
-### 索赔名称标签
+### claim名称标签
 
 crossplane 添加了{{<hover label="claimname" line="4">}}crossplane.io/claim-name{{</hover>}}标签，该标签表示链接到此复合资源的 claims 的名称。
 
@@ -353,7 +353,7 @@ Labels:       crossplane.io/claim-name=my-claimed-database
 
 直接创建的 Composition 资源不被引用 claim，因此没有{{<hover label="claimname" line="4">}}crossplane.io/claim-name{{</hover>}}标签。
 
-### 索赔名称空间标签
+### claim名称空间标签
 
 crossplane 添加了{{<hover label="claimname" line="4">}}crossplane.io/claim-namespace{{</hover>}}标签，以指示与该复合资源链接的 claims 的 namespace。
 

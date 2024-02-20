@@ -89,7 +89,7 @@ aws_secret_access_key = $@<aws_secret_key>$@
 
 ### 使用 AWS 凭据创建 Kubernetes secret
 
-Kubernetes 通用 secret 有名称和内容。 使用{{< hover label="kube-create-secret" line="1">}}kubectl create secret{{</hover >}}生成名为{{< hover label="kube-create-secret" line="2">}}aws-secret{{< /hover >}}的 {{< hover label="kube-create-secret" line="3">}}名称空间中名为{{</ hover >}}namespace 中名为 aws-secret 的秘密对象。
+Kubernetes 通用 secret 有名称和内容。 使用{{< hover label="kube-create-secret" line="1">}}kubectl create secret{{</hover >}}生成名为{{< hover label="kube-create-secret" line="2">}}aws-secret{{< /hover >}}的 {{< hover label="kube-create-secret" line="3">}}名称空间中名为{{</ hover >}}namespace 中名为 aws-secret 的secret对象。
 
 被引用时使用 {{< hover label="kube-create-secret" line="4">}}--从文件{{</hover>}}参数将值设置为  {{< hover label="kube-create-secret" line="4">}}aws-credentials.txt{{< /hover >}}文件的内容。
 
@@ -100,7 +100,7 @@ generic aws-secret \
 --from-file=creds=./aws-credentials.txt
 ```
 
-使用 `kubectl describe secret` 查看秘密
+使用 `kubectl describe secret` 查看secret
 
 {{< hint type="note" >}}如果文本文件中有额外的空白，大小可能会更大。{{< /hint >}}
 

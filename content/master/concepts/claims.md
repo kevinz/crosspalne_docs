@@ -128,13 +128,13 @@ spec:
 
 ## claim connection secrets
 
-如果claim需要连接秘密，claim必须定义一个{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象。
+如果claim需要连接secret，claim必须定义一个{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象。
 
 写入{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}对象定义了用于保存连接详细信息的 Kubernetes secret 对象的名称。
 
 {{<hint "note" >}}crossplane 会在与 claim 相同的 namespace 中创建 secret 对象。{{< /hint >}}
 
-例如，将一个名为{{<hover label="claimSec" line="7">}}my-claim-secret 的新秘密对象。{{</hover>}}被引用{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}的{{<hover label="claimSec" line="7">}}name: my-claim-secret{{</hover>}}.
+例如，将一个名为{{<hover label="claimSec" line="7">}}my-claim-secret 的新secret对象。{{</hover>}}被引用{{<hover label="claimSec" line="6">}}writeConnectionSecretToRef{{</hover>}}的{{<hover label="claimSec" line="7">}}name: my-claim-secret{{</hover>}}.
 
 ```yaml {label="claimSec"}
 apiVersion: example.org/v1alpha1
@@ -146,4 +146,4 @@ spec:
     name: my-claim-secret
 ```
 
-有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接secret的更多信息，请阅读[连接secret知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).

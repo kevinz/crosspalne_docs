@@ -166,9 +166,9 @@ spec:
 
 {{<hint "important" >}}Kubernetes secret 必须与 crossplane 位于同一命名空间。{{</hint >}}
 
-包 {{<hover label="pps" line="6">}}是一个秘密列表。{{</hover>}}是一个秘密列表。
+包 {{<hover label="pps" line="6">}}是一个secret列表。{{</hover>}}是一个secret列表。
 
-例如，要使用名为{{<hover label="pps" line="6">}}example-secret 的秘密{{</hover>}}配置一个{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
+例如，要使用名为{{<hover label="pps" line="6">}}example-secret 的secret{{</hover>}}配置一个{{<hover label="pps" line="6">}}packagePullSecrets{{</hover>}}.
 
 ```yaml {label="pps"}
 apiVersion: pkg.crossplane.io/v1
@@ -329,7 +329,7 @@ CLI 会递归搜索目录中的 `.yml` 或 `.yaml` 文件，以便将其包含�
 
 {{<hint "important" >}}您必须忽略任何其他带有 `--ignore=<file_list>` 的 YAML 文件。例如，`crossplane xpkg build --package-root=test-directory --ignore=".tmp/*"`.
 
-不支持包括索赔在内的非 Composition 或 CompositeResourceDefinitions 的 YAML 文件。{{</hint >}}
+不支持包括claim在内的非 Composition 或 CompositeResourceDefinitions 的 YAML 文件。{{</hint >}}
 
 默认情况下，crossplane 会创建一个配置名称和软件包内容 SHA-256 哈希值的 `.xpkg` 文件。
 

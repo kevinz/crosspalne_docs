@@ -23,7 +23,7 @@ init 容器安装的核心 CRD 包括
 * CompositeResourceDefinitions、Composition、Configurations 和 Providers
 * 用于管理软件包依赖关系的锁
 * DeploymentRuntimeConfigs 用于将设置应用于已安装的 Provider 和函数
-* StoreConfigs 用于连接外部秘密存储，例如
+* StoreConfigs 用于连接外部secret存储，例如
 
 [HashiCorp Vault](https://www.vaultproject.io/)
 
@@ -214,7 +214,7 @@ kubectl describe clusterrole crossplane-admin
 crossplane-edit` ClusterRole 拥有以下权限: 
 
 * 完全访问所有 crossplane 类型
-* 完全访问所有秘密（即使是与 Crossplane 无关的秘密）
+* 完全访问所有secret（即使是与 Crossplane 无关的secret）
 * 只读访问所有 namespace 和事件（即使与 crossplane 无关）。
 
 查看完整的 RBAC 策略
@@ -240,7 +240,7 @@ kubectl describe clusterrole crossplane-view
 
 crossplane-browse "ClusterRole 具有以下权限: 
 
-* 只读访问 crossplane 成分和 XRD。这样，资源索赔创建者就可以发现并选择合适的成分。
+* 只读访问 crossplane 成分和 XRD。这样，资源claim创建者就可以发现并选择合适的成分。
 
 查看完整的 RBAC 策略
 

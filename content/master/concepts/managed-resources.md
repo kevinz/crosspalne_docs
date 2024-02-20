@@ -368,7 +368,7 @@ publishConnectionDetailsTo "字段扩展了[`writeConnectionSecretToRef`](#write
 
 {{< hint "note" >}}并非所有 Provider 都支持 "publishConnectionDetailsTo"，详情请查看 Provider 文档。{{< /hint >}}
 
-#### 向 Kubernetes 发布秘密
+#### 向 Kubernetes 发布secret
 
 要将托管资源生成的数据发布为 Kubernetes Secret 对象，请提供一个{{<hover label="k8secret" line="7">}}publishConnectionDetailsTo.name{{< /hover >}}
 
@@ -399,9 +399,9 @@ spec:
         annotation-tag: annotation-value
 ```
 
-#### 向外部秘密存储发布秘密
+#### 向外部secret存储发布secret
 
-向外部秘密存储（如 [HashiCorp Vault](https://www.vaultproject.io/)）发布秘密数据依赖于一个{{<hover label="configref" line="8">}}publishConnectionDetailsTo.configRef{{</hover>}}.
+向外部secret存储（如 [HashiCorp Vault](https://www.vaultproject.io/)）发布secret数据依赖于一个{{<hover label="configref" line="8">}}publishConnectionDetailsTo.configRef{{</hover>}}.
 
 配置{{<hover label="configref" line="9">}}configRef.name{{</hover>}}引用了一个{{<hover label="storeconfig" line="4">}}存储配置{{</hover>}}对象。
 
@@ -425,7 +425,7 @@ metadata:
 # Removed for brevity
 ```
 
-{{<hint "tip" >}}请阅读[Vault 作为外部秘密存储]({{<ref "knowledge-base/integrations/vault-as-secret-store">}}) 指南，了解使用 StoreConfig 对象的详情。{{< /hint >}}
+{{<hint "tip" >}}请阅读[Vault 作为外部secret存储]({{<ref "knowledge-base/integrations/vault-as-secret-store">}}) 指南，了解使用 StoreConfig 对象的详情。{{< /hint >}}
 
 ## Annotations
 

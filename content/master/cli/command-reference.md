@@ -227,9 +227,9 @@ crossplane 维护者可能会在未来发布的版本中推广或删除 `beta` �
 
 crossplane beta render "命令预览[合成资源]({{<ref "../concepts/composite-resources">}}) 应用任何 [合成函数]({{<ref "../concepts/composition-functions">}}).
 
-{{< hint "important" >}}crossplane beta render "命令不应用[补丁和变换构成补丁]({{<ref "../concepts/patch-and-transform">}}).
+{{< hint "important" >}}crossplane beta render "命令不应用[打补丁和变换]({{<ref "../concepts/patch-and-transform">}}).
 
-该命令仅支持 "修补和变换 "功能。{{< /hint >}}
+该命令仅支持 "打补丁和变换 "功能。{{< /hint >}}
 
 `crossplane beta render` 命令会连接到本地运行的 Docker 引擎，拉取并运行 Composition 功能。
 
@@ -335,7 +335,7 @@ spec:
 
 <!-- vale flags `dot` as an error but only the trailing tick. -->
 
-| 短标志 | 长标志 | 说明 | | ------------ | ------------- | ------------------------------ | | `-n` | `--namespace` | 资源的命名空间。 | | `-o` | `--output=` | 使用 `wide`、`json` 或 `dot` 更改图形输出，以获得 [Graphviz dot](https://graphviz.org/docs/layouts/dot/) 输出。 | | `-s` | `--show-connection-secrets` | 打印任何连接秘密名称。 不打印秘密值。
+| 短标志 | 长标志 | 说明 | | ------------ | ------------- | ------------------------------ | | `-n` | `--namespace` | 资源的命名空间。 | | `-o` | `--output=` | 使用 `wide`、`json` 或 `dot` 更改图形输出，以获得 [Graphviz dot](https://graphviz.org/docs/layouts/dot/) 输出。 | | `-s` | `--show-connection-secrets` | 打印任何连接secret名称。 不打印secret值。
 
 <!-- vale Crossplane.Spelling = YES -->
 
@@ -345,7 +345,7 @@ spec:
 
 默认情况下，"crossplane beta trace "直接打印到终端，将 "就绪 "条件和 "状态 "信息限制为 64 个字符。
 
-以下示例输出了 AWS 参考平台的 "集群 "索赔，其中包括多个 Composition 和组成资源: 
+下示例输出了 AWS 参考平台的 "集群 "claim，其中包括多个 Composition 和组成资源: 
 
 ```shell {copy-lines="1"}
 crossplane beta trace cluster.aws.platformref.upbound.io platform-ref-aws
@@ -416,13 +416,13 @@ Cluster/platform-ref-aws (default)                                True False Wai
 
 `crossplane beta trace集群.aws.platformref.upbound.io platform-ref-aws -o dot | dot -Tpng -o graph.png`
 
-#### 打印连接秘密
+#### 打印连接secret
 
 使用 `-s` 可将任何连接 secret 名称与其他资源一起打印出来。
 
 {{<hint "important">}}crossplane beta trace` 命令不打印 secret 值。{{< /hint >}}
 
-输出结果包括秘密名称和秘密的 namespace。
+输出结果包括secret名称和secret的 namespace。
 
 ```shell
 NAME SYNCED READY STATUS

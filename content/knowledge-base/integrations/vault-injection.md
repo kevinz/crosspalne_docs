@@ -9,13 +9,13 @@ weight: 230
 
 大多数 crossplane 提供商至少支持提供以下来源的证书: 
 
-* Kubernetes 秘密
+* Kubernetes secret
 * 环境变量
 * 文件系统
 
-提供程序可以选择性地支持其他凭证源，但常用的凭证源涵盖了各种各样的用例。 在使用 [Vault](https://www.vaultproject.io/) 进行秘密管理的组织中，有一种特定用例很受欢迎，那就是使用侧卡将凭证注入文件系统。本指南将演示如何使用 [Vault Kubernetes Sidecar](https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar) 为 [provider-gcp](https://marketplace.upbound.io/providers/crossplane-contrib/provider-gcp) 和 [provider-aws](https://marketplace.upbound.io/providers/crossplane-contrib/provider-aws) 提供凭证。
+提供程序可以选择性地支持其他凭证源，但常用的凭证源涵盖了各种各样的用例。 在使用 [Vault](https://www.vaultproject.io/) 进行secret管理的组织中，有一种特定用例很受欢迎，那就是使用侧卡将凭证注入文件系统。本指南将演示如何使用 [Vault Kubernetes Sidecar](https://learn.hashicorp.com/tutorials/vault/kubernetes-sidecar) 为 [provider-gcp](https://marketplace.upbound.io/providers/crossplane-contrib/provider-gcp) 和 [provider-aws](https://marketplace.upbound.io/providers/crossplane-contrib/provider-aws) 提供凭证。
 
-&gt; 注: 在本指南中，我们将把 GCP 凭据和 AWS 访问密钥 &gt; 复制到 Vault 的 KV 秘密引擎中。 这是一种使用 Vault &gt; 管理秘密的简单通用方法，但不如使用 Vault 的 &gt; [AWS](https://www.vaultproject.io/docs/secrets/aws)、[Azure](https://www.vaultproject.io/docs/secrets/azure) 和 [GCP](https://www.vaultproject.io/docs/secrets/gcp) 专用云提供商秘密引擎那么强大。
+&gt; 注: 在本指南中，我们将把 GCP 凭据和 AWS 访问密钥 &gt; 复制到 Vault 的 KV secret引擎中。 这是一种使用 Vault &gt; 管理secret的简单通用方法，但不如使用 Vault 的 &gt; [AWS](https://www.vaultproject.io/docs/secrets/aws)、[Azure](https://www.vaultproject.io/docs/secrets/azure) 和 [GCP](https://www.vaultproject.io/docs/secrets/gcp) 专用云提供商secret引擎那么强大。
 
 ## 设置
 
@@ -121,9 +121,9 @@ gcloud iam service-accounts keys create creds.json --project $PROJECT_ID --iam-a
 kubectl cp creds.json vault-0:/tmp/creds.json
 ```
 
-2.启用 KV 秘密引擎
+2.启用 KV secret引擎
 
-秘密引擎必须启用后才能被引用。 在 `secret` 路径下启用 `kv-v2` 秘密引擎。
+secret引擎必须启用后才能被引用。 在 `secret` 路径下启用 `kv-v2` secret引擎。
 
 ```console
 kubectl exec -it vault-0 -- /bin/sh
@@ -133,7 +133,7 @@ vault secrets enable -path=secret kv-v2
 
 3.在 KV 引擎中存储 GCP 凭据
 
-将秘密注入到 `provider-gcp` 控制器 `Pod` 时，您的 GCP 凭据的路径将被引用。
+将secret注入到 `provider-gcp` 控制器 `Pod` 时，您的 GCP 凭据的路径将被引用。
 
 ```console
 vault kv put secret/provider-creds/gcp-default @tmp/creds.json
@@ -175,9 +175,9 @@ AWS_SECRET_ACCESS_KEY=$(jq -r .AccessKey.SecretAccessKey creds.json)
 
 设置 Vault 后，您需要在 [kv secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2) 中存储凭证。
 
-1.启用 KV 秘密引擎
+1.启用 KV secret引擎
 
-秘密引擎必须启用后才能被引用。 在 `secret` 路径下启用 `kv-v2` 秘密引擎。
+secret引擎必须启用后才能被引用。 在 `secret` 路径下启用 `kv-v2` secret引擎。
 
 ```console
 kubectl exec -it vault-0 -- env \
@@ -190,7 +190,7 @@ vault secrets enable -path=secret kv-v2
 
 2.在 KV 引擎中存储 AWS 凭据
 
-在将秘密注入到 `provider-aws` 控制器 `Pod` 时，您的 AWS 凭据的路径将被引用。
+在将secret注入到 `provider-aws` 控制器 `Pod` 时，您的 AWS 凭据的路径将被引用。
 
 ```
 vault kv put secret/provider-creds/aws-default access_key="$ACCESS_KEY_ID" secret_key="$AWS_SECRET_ACCESS_KEY"
@@ -238,7 +238,7 @@ exit
 
 ## 安装 Provider-gcp
 
-现在您已准备好安装 `provider-gcp`。 Crossplane 提供了一种 `ControllerConfig` 类型，允许您自定义提供程序控制器 `Pod` 的部署。 `ControllerConfig` 可由任意数量的希望使用其配置的 `Provider` 对象创建和引用。 在下面的示例中，`Pod` 注释向 Vault mutating webhook 表示，我们希望将存储在 `secret/provider-creds/gcp-default` 的秘密以 `crossplane-providers` 角色注入容器文件系统。 此外，还添加了模板格式，以确保秘密数据以 `provider-gcp` 期望的形式呈现。
+现在您已准备好安装 `provider-gcp`。 Crossplane 提供了一种 `ControllerConfig` 类型，允许您自定义提供程序控制器 `Pod` 的部署。 `ControllerConfig` 可由任意数量的希望使用其配置的 `Provider` 对象创建和引用。 在下面的示例中，`Pod` 注释向 Vault mutating webhook 表示，我们希望将存储在 `secret/provider-creds/gcp-default` 的secret以 `crossplane-providers` 角色注入容器文件系统。 此外，还添加了模板格式，以确保secret数据以 `provider-gcp` 期望的形式呈现。
 
 {% raw %}
 
@@ -329,7 +329,7 @@ kubectl get cloudsqlinstance -w
 
 ## 安装 Provider-aws
 
-现在您已准备好安装 `provider-aws`。 Crossplane 提供了一种 `ControllerConfig` 类型，允许您自定义提供程序控制器 `Pod` 的部署。 `ControllerConfig` 可由任意数量希望使用其配置的 `Provider` 对象创建和引用。 在下面的示例中， `Pod` 注解向 Vault mutating webhook 表示，我们希望将存储在 `secret/provider-creds/aws-default` 中的秘密通过担任 `crossplane-providers` 角色注入容器文件系统。 还添加了一些模板格式，以确保秘密数据以 `provider-aws` 期望的形式呈现。
+现在您已准备好安装 `provider-aws`。 Crossplane 提供了一种 `ControllerConfig` 类型，允许您自定义提供程序控制器 `Pod` 的部署。 `ControllerConfig` 可由任意数量希望使用其配置的 `Provider` 对象创建和引用。 在下面的示例中， `Pod` 注解向 Vault mutating webhook 表示，我们希望将存储在 `secret/provider-creds/aws-default` 中的secret通过担任 `crossplane-providers` 角色注入容器文件系统。 还添加了一些模板格式，以确保secret数据以 `provider-aws` 期望的形式呈现。
 
 {% raw %}
 

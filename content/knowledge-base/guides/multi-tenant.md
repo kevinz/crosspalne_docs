@@ -14,7 +14,7 @@ weight: 240
 * [简要说明](#tldr)
 * [背景](#background)
     - [集群作用域受管资源](#cluster-scoped-managed-resources)
-    - [名称空间作用域索赔](#namespace-scoped-claims)
+    - [名称空间作用域claim](#namespace-scoped-claims)
 * [单集群多租户](#single-cluster-multi-tenancy)
     - [作为隔离机制的 Composition](#composition-as-an-isolation-mechanism)
     - [作为隔离机制的 namespace](#namespaces-as-an-isolation-mechanism)
@@ -72,7 +72,7 @@ spec:
 
 由于 "ProviderConfig "和所有受管资源都是集群作用域，因此 "provider-aws "中的 RDS 控制器将通过获取 "ProviderConfig"、获取其指向的凭据并使用这些凭据来调和 "RDSInstance"，从而解析此引用。 这意味着，任何被赋予 [RBAC] 来管理 "RDSInstance "对象的人都可以使用任何凭据来这样做。 实际上，crossplane 假定只有作为基础架构管理员或平台构建者的人才会直接与集群作用域的资源交互。
 
-### 名称空间范围索赔
+### 名称空间范围claim
 
 受管资源存在于集群范围，而使用**CompositeResourceDefinition（XRD）**定义的复合资源则可能存在于集群或名称空间范围。 平台构建者定义的 XRD 和**Composition**可指定创建 XRD 实例时应创建哪些粒度的受管资源。 有关此架构的更多信息，请参阅 [Composition] 文档。
 
@@ -97,7 +97,7 @@ spec:
 创建上述示例时，crossplane 会生成两个 [CustomResourceDefinitions]: 
 
 1.集群作用域类型，具有 `kind: XMySQLInstance`。这被称为 ** Composition Resource (XR)**。
-2.名称空间作用域类型，"kind: MySQLInstance`。这被称为 ** 索赔 (XRC)**。
+2.名称空间作用域类型，"kind: MySQLInstance`。这被称为 ** claim (XRC)**。
 
 平台构建者可以选择定义任意数量的 Composition 来映射这些类型，这意味着在给定名称空间中创建一个 `MySQLInstance`，就可以在集群范围内创建任意一组受管资源。 例如，创建一个 `MySQLInstance`，就可以创建上面定义的 `RDSInstance`。
 
@@ -105,7 +105,7 @@ spec:
 
 根据组织的规模和范围，平台团队可能会选择运行一个中央 crossplane 控制平面，也可能为每个团队或业务部门运行多个不同的控制平面。 本节将重点介绍在单个集群内为多个团队提供服务的情况，该集群可能是，也可能不是组织中许多其他 crossplane 集群之一。
 
-###作为隔离机制的构成
+### 作为隔离机制的composition
 
 托管资源总是反映底层 Providers API 公开的每一个字段，而 XRD 则可以拥有平台构建者选择的任何模式。 然后，XRD 模式中的字段可以修补到 Composition 中定义的底层托管资源中的字段上，本质上就是将这些字段作为可配置字段公开给 XR 或 XRC 的消费者。
 

@@ -2,7 +2,7 @@
 
 title: 补丁和变换
 weight: 70
-description: "在创建受管资源之前，Crossplane Composition 使用补丁和变换来修改来自索赔和复合资源的输入"
+description: "在创建受管资源之前，Crossplane Composition 使用补丁和变换来修改来自claim和复合资源的输入"
 
 ---
 
@@ -66,7 +66,7 @@ crossplane 使用[JSONPath 选择器](https://kubernetes.io/docs/reference/kubec
 
 #### 字段选择器示例
 
-下面是一些来自 Composition 资源对象的选择器示例。{{<table "table" >}}| 选择器 | 被选中的元素 | | --- | --- | | `kind` | {{<hover label="select" line="3">}}种类{{</hover>}}| | `metadata.labels['crossplane.io/claim-name']` | | `metadata.labelels['crossplane.io/claim-name']` {{<hover label="select" line="7">}}我的示例索赔{{</hover>}}| | `spec.desiredRegion` | | `spec.desiredRegion`. {{<hover label="select" line="11">}}eu-north-1{{</hover>}}| `spec.resourceRefs[0].name` | `spec.resourceRefs[0].name` | `spec.resourceRefs[0].name {{<hover label="select" line="16">}}my-example-claim-978mh-r6z64{{</hover>}}|{{</table >}}
+下面是一些来自 Composition 资源对象的选择器示例。{{<table "table" >}}| 选择器 | 被选中的元素 | | --- | --- | | `kind` | {{<hover label="select" line="3">}}种类{{</hover>}}| | `metadata.labels['crossplane.io/claim-name']` | | `metadata.labelels['crossplane.io/claim-name']` {{<hover label="select" line="7">}}我的示例claim{{</hover>}}| | `spec.desiredRegion` | | `spec.desiredRegion`. {{<hover label="select" line="11">}}eu-north-1{{</hover>}}| `spec.resourceRefs[0].name` | `spec.resourceRefs[0].name` | `spec.resourceRefs[0].name {{<hover label="select" line="16">}}my-example-claim-978mh-r6z64{{</hover>}}|{{</table >}}
 
 ```yaml {label="select",copy-lines="none"}
 $ kubectl get composite -o yaml

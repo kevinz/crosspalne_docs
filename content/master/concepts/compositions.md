@@ -17,7 +17,7 @@ Composition 模板将所有这些单独的资源连接在一起。
 * Composition - 本页。定义如何创建资源的模板。
 * [Composition Resource Definition]({{<ref "./composite-resource-definitions">}}) (`XRD`) - 一种自定义 API 规范。
 * [复合资源]({{<ref "./composite-resources">}}) (`XR`) - 通过使用 Composition Resource Definition 中定义的自定义 API 创建。XRs 使用 Composition 模板来创建新的托管资源。
-* [索赔]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
+* [Claim]({{<ref "./claims" >}}) (`XRC`) - 类似于 Composition Resource，但具有名称空间范围。
 
 {{</expand >}}
 
@@ -33,7 +33,7 @@ Composition 模板将所有这些单独的资源连接在一起。
 Composition 还支持可选功能: 
 
 * [修改和修补](#changing-resource-fields) 资源设置。
-* [存储连接详情](#storing-connection-details) 和由托管资源生成的秘密。
+* [存储连接详情](#storing-connection-details) 和由托管资源生成的secret。
 * 使用[Composition Functions](#use-composition-functions)，利用自定义程序将资源模板化。
 * 创建一个[资源就绪时的自定义检查](#resource-readiness-checks)来使用。
 
@@ -506,7 +506,7 @@ Composition 函数（简称函数）是模板化 crossplane 资源的自定义�
 
 某些函数还允许您指定一个{{<hover label="xfn" line="11">}}输入。{{</hover>}}函数定义了{{<hover label="xfn" line="13">}}输入{{</hover>}}输入。
 
-{{<hint "important" >}}被引用的构成 {{<hover label="xfn" line="6">}}模式: Pipelines{{</hover>}}不能使用 `resources` 字段指定资源模板。
+{{<hint "important" >}}被引用的composition {{<hover label="xfn" line="6">}}模式: Pipelines{{</hover>}}不能使用 `resources` 字段指定资源模板。
 
 使用功能 "修补和转换 "创建资源模板。{{< /hint >}}
 
@@ -544,15 +544,15 @@ spec:
 
 当 Composition 中的资源创建连接详情时，crossplane 会为每个生成连接详情的托管资源创建一个 Kubernetes secret 对象。
 
-{{<hint "note">}}本节讨论创建 Kubernetes 秘密。 crossplane 还支持使用外部秘密存储，如 [HashiCorp Vault](https://www.vaultproject.io/)。
+{{<hint "note">}}本节讨论创建 Kubernetes secret。 crossplane 还支持使用外部secret存储，如 [HashiCorp Vault](https://www.vaultproject.io/)。
 
-请阅读[外部秘密存储指南]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) 以获取更多有关与外部秘密存储一起使用 crossplane 的信息。{{</hint >}}
+请阅读[外部secret存储指南]({{<ref "/knowledge-base/integrations/vault-as-secret-store">}}) 以获取更多有关与外部secret存储一起使用 crossplane 的信息。{{</hint >}}
 
-#### 复合资源组合秘密
+#### 复合资源组合secret
 
 crossplane 可以将 Composition 内部资源生成的所有 secret 合并为一个 Kubernetes secret，并可选择复制该 secret 对象用于 [claims]({{<ref "./claims#claim-connection-secrets">}}).
 
-设置{{<hover label="writeConn" line="5">}}的值设置为{{</hover>}}的值设置为 crossplane 应存储组合秘密对象的名称空间。
+设置{{<hover label="writeConn" line="5">}}的值设置为{{</hover>}}的值设置为 crossplane 应存储组合secret对象的名称空间。
 
 ```yaml {copy-lines="none",label="writeConn"}
 apiVersion: apiextensions.crossplane.io/v1
@@ -564,7 +564,7 @@ spec:
   # Removed for brevity
 ```
 
-#### 汇编资源秘密
+#### 汇编资源secret
 
 在{{<hover label="writeConnRes" line="10">}}规格{{</hover>}}中，定义{{<hover label="writeConnRes" line="13">}}writeConnectionSecretToRef{{</hover>}}的{{<hover label="writeConnRes" line="14">}}namespace{{</hover>}}和{{<hover label="writeConnRes" line="15">}}名称{{</hover>}}资源的 secret 对象。
 
@@ -588,7 +588,7 @@ spec:
             name: key1
 ```
 
-crossplane 会保存一个秘密，其名称为{{<hover label="viewComposedSec" line="3">}}名称{{</hover>}}的秘密保存在{{<hover label="writeConnRes" line="14">}}namespace{{</hover>}}Providers.
+crossplane 会保存一个secret，其名称为{{<hover label="viewComposedSec" line="3">}}名称{{</hover>}}的secret保存在{{<hover label="writeConnRes" line="14">}}namespace{{</hover>}}Providers.
 
 ```shell {label="viewComposedSec"}
 kubectl get secrets -n docs
@@ -598,7 +598,7 @@ key1 connection.crossplane.io/v1alpha1 4 4m30s
 
 {{<hint "tip" >}}
 
-crossplane 建议使用 [Patch]({{<ref "./patch-and-transform">}}) 为每个秘密创建一个唯一的名称。
+crossplane 建议使用 [Patch]({{<ref "./patch-and-transform">}}) 为每个secret创建一个唯一的名称。
 
 例如{{<hover label="tipPatch" line="15">}}补丁{{</hover>}}将资源的唯一标识符添加为键名。
 
@@ -628,7 +628,7 @@ spec:
 
 {{< /hint >}}
 
-#### 定义秘密密钥
+#### 定义secret密钥
 
 Composition 必须用{{<hover label="conDeet" line="14">}}连接详情{{</hover>}}对象创建的特定秘钥。
 
@@ -636,7 +636,7 @@ Composition 必须用{{<hover label="conDeet" line="14">}}连接详情{{</hover>
 
 {{<hint "note">}}值 {{<hover label="conDeet" line="20">}}Values{{</hover>}}类型必须被引用为字符串值。
 
-值 {{<hover label="conDeet" line="20">}}Values{{</hover>}}不会添加到单个资源 secret 对象中。{{<hover label="conDeet" line="20">}}Values{{</hover>}}只出现在组合的 Composition 资源秘密中。{{< /hint >}}
+值 {{<hover label="conDeet" line="20">}}Values{{</hover>}}不会添加到单个资源 secret 对象中。{{<hover label="conDeet" line="20">}}Values{{</hover>}}只出现在组合的 Composition 资源secret中。{{< /hint >}}
 
 ```yaml {label="conDeet",copy-lines="none"}
 kind: Composition
@@ -665,13 +665,13 @@ spec:
 
 crossplane 将秘钥设置为{{<hover label="conDeet" line="15">}}名称{{</hover>}}Values 值。
 
-描述秘密，查看秘密对象内的密钥。
+描述secret，查看secret对象内的密钥。
 
-{{<hint "tip" >}}如果有多个资源生成具有相同密钥名称的秘密，则 crossplane 只保存一个值。
+{{<hint "tip" >}}如果有多个资源生成具有相同密钥名称的secret，则 crossplane 只保存一个值。
 
 被引用的自定义 {{<hover label="conDeet" line="15">}}名称{{</hover>}}创建唯一的 Secret 密钥。{{< /hint >}}
 
-{{<hint "important">}}crossplane 只添加在{{<hover label="conDeet" line="16">}}连接详情{{</hover>}}中定义的任何连接秘密。{{<hover label="conDeet" line="16">}}连接详情{{</hover>}}都不会添加到组合秘密对象中。{{< /hint >}}
+{{<hint "important">}}crossplane 只添加在{{<hover label="conDeet" line="16">}}连接详情{{</hover>}}中定义的任何连接secret。{{<hover label="conDeet" line="16">}}连接详情{{</hover>}}都不会添加到组合secret对象中。{{< /hint >}}
 
 ```shell {copy-lines="1"}
 kubectl describe secret
@@ -693,17 +693,17 @@ myStaticSecret:  18 bytes
 
 请阅读 [CompositeResourceDefinition 文档]({{<ref "composite-resource-definitions#manage-connection-secrets">}}) 获取更多关于限制秘钥的信息。{{< /hint >}}
 
-有关连接秘密的更多信息，请阅读[连接秘密知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
+有关连接secret的更多信息，请阅读[连接secret知识库文章]({{<ref "/knowledge-base/guides/connection-details">}}).
 
 {{<hint "warning">}}您不能更改{{<hover label="conDeet" line="16">}}连接详情{{</hover>}}您必须删除并重新创建 Composition 才能更改{{<hover label="conDeet" line="16">}}连接细节{{</hover>}}.{{</hint >}}
 
-#### 将连接详细信息存储到外部秘密存储中
+#### 将连接详细信息存储到外部secret存储中
 
-crossplane [外部秘密存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store" >}}) 将秘密和连接详情写入外部秘密存储，如 HashiCorp Vault。
+crossplane [外部secret存储]({{<ref "/knowledge-base/integrations/vault-as-secret-store" >}}) 将secret和连接详情写入外部secret存储，如 HashiCorp Vault。
 
-{{<hint "important" >}}外部秘密存储是 alpha 功能。
+{{<hint "important" >}}外部secret存储是 alpha 功能。
 
-crossplane 默认禁用外部秘密存储。{{< /hint >}}
+crossplane 默认禁用外部secret存储。{{< /hint >}}
 
 被引用{{<hover label="gcp-storeconfig"
 line="11">}}publishConnectionDetailsWithStoreConfigRef{{</hover>}}代替 `writeConnectionSecretsToNamespace` 来定义{{<hover label="gcp-storeconfig" line="2">}}存储配置{{</hover>}}以保存连接详细信息。
@@ -960,7 +960,7 @@ spec:
 
 {{<hint "tip" >}}检查 {{<hover label="matchFalse" line="11">}}MatchFalse{{</hover>}}不需要设置任何其他字段。{{< /hint >}}
 
-## 验证一个构成
+## 验证一个composition
 
 使用 `kubectl get composition` 查看所有可用的 Composition。
 
