@@ -23,7 +23,17 @@ crossplane 还允许创建自定义 Kubernetes API。 平台团队可以结合�
 
 本表概述了 crossplane 组件及其作用。
 
-{{< table "table table-hover table-sm">}}| 组件 | 缩写 | 范围 | 摘要 | | --- | --- | ---- | | [Provider]({{<ref "#providers">}}) | | 集群 | 为外部服务创建新的 Kubernetes 自定义资源定义。{{<ref "#provider-configurations">}}) | `PC` | 集群 | 应用_Provider_的设置。{{<ref "#managed-resources">}}) | | `MR` | 集群 | 由 Crossplane 在 Kubernetes 集群内创建和管理的 Provider 资源。{{<ref "#compositions">}}) | | 集群 | 用于一次性创建多个_托管资源_的模板。{{<ref "#composite-resources" >}}) | `XR` | 集群 | 使用_Composition_模板将多个_managed resources_创建为一个Kubernetes对象。{{<ref "#composite-resource-definitions" >}}) | `XRD` | 集群 | 定义_复合资源_和_claim_的 API 模式 | | | [Claims]({{<ref "#claims" >}}) | `XC` | namespace | 类似于 _Composite Resource_，但作用域为 namespace。{{< /table >}}
+{{< table "table table-hover table-sm">}}
+| Component | Abbreviation | Scope | Summary |
+| --- | --- | --- | ---- | 
+| [Provider]({{<ref "#providers">}}) | | cluster | Creates new Kubernetes Custom Resource Definitions for an external service. |
+| [ProviderConfig]({{<ref "#provider-configurations">}}) | `PC` | cluster | Applies settings for a _Provider_. |
+| [Managed Resource]({{<ref "#managed-resources">}}) | `MR` | cluster | A Provider resource created and managed by Crossplane inside the Kubernetes cluster. | 
+| [Composition]({{<ref "#compositions">}}) |  | cluster | A template for creating multiple _managed resources_ at once. |
+| [Composite Resources]({{<ref "#composite-resources" >}}) | `XR` | cluster | Uses a _Composition_ template to create multiple _managed resources_ as a single Kubernetes object. |
+| [CompositeResourceDefinitions]({{<ref "#composite-resource-definitions" >}}) | `XRD` | cluster | Defines the API schema for _Composite Resources_ and _Claims_ |
+| [Claims]({{<ref "#claims" >}}) | `XC` | namespace | Like a _Composite Resource_, but namespace scoped. | 
+{{< /table >}}
 
 ## The Crossplane Pod
 
