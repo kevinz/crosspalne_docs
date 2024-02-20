@@ -91,4 +91,7 @@ spec:
     name: db-conn
 ```
 
-[作曲类型]:  {{<ref "../../master/concepts/compositions" >}}[Composition]:  {{<ref "../../master/concepts/compositions" >}}[金丝雀]:  https://martinfowler.com/bliki/CanaryRelease.html [install-guide]:  {{<ref "../../master/software/install" >}}
+[作曲类型]:  {{<ref "../../master/concepts/compositions" >}}
+[Composition]:  {{<ref "../../master/concepts/compositions" >}}
+[金丝雀]:  https://martinfowler.com/bliki/CanaryRelease.html 
+[install-guide]:  {{<ref "../../master/software/install" >}}
