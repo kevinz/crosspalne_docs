@@ -1,6 +1,6 @@
 ---
 
-title: 知识库知识库
+title: 知识库
 weight: -1
 cascade: 
     version: "0"
